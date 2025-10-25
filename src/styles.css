@@ -1,1 +1,205 @@
 @import "tailwindcss";
+
+:root {
+  --primary-color: #31bd13;
+  --secondary-color: #258e0e;
+  --tertiary-color: #196009;
+  --disabled-bg: #e5e5e5;
+  --disabled-text: #a0a0a0;
+  --light: #e8e8e8;
+}
+
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.bg-secondary {
+  background-color: var(--secondary-color);
+}
+
+.bg-tertiary {
+  background-color: var(--tertiary-color);
+}
+
+.bg-light {
+  background-color: var(--light);
+  border: var(--light);
+}
+
+.text-primary-color {
+  color: var(--primary-color);
+}
+
+.text-secondary-color {
+  color: var(--secondary-color);
+}
+
+.text-tertiary-color {
+  color: var(--tertiary-color);
+}
+
+/* Disabled variants */
+.bg-primary-disabled {
+  background-color: var(--disabled-bg);
+}
+
+.bg-secondary-disabled {
+  background-color: var(--disabled-bg);
+}
+
+.bg-tertiary-disabled {
+  background-color: var(--disabled-bg);
+}
+
+.text-primary-disabled {
+  color: var(--disabled-text);
+}
+
+.text-secondary-disabled {
+  color: var(--disabled-text);
+}
+
+.text-tertiary-disabled {
+  color: var(--disabled-text);
+}
+
+.text-disabled {
+  color: var(--disabled-text);
+}
+
+.bg-disabled {
+  background-color: var(--disabled-bg);
+}
+
+/* Border colors */
+.border-primary {
+  border-color: var(--primary-color);
+}
+
+.border-secondary {
+  border-color: var(--secondary-color);
+}
+
+.border-tertiary {
+  border-color: var(--tertiary-color);
+}
+
+/* Hover states */
+.hover\:bg-primary:hover {
+  background-color: var(--primary-color);
+}
+
+.hover\:bg-secondary:hover {
+  background-color: var(--secondary-color);
+}
+
+.hover\:bg-tertiary:hover {
+  background-color: var(--tertiary-color);
+}
+
+.hover\:text-primary-color:hover {
+  color: var(--primary-color);
+}
+
+.hover\:text-secondary-color:hover {
+  color: var(--secondary-color);
+}
+
+.hover\:text-tertiary-color:hover {
+  color: var(--tertiary-color);
+}
+
+.hover\:border-primary:hover {
+  border-color: var(--primary-color);
+}
+
+.hover\:border-secondary:hover {
+  border-color: var(--secondary-color);
+}
+
+.hover\:border-tertiary:hover {
+  border-color: var(--tertiary-color);
+}
+
+/* Active states */
+.active\:bg-primary:active {
+  background-color: var(--primary-color);
+}
+
+.active\:bg-secondary:active {
+  background-color: var(--secondary-color);
+}
+
+.active\:bg-tertiary:active {
+  background-color: var(--tertiary-color);
+}
+
+.active\:text-primary-color:active {
+  color: var(--primary-color);
+}
+
+.active\:text-secondary-color:active {
+  color: var(--secondary-color);
+}
+
+.active\:text-tertiary-color:active {
+  color: var(--tertiary-color);
+}
+
+.active\:border-primary:active {
+  border-color: var(--primary-color);
+}
+
+.active\:border-secondary:active {
+  border-color: var(--secondary-color);
+}
+
+.active\:border-tertiary:active {
+  border-color: var(--tertiary-color);
+}
+
+h1 {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  color: #606060;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 2rem;
+  line-height: 1.25;
+  color: #606060;
+  font-weight: 600;
+  margin-bottom: 0.875rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  color: #606060;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+h4 {
+  font-size: 1.25rem;
+  line-height: 1.35;
+  color: #606060;
+  font-weight: 600;
+  margin-bottom: 0.625rem;
+}
+
+.description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #7a7a7a;
+  margin-bottom: 1rem;
+}
+
+.small-text {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #7a7a7a;
+  margin-bottom: 0.5rem;
+}
