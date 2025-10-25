@@ -13,8 +13,8 @@ export class InputComponent {
   public readonly type = input<string>('text');
   public readonly className = input<string>('');
   public readonly placeholder = input<string>('');
-  public readonly hasIcon = input<boolean>(false);
-  public readonly iconPosition = input<'left' | 'right'>('left');
+  public readonly hasLeftIcon = input<boolean>(false);
+  public readonly hasRightIcon = input<boolean>(false);
   public readonly control = input.required<FormControl>();
   public readonly errorMessage = input<string>('');
   public readonly required = input<boolean>(false);

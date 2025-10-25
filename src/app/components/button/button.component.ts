@@ -19,7 +19,7 @@ export class ButtonComponent {
   public readonly variant = input<Variant>('primary');
   public readonly title = input.required<string>();
   public readonly loading = input<boolean>(false);
-  public readonly customStyles = input<string>('');
+  public readonly className = input<string>('');
   public readonly type = input<'button' | 'submit'>('button');
   public clickEvent = output<Event>();
 
