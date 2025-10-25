@@ -1,0 +1,24 @@
+<button
+  [title]="title()"
+  [type]="type()"
+  (click)="handleClick($event)"
+  class="py-3 px-6 rounded-md font-bold duration-300 disabled:cursor-not-allowed flex justify-center items-center transition-all"
+  [class]="customStyles()"
+  [ngClass]="{
+    'bg-disabled text-disabled cursor-not-allowed': disabled() && variant() === 'primary',
+    'bg-transparent border-2 border-gray-300 text-disabled cursor-not-allowed':
+      disabled() && variant() === 'secondary',
+    'text-disabled cursor-not-allowed': disabled() && variant() === 'tertiary',
+    'bg-primary text-white hover:bg-secondary active:bg-tertiary':
+      !disabled() && variant() === 'primary',
+    'bg-transparent border-2 border-primary text-primary-color hover:bg-primary hover:text-white hover:border-secondary active:border-tertiary':
+      !disabled() && variant() === 'secondary',
+    'bg-transparent text-primary-color hover:text-secondary-color active:text-tertiary-color':
+      !disabled() && variant() === 'tertiary',
+  }"
+  [disabled]="disabled()"
+>
+  @if (loading()) { Wait.. } @else {
+  <ng-content></ng-content>
+  }
+</button>
