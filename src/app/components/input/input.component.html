@@ -3,22 +3,22 @@
   class="flex flex-col justify-start text-primary-black text-sm items-start gap-1 relative"
 >
   @if (hasIcon()) {
-    <div
-      class="absolute flex items-center justify-center"
-      [class]="
-        (iconPosition() === 'left' ? 'left-4' : 'right-4') +
-        ' ' +
-        (label() ? 'top-[2.4rem]' : 'top-[1.25rem]')
-      "
-    >
-      <ng-content></ng-content>
-    </div>
+  <div
+    class="absolute flex items-center justify-center"
+    [class]="
+      (iconPosition() === 'left' ? 'left-4' : 'right-4') +
+      ' ' +
+      (label() ? 'top-[2.4rem]' : 'top-5')
+    "
+  >
+    <ng-content></ng-content>
+  </div>
   }
 
   <label [for]="id()" class="block" [class]="isDisabled() ? 'opacity-50' : ''">
     {{ label() }}
     @if (required()) {
-      <span class="text-red-700">*</span>
+    <span class="text-red-700">*</span>
     }
   </label>
 
@@ -41,6 +41,6 @@
   />
 
   @if (!!errorMessage()) {
-    <span class="text-xs mt-1 text-red-700 text-left">{{ errorMessage() }}</span>
+  <span class="text-xs mt-1 text-red-700 text-left">{{ errorMessage() }}</span>
   }
 </div>
