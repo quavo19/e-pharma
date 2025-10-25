@@ -2,8 +2,8 @@
   [title]="title()"
   [type]="type()"
   (click)="handleClick($event)"
-  class="py-3 px-6 rounded-md font-bold duration-300 disabled:cursor-not-allowed flex justify-center items-center transition-all"
-  [class]="customStyles()"
+  class="py-3 px-6 rounded-xl font-bold duration-300 disabled:cursor-not-allowed flex justify-center items-center transition-all"
+  [class]="className()"
   [ngClass]="{
     'bg-disabled text-disabled cursor-not-allowed': disabled() && variant() === 'primary',
     'bg-transparent border-2 border-gray-300 text-disabled cursor-not-allowed':
