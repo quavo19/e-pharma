@@ -1,0 +1,33 @@
+<label
+  class="relative inline-flex items-center gap-2 cursor-pointer select-none"
+>
+  <input
+    type="checkbox"
+    [checked]="control()?.value"
+    (change)="toggle()"
+    [disabled]="disabled()"
+    class="sr-only peer"
+  />
+  <div
+    class="w-5 h-5 rounded-md border border-green-400 flex items-center justify-center peer-checked:bg-green-100 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed transition-all duration-150 ease-in-out"
+  >
+    <svg
+      width="0.625rem"
+      height="0.5rem"
+      viewBox="0 0 10 8"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      [class.opacity-0]="!control()?.value"
+      [class.opacity-100]="control()?.value"
+      class="transition-opacity duration-150"
+    >
+      <path
+        d="M9 1L3.5 6.5L1 4"
+        class="stroke-green-500"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </div>
+</label>
