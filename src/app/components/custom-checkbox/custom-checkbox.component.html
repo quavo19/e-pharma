@@ -9,7 +9,8 @@
     class="sr-only peer"
   />
   <div
-    class="w-5 h-5 rounded-md border border-green-400 flex items-center justify-center peer-checked:bg-green-100 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed transition-all duration-150 ease-in-out"
+    class="w-5 h-5 rounded-md border border-green-400 flex items-center justify-center peer-disabled:opacity-50 peer-disabled:cursor-not-allowed transition-all duration-150 ease-in-ou"
+    [class.bg-green-100]="control()?.value"
   >
     <svg
       width="0.625rem"
