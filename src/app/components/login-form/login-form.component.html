@@ -1,63 +1,31 @@
 <main class="flex flex-col gap-4 max-w-sm mx-auto mt-10 z-20 w-full">
-  <div class="flex flex-col mb-6">
-    <h1 class="text-2xl font-bold text-primary-color text-center">ePharma</h1>
-    <p class="text-gray-500 text-center">Login here to access your account</p>
-  </div>
-  <app-input
-    id="email-field"
-    label="Email"
-    [control]="emailControl"
-    placeholder="name@example.com"
-    [hasLeftIcon]="true"
-  >
-    <app-button
-      title="Email"
-      variant="tertiary"
-      [className]="'p-0!'"
-      slot="left-icon"
-    >
-      <lucide-icon [img]="icons.Mail" [size]="18" color="#69533f" />
-    </app-button>
-  </app-input>
+    <div class="flex flex-col mb-6">
+        <h1 class="text-2xl font-bold text-primary-color text-center">ePharma</h1>
+        <p class="text-gray-500 text-center">Login here to access your account</p>
+        <div class="w-full flex justify-center items-center gap-2">
+            <span class="w-16 h-0.5 bg-gray-400 rounded-full"></span>
+            <span class="w-2 h-2 bg-primary rounded-full"></span>
+            <span class="w-16 h-0.5 bg-gray-400 rounded-full"></span>
+        </div>
+    </div>
+    <app-input id="email-field" label="Email" [control]="emailControl" placeholder="name@example.com"
+        [hasLeftIcon]="true">
+        <app-button title="Email" variant="tertiary" [className]="'p-0!'" slot="left-icon">
+            <lucide-icon [img]="icons.Mail" [size]="18" color="#69533f" />
+        </app-button>
+    </app-input>
 
-  <app-input
-    id="password-field"
-    label="Password"
-    [type]="isPasswordVisible() ? 'text' : 'password'"
-    [hasLeftIcon]="true"
-    [hasRightIcon]="true"
-    [control]="passwordControl"
-    placeholder="**********************"
-  >
-    <app-button
-      title="Lock"
-      variant="tertiary"
-      [className]="'p-0!'"
-      slot="left-icon"
-    >
-      <lucide-icon [img]="icons.Lock" [size]="18" color="#69533f" />
-    </app-button>
-    <app-button
-      [title]="isPasswordVisible() ? 'Hide Password' : 'View Password'"
-      variant="tertiary"
-      [className]="'p-0!'"
-      (clickEvent)="handlePasswordVisibility()"
-      slot="right-icon"
-    >
-      <lucide-icon
-        [img]="isPasswordVisible() ? icons.Eye : icons.EyeClosed"
-        [size]="18"
-        color="#69533f"
-      />
-    </app-button>
-  </app-input>
+    <app-input id="password-field" label="Password" [type]="isPasswordVisible() ? 'text' : 'password'"
+        [hasLeftIcon]="true" [hasRightIcon]="true" [control]="passwordControl" placeholder="**********************">
+        <app-button title="Lock" variant="tertiary" [className]="'p-0!'" slot="left-icon">
+            <lucide-icon [img]="icons.Lock" [size]="18" color="#69533f" />
+        </app-button>
+        <app-button [title]="isPasswordVisible() ? 'Hide Password' : 'View Password'" variant="tertiary"
+            [className]="'p-0!'" (clickEvent)="handlePasswordVisibility()" slot="right-icon">
+            <lucide-icon [img]="isPasswordVisible() ? icons.Eye : icons.EyeClosed" [size]="18" color="#69533f" />
+        </app-button>
+    </app-input>
 
-  <app-button
-    title="form-b"
-    (click)="submit()"
-    onkeydown="submit()"
-    [variant]="'primary'"
-    [className]="'w-full mt-6'"
-    >Submit</app-button
-  >
+    <app-button title="form-b" (click)="submit()" onkeydown="submit()" [variant]="'primary'"
+        [className]="'w-full mt-6'">Submit</app-button>
 </main>

@@ -1,55 +1,79 @@
 <main class="flex relative">
-    <div class="hidden md:flex flex-col p-8 gap-4 items-start justify-between w-1/2 h-screen relative">
-        <img src="/images/auth-bg.jpg" alt="Background"
-            class="absolute top-0 left-0 w-full h-full object-cover z-10 blur-sm " />
-        <div class="absolute top-0 left-0 w-full h-full z-15 bg-black/60"></div>
-        <div class="h-full w-full flex flex-col justify-between gap-6 z-20">
-            <div class="flex flex-col gap-4 items-start justify-center z-20">
-                <h1 class="text-4xl font-bold text-white">
-                    Welcome to ePharma Management System
-                </h1>
-                <p class="text-gray-200">
-                    Streamline your pharmaceutical operations with our comprehensive
-                    management platform designed to enhance efficiency, ensure compliance,
-                    and optimize your business processes.
-                </p>
-            </div>
-            <div class="flex flex-col gap-6 items-start justify-center z-20">
-                <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 bg-[#d5fed5] mt-1 rounded-lg flex items-center justify-center">
-                        <lucide-icon [img]="icons.Shield" [size]="24" color="#10b981"></lucide-icon>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-semibold text-white mb-1">Enterprise Security</p>
-                        <p class="text-gray-300 text-xs leading-tight">
-                            Bank-level encryption and multi-factor authentication ensure your
-                            pharmaceutical data remains secure and compliant with industry
-                            standards.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 mt-1 bg-[#d5fed5] rounded-lg flex items-center justify-center shrink-0">
-                        <lucide-icon [img]="icons.WifiOff" [size]="24" color="#10b981"></lucide-icon>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-base font-semibold text-white">Offline Capability</p>
-                        <p class="text-gray-300 text-xs leading-tight">
-                            Continue working seamlessly even without internet connection. Your
-                            data syncs automatically when connectivity is restored.
-                        </p>
-                    </div>
-                </div>
-            </div>
+  <div
+    class="hidden md:flex flex-col p-8 gap-4 items-start justify-between w-1/2 h-screen relative"
+  >
+    <img
+      src="/images/auth-bg.jpg"
+      alt="Background"
+      class="absolute top-0 left-0 w-full h-full object-cover z-10 blur-sm"
+    />
+    <div class="absolute top-0 left-0 w-full h-full z-15 bg-black/60"></div>
+    <div class="h-full w-full flex flex-col justify-between gap-6 z-20">
+      <div class="flex flex-col gap-4 items-start justify-center z-20">
+        <h1 class="text-4xl font-bold text-white">
+          Welcome to ePharma <br />
+          Management System
+        </h1>
+        <p class="text-gray-200">
+          Streamline your pharmaceutical operations with our comprehensive
+          management platform designed to enhance efficiency, ensure compliance,
+          and optimize your business processes.
+        </p>
+      </div>
+      <div class="flex flex-col gap-6 items-start justify-center z-20">
+        <div class="flex items-start gap-4">
+          <div
+            class="w-12 h-12 bg-[#d5fed5] mt-1 rounded-lg flex items-center justify-center"
+          >
+            <lucide-icon
+              [img]="icons.Shield"
+              [size]="24"
+              color="#10b981"
+            ></lucide-icon>
+          </div>
+          <div class="flex-1">
+            <p class="font-semibold text-white mb-1">Enterprise Security</p>
+            <p class="text-gray-300 text-xs leading-tight">
+              Bank-level encryption and multi-factor authentication ensure your
+              pharmaceutical data remains secure and compliant with industry
+              standards.
+            </p>
+          </div>
         </div>
+
+        <div class="flex items-start gap-4">
+          <div
+            class="w-12 h-12 mt-1 bg-[#d5fed5] rounded-lg flex items-center justify-center shrink-0"
+          >
+            <lucide-icon
+              [img]="icons.WifiOff"
+              [size]="24"
+              color="#10b981"
+            ></lucide-icon>
+          </div>
+          <div class="flex-1">
+            <p class="text-base font-semibold text-white">Offline Capability</p>
+            <p class="text-gray-300 text-xs leading-tight">
+              Continue working seamlessly even without internet connection. Your
+              data syncs automatically when connectivity is restored.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div class="w-full md:w-1/2 h-screen flex items-center justify-center relative">
-        <div class="absolute -left-40 -top-40 w-80 h-80 rounded-full bg-green-400/40 blur-3xl z-0"></div>
+  <div
+    class="w-full md:w-1/2 h-screen flex items-center justify-center relative"
+  >
+    <div
+      class="absolute -left-40 -top-40 w-80 h-80 rounded-full bg-green-400/40 blur-3xl z-0"
+    ></div>
 
-        <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            <div class="absolute inset-0 opacity-15" style="
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <div
+        class="absolute inset-0 opacity-15"
+        style="
           background-size: 40px 40px;
           background-image: linear-gradient(
               to right,
@@ -57,9 +81,10 @@
               transparent 1px
             ),
             linear-gradient(to bottom, #10b981 1px, transparent 1px);
-        "></div>
-        </div>
-
-        <app-login-form class="z-20 w-full"></app-login-form>
+        "
+      ></div>
     </div>
+
+    <app-login-form class="z-20 w-full"></app-login-form>
+  </div>
 </main>
