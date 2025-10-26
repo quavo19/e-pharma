@@ -9,6 +9,7 @@ import {
   Mail,
   Lock,
 } from 'lucide-angular';
+import { CheckboxComponent } from '../custom-checkbox/custom-checkbox.component';
 
 @Component({
   selector: 'app-login-form',
@@ -17,6 +18,7 @@ import {
     ButtonComponent,
     ReactiveFormsModule,
     LucideAngularModule,
+    CheckboxComponent,
   ],
   templateUrl: './login-form.component.html',
 })
@@ -26,6 +28,7 @@ export class LoginFormComponent {
 
   emailControl = new FormControl('', [Validators.required]);
   passwordControl = new FormControl('', [Validators.required]);
+  rememberMeControl = new FormControl(false);
 
   handlePasswordVisibility() {
     this.isPasswordVisible.set(!this.isPasswordVisible());
@@ -34,5 +37,6 @@ export class LoginFormComponent {
   submit() {
     console.log('Email:', this.emailControl.value);
     console.log('Password:', this.passwordControl.value);
+    console.log('Remember me:', this.rememberMeControl.value);
   }
 }
