@@ -36,52 +36,57 @@ import { ButtonComponent } from '../../components/button/button.component';
             viewBox="0 0 100 100"
             class="transition-all duration-300 group-hover:scale-110 group-hover:rotate-3"
           >
-            <!-- Socket base -->
+            <!-- Document background -->
             <rect
-              x="20"
-              y="30"
-              width="60"
-              height="40"
-              rx="8"
+              x="25"
+              y="20"
+              width="50"
+              height="60"
+              rx="4"
               fill="#d1fae5"
               stroke="#22c55e"
               stroke-width="2"
               class="transition-all duration-300 group-hover:fill-green-200"
             />
 
-            <!-- Socket holes -->
-            <circle
-              cx="35"
-              cy="50"
-              r="4"
-              fill="#22c55e"
-              class="transition-all duration-300 group-hover:fill-green-500"
-            />
-            <circle
-              cx="65"
-              cy="50"
-              r="4"
-              fill="#22c55e"
-              class="transition-all duration-300 group-hover:fill-green-500"
-            />
-
-            <!-- Disconnected cable -->
+            <!-- Document fold -->
             <path
-              d="M 10 50 Q 15 45 20 50"
+              d="M 65 20 L 75 30 L 65 30 Z"
+              fill="#bbf7d0"
               stroke="#22c55e"
-              stroke-width="3"
-              fill="none"
-              stroke-linecap="round"
-              class="transition-all duration-500 group-hover:stroke-green-500"
+              stroke-width="1"
+              class="transition-all duration-300 group-hover:fill-green-300"
             />
 
-            <!-- Cable end -->
-            <circle
-              cx="10"
-              cy="50"
-              r="3"
+            <!-- Question mark -->
+            <text
+              x="50"
+              y="55"
+              text-anchor="middle"
               fill="#22c55e"
+              font-size="24"
+              font-weight="bold"
               class="transition-all duration-300 group-hover:fill-green-500"
+            >
+              ?
+            </text>
+
+            <!-- Search magnifying glass -->
+            <circle
+              cx="20"
+              cy="25"
+              r="8"
+              fill="none"
+              stroke="#22c55e"
+              stroke-width="2"
+              class="transition-all duration-300 group-hover:stroke-green-500"
+            />
+            <path
+              d="M 26 31 L 30 35"
+              stroke="#22c55e"
+              stroke-width="2"
+              stroke-linecap="round"
+              class="transition-all duration-300 group-hover:stroke-green-500"
             />
 
             <!-- Warning spark effect -->
@@ -89,45 +94,25 @@ import { ButtonComponent } from '../../components/button/button.component';
               class="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             >
               <path
-                d="M 15 45 L 18 48 L 15 51 L 12 48 Z"
+                d="M 15 15 L 18 18 L 15 21 L 12 18 Z"
                 fill="#84cc16"
                 class="animate-pulse"
               />
               <path
-                d="M 12 42 L 15 45 L 12 48 L 9 45 Z"
+                d="M 12 12 L 15 15 L 12 18 L 9 15 Z"
                 fill="#65a30d"
                 class="animate-pulse"
                 style="animation-delay: 0.2s"
               />
             </g>
-
-            <!-- Connection status indicator -->
-            <circle
-              cx="85"
-              cy="35"
-              r="6"
-              fill="#22c55e"
-              class="transition-all duration-300 group-hover:fill-green-500"
-            />
-            <text
-              x="85"
-              y="40"
-              text-anchor="middle"
-              fill="white"
-              font-size="8"
-              font-weight="bold"
-              class="transition-all duration-300"
-            >
-              !
-            </text>
           </svg>
         </div>
         <h1 class="text-6xl font-bold text-primary-color mb-4!">404</h1>
         <h2 class="text-2xl font-semibold text-gray-700 mb-4!">
-          Connection Lost
+          Page Not Found
         </h2>
         <p class="text-gray-600 mb-8!">
-          The page you're looking for seems to have disconnected.
+          The page you're looking for doesn't exist or has been moved.
         </p>
         <app-button title="Go Back" (click)="goBack()"> Go Back </app-button>
       </div>
