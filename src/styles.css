@@ -1,12 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --primary-color: #31bd13;
-  --secondary-color: #258e0e;
-  --tertiary-color: #196009;
+  --primary-color: #22c55e;
+  --secondary-color: #16a34a;
+  --tertiary-color: #15803d;
   --disabled-bg: #e5e5e5;
   --disabled-text: #a0a0a0;
   --light: #e8e8e8;
+  --green-100: #dcfce7;
+  --green-200: #bbf7d0;
+  --green-300: #86efac;
 }
 
 p,
@@ -29,6 +32,18 @@ h5 {
 
 .bg-tertiary {
   background-color: var(--tertiary-color);
+}
+
+.bg-green-100 {
+  background-color: var(--green-100);
+}
+
+.bg-green-200 {
+  background-color: var(--green-200);
+}
+
+.bg-green-300 {
+  background-color: var(--green-300);
 }
 
 .bg-light {
