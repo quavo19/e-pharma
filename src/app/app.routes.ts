@@ -7,6 +7,13 @@ export const routes: Routes = [
     component: LoginComponent,
   },
   {
+    path: '',
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard.component').then(
+        (m) => m.DashboardComponent
+      ),
+  },
+  {
     path: 'docs',
     loadComponent: () =>
       import('./pages/docs/docs.component').then((m) => m.DocsComponent),
@@ -20,6 +27,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '/404',
+    redirectTo: '404',
   },
 ];
