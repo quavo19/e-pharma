@@ -1,0 +1,23 @@
+<div class="bg-white rounded-xl p-4 flex flex-col justify-between h-full">
+  <div class="flex items-center justify-between mb-4">
+    <p class="text-sm text-gray-600">{{ title() }}</p>
+    <lucide-icon [img]="icon()" [size]="20" />
+  </div>
+
+  <div class="flex items-end justify-between">
+    <div class="space-y-2">
+      <div class="flex items-center justify-between">
+        <p class="text-lg font-bold text-gray-600">{{ value() }}</p>
+      </div>
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-gray-500">{{ count() }} items</p>
+      </div>
+    </div>
+    <button
+      (click)="onSeeMore.emit()"
+      class="text-xs text-green-600 hover:text-green-800 font-medium transition-colors"
+    >
+      See More →
+    </button>
+  </div>
+</div>
