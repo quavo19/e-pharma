@@ -1,0 +1,62 @@
+<div class="relative">
+  @if (iconOnly()) {
+  <button
+    (click)="toggleDropdown()"
+    [disabled]="disabled()"
+    [class]="iconButtonClasses"
+  >
+    @if (icon()) {
+    <lucide-icon [img]="icon()" [size]="20" />
+    }
+  </button>
+  } @else {
+  <button
+    (click)="toggleDropdown()"
+    [disabled]="disabled()"
+    [class]="buttonClasses"
+  >
+    @if (icon()) {
+    <lucide-icon [img]="icon()" [size]="20" class="text-gray-500" />
+    }
+    <span class="flex-1 text-left">{{ displayText }}</span>
+    <lucide-icon
+      [img]="icons.ChevronDown"
+      [size]="16"
+      class="text-gray-500 transition-transform duration-200"
+      [class.rotate-180]="isOpen()"
+    />
+  </button>
+  } @if (isOpen()) {
+  <div [class]="dropdownClasses">
+    <div class="max-h-60 overflow-y-auto my-2 flex flex-col gap-1">
+      @for (option of options(); track option.id; let isLast = $last) {
+      <div class="px-2 flex flex-col gap-1">
+        <button
+          (click)="selectOption(option)"
+          [class]="
+            'w-full px-4 py-3 text-left text-sm hover:bg-green-50 rounded-xl transition-colors duration-200 flex items-center gap-3 ' +
+            (option.id === selectedValue()
+              ? 'bg-green-100 text-green-800 font-medium'
+              : 'text-gray-700')
+          "
+        >
+          <span>{{ option.name }}</span>
+          @if (option.id === selectedValue()) {
+          <div class="ml-auto w-2 h-2 bg-green-600 rounded-full"></div>
+          }
+        </button>
+        @if (!isLast) {
+        <div class="px-4">
+          <span class="w-full h-px bg-gray-100 block"></span>
+        </div>
+        }
+      </div>
+      } @if (options().length === 0) {
+      <div class="px-4 py-3 text-sm text-gray-500 text-center">
+        No options available
+      </div>
+      }
+    </div>
+  </div>
+  }
+</div>
