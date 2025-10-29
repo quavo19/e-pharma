@@ -1,6 +1,48 @@
 <main class="p-6">
   <section class="flex flex-col gap-6">
+    <div
+      class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200"
+    >
+      <div class="flex items-center gap-4">
+        <h2 class="text-2xl font-semibold text-gray-800">Dashboard</h2>
+        <div class="h-6 w-px bg-gray-300"></div>
+        <div class="flex items-center gap-3">
+          <app-datepicker
+            [(ngModel)]="selectedDate"
+            [rangeMode]="true"
+            (dateChange)="onDateChange($event)"
+          >
+          </app-datepicker>
+          @if (selectedDate && isDateRange(selectedDate)) {
+          <p class="font-light text-gray-700">
+            @if (selectedDate.start && selectedDate.end) { @if
+            (selectedDate.start.getTime() === selectedDate.end.getTime()) {
+            {{ selectedDate.start | date : "MMM dd, yyyy" }}
+            } @else {
+            {{ selectedDate.start | date : "MMM dd" }} -
+            {{ selectedDate.end | date : "MMM dd, yyyy" }}
+            } } @else if (selectedDate.start) {
+            {{ selectedDate.start | date : "MMM dd, yyyy" }}
+            }
+          </p>
+          }
+        </div>
+        <div class="h-6 w-px bg-gray-300"></div>
 
+        <app-select
+          [options]="branches"
+          [selectedValue]="selectedFilter"
+          width="w-40"
+          [icon]="icons.Store"
+          [iconOnly]="true"
+          (selectionChange)="onFilterChange($event)"
+        />
+
+        <p class="font-light text-gray-700">
+          {{ branchName }}
+        </p>
+      </div>
+    </div>
 
     <app-dashboard-cards />
 
