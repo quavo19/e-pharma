@@ -45,6 +45,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     { id: 'Accra', name: 'Circle' },
   ];
 
+  branchData = [
+    { id: 'Adenta', name: 'Adenta Old', location: 'Adenta, Greater Accra' },
+    { id: 'Kumasi', name: 'Kumasi Main', location: 'Kumasi, Ashanti Region' },
+    { id: 'Accra', name: 'Circle', location: 'Circle, Greater Accra' },
+  ];
+
   constructor(private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
@@ -74,6 +80,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!value) return '';
     const option = this.branches.find((opt) => opt.id === value);
     return option ? option.name : '';
+  }
+
+  get filteredBranches() {
+    return this.branchData;
   }
 
   isDateRange(value: any): value is DateRange {
