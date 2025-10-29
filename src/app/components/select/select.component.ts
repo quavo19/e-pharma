@@ -55,9 +55,9 @@ export class SelectComponent {
       : 'bg-white text-gray-700 border-gray-300 hover:border-green-400 hover:bg-green-50';
 
     const sizeClasses = {
-      sm: 'px-3 py-2 text-sm min-h-[36px]',
-      md: 'px-4 py-3 text-base min-h-[44px]',
-      lg: 'px-5 py-4 text-lg min-h-[52px]',
+      sm: 'px-3 py-2 text-sm h-10',
+      md: 'px-3 py-0 text-base h-12',
+      lg: 'px-4 py-0 text-lg h-14',
     };
 
     return `${baseClasses} ${disabledClasses} ${sizeClasses[this.size()]}`;
