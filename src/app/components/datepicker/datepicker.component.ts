@@ -6,6 +6,9 @@ import {
   signal,
   computed,
   effect,
+  HostListener,
+  ElementRef,
+  inject,
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -21,6 +24,11 @@ import {
   ChevronDown,
 } from 'lucide-angular';
 
+export interface DateRange {
+  start: Date | null;
+  end: Date | null;
+}
+
 @Component({
   selector: 'app-datepicker',
   imports: [CommonModule, LucideAngularModule, FormsModule],
@@ -34,14 +42,18 @@ import {
   ],
 })
 export class DatepickerComponent implements ControlValueAccessor {
+  private elementRef = inject(ElementRef);
+
   placeholder = input('Select date');
   disabled = input(false);
-  dateChange = output<Date | null>();
+  rangeMode = input(false);
+  dateChange = output<Date | null | DateRange>();
 
   public readonly icons = { Calendar, ChevronLeft, ChevronRight, ChevronDown };
 
   isOpen = signal(false);
   selectedDate = signal<Date | null>(null);
+  selectedRange = signal<DateRange>({ start: null, end: null });
   currentDate = signal(new Date());
   currentYear = signal(new Date().getFullYear());
   currentMonth = signal(new Date().getMonth());
@@ -63,11 +75,11 @@ export class DatepickerComponent implements ControlValueAccessor {
     'November',
     'December',
   ]);
-  days = signal<number[]>([]);
+  days = signal<(number | null)[]>([]);
   firstDayOfMonth = signal(0);
   daysInMonth = signal(0);
 
-  private onChange = (value: Date | null) => {};
+  private onChange = (value: Date | null | DateRange) => {};
   private onTouched = () => {};
 
   constructor() {
@@ -75,16 +87,28 @@ export class DatepickerComponent implements ControlValueAccessor {
     this.updateCalendar();
   }
 
-  writeValue(value: Date | null): void {
-    this.selectedDate.set(value);
-    if (value) {
-      this.currentYear.set(value.getFullYear());
-      this.currentMonth.set(value.getMonth());
-      this.updateCalendar();
+  writeValue(value: Date | null | DateRange): void {
+    if (this.rangeMode()) {
+      if (value && typeof value === 'object' && 'start' in value) {
+        this.selectedRange.set(value as DateRange);
+        if (value.start) {
+          this.currentYear.set(value.start.getFullYear());
+          this.currentMonth.set(value.start.getMonth());
+        }
+      } else {
+        this.selectedRange.set({ start: null, end: null });
+      }
+    } else {
+      this.selectedDate.set(value as Date | null);
+      if (value && !('start' in value)) {
+        this.currentYear.set((value as Date).getFullYear());
+        this.currentMonth.set((value as Date).getMonth());
+      }
     }
+    this.updateCalendar();
   }
 
-  registerOnChange(fn: (value: Date | null) => void): void {
+  registerOnChange(fn: (value: Date | null | DateRange) => void): void {
     this.onChange = fn;
   }
 
@@ -107,7 +131,10 @@ export class DatepickerComponent implements ControlValueAccessor {
 
   updateCalendar(): void {
     const date = new Date(this.currentYear(), this.currentMonth(), 1);
-    this.firstDayOfMonth.set(date.getDay());
+    // Fix: getDay() returns 0-6 (Sun-Sat), but we want 0-6 (Mon-Sun)
+    const dayOfWeek = (date.getDay() + 6) % 7; // Convert Sunday=0 to Monday=0
+    this.firstDayOfMonth.set(dayOfWeek);
+
     const daysInMonth = new Date(
       this.currentYear(),
       this.currentMonth() + 1,
@@ -115,10 +142,18 @@ export class DatepickerComponent implements ControlValueAccessor {
     ).getDate();
     this.daysInMonth.set(daysInMonth);
 
-    const daysArray: number[] = [];
+    const daysArray: (number | null)[] = [];
+
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < dayOfWeek; i++) {
+      daysArray.push(null);
+    }
+
+    // Add days of the month
     for (let i = 1; i <= daysInMonth; i++) {
       daysArray.push(i);
     }
+
     this.days.set(daysArray);
   }
 
@@ -129,12 +164,37 @@ export class DatepickerComponent implements ControlValueAccessor {
     }
   }
 
-  selectDate(day: number): void {
+  selectDate(day: number | null): void {
+    if (day === null) return;
+
     const selectedDate = new Date(this.currentYear(), this.currentMonth(), day);
-    this.selectedDate.set(selectedDate);
-    this.onChange(selectedDate);
-    this.dateChange.emit(selectedDate);
-    this.isOpen.set(false);
+
+    if (this.rangeMode()) {
+      const currentRange = this.selectedRange();
+      let newRange: DateRange;
+
+      if (!currentRange.start || (currentRange.start && currentRange.end)) {
+        // Start new range
+        newRange = { start: selectedDate, end: null };
+      } else {
+        // Complete the range
+        if (selectedDate < currentRange.start) {
+          newRange = { start: selectedDate, end: currentRange.start };
+        } else {
+          newRange = { start: currentRange.start, end: selectedDate };
+        }
+        this.isOpen.set(false);
+      }
+
+      this.selectedRange.set(newRange);
+      this.onChange(newRange);
+      this.dateChange.emit(newRange);
+    } else {
+      this.selectedDate.set(selectedDate);
+      this.onChange(selectedDate);
+      this.dateChange.emit(selectedDate);
+      this.isOpen.set(false);
+    }
   }
 
   selectYear(year: number): void {
@@ -168,17 +228,39 @@ export class DatepickerComponent implements ControlValueAccessor {
     this.updateCalendar();
   }
 
-  isSelectedDate(day: number): boolean {
-    const selected = this.selectedDate();
-    if (!selected) return false;
-    return (
-      selected.getDate() === day &&
-      selected.getMonth() === this.currentMonth() &&
-      selected.getFullYear() === this.currentYear()
-    );
+  isSelectedDate(day: number | null): boolean {
+    if (day === null) return false;
+
+    if (this.rangeMode()) {
+      const range = this.selectedRange();
+      if (!range.start) return false;
+
+      const dayDate = new Date(this.currentYear(), this.currentMonth(), day);
+
+      // Check if it's the start date
+      if (range.start.getTime() === dayDate.getTime()) return true;
+
+      // Check if it's the end date
+      if (range.end && range.end.getTime() === dayDate.getTime()) return true;
+
+      // Check if it's within the range
+      if (range.end && dayDate > range.start && dayDate < range.end)
+        return true;
+
+      return false;
+    } else {
+      const selected = this.selectedDate();
+      if (!selected) return false;
+      return (
+        selected.getDate() === day &&
+        selected.getMonth() === this.currentMonth() &&
+        selected.getFullYear() === this.currentYear()
+      );
+    }
   }
 
-  isToday(day: number): boolean {
+  isToday(day: number | null): boolean {
+    if (day === null) return false;
     const today = new Date();
     return (
       today.getDate() === day &&
@@ -188,13 +270,30 @@ export class DatepickerComponent implements ControlValueAccessor {
   }
 
   getDisplayValue(): string {
-    const selected = this.selectedDate();
-    if (!selected) return this.placeholder();
-    return selected.toLocaleDateString();
+    if (this.rangeMode()) {
+      const range = this.selectedRange();
+      if (!range.start) return this.placeholder();
+      if (!range.end) return range.start.toLocaleDateString();
+      return `${range.start.toLocaleDateString()} - ${range.end.toLocaleDateString()}`;
+    } else {
+      const selected = this.selectedDate();
+      if (!selected) return this.placeholder();
+      return selected.toLocaleDateString();
+    }
   }
 
   closeCalendar(): void {
     this.isOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    if (
+      this.isOpen() &&
+      !this.elementRef.nativeElement.contains(event.target)
+    ) {
+      this.closeCalendar();
+    }
   }
 
   toggleYearDropdown(): void {
