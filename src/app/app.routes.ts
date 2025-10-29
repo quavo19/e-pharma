@@ -19,6 +19,13 @@ export const routes: Routes = [
       import('./pages/docs/docs.component').then((m) => m.DocsComponent),
   },
   {
+    path: 'products',
+    loadComponent: () =>
+      import('./pages/products/products.component').then(
+        (m) => m.ProductsComponent
+      ),
+  },
+  {
     path: '404',
     loadComponent: () =>
       import('./pages/not-found/not-found.component').then(
