@@ -1,0 +1,15 @@
+<app-dashboard-heading title="Overview" desc="Overview of your account and recent activities" />
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+  @for (card of cards(); track card.title) {
+  <div class="bg-white rounded-xl p-4 flex flex-col justify-between h-full">
+    <div class="flex items-center justify-between mb-4">
+      <p class="text-sm text-gray-600">{{ card.title }}</p>
+      <lucide-icon [img]="card.icon" [size]="20" />
+    </div>
+
+    <div class="flex items-center justify-between">
+      <p class="text-gray-900">{{ card.value }}</p>
+    </div>
+  </div>
+  }
+</div>
