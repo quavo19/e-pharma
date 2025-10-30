@@ -6,6 +6,8 @@ import {
   HostListener,
   ElementRef,
   inject,
+  OnInit,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, ChevronDown } from 'lucide-angular';
@@ -31,7 +33,7 @@ export interface SelectOption {
     },
   ],
 })
-export class SelectComponent {
+export class SelectComponent implements OnInit, OnDestroy {
   private elementRef = inject(ElementRef);
 
   options = input<SelectOption[]>([]);
@@ -50,6 +52,25 @@ export class SelectComponent {
 
   isOpen = signal(false);
   public readonly icons = { ChevronDown };
+
+  private onCaptureClick = (event: Event) => {
+    // Close when clicking anywhere outside the component, even if
+    // intermediate elements stopped bubbling.
+    const target = event.target as Node | null;
+    if (!target) return;
+    if (this.isOpen() && !this.elementRef.nativeElement.contains(target)) {
+      this.closeDropdown();
+    }
+  };
+
+  ngOnInit(): void {
+    // Use capture phase to ensure we see clicks inside modals that call stopPropagation
+    document.addEventListener('click', this.onCaptureClick, true);
+  }
+
+  ngOnDestroy(): void {
+    document.removeEventListener('click', this.onCaptureClick, true);
+  }
 
   get selectedOption(): SelectOption | null {
     const selectedId = this.selectedValue();
