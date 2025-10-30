@@ -19,6 +19,8 @@ export class PopupComponent {
   description = input('');
   primaryAction = input<PopupAction | null>(null);
   secondaryAction = input<PopupAction | null>(null);
+  variant = input<'center' | 'right'>('center');
+  panelWidth = input<string>('w-[28rem]');
 
   close = output<void>();
 

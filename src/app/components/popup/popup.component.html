@@ -1,6 +1,6 @@
 @if (isOpen()) {
 <div
-  class="fixed z-50 flex items-center justify-center p-4 min-h-0"
+  class="fixed z-50 p-4 min-h-0"
   style="
     top: 4rem;
     left: 13.5rem;
@@ -16,8 +16,11 @@
     (touchmove)="$event.preventDefault()"
     style="touch-action: none"
   ></div>
+
+  @if (variant() === 'center') {
   <div
-    class="relative bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-scroll"
+    class="relative bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden mx-auto my-0"
+    style="height: auto"
     (click)="$event.stopPropagation()"
   >
     <div class="flex items-center justify-between p-6 shrink-0">
@@ -55,5 +58,51 @@
     </div>
     }
   </div>
+  } @else {
+  <div
+    [class]="
+      'absolute top-4 right-4 bottom-4 bg-white rounded-xl shadow-xl max-w-full flex flex-col overflow-hidden ' +
+      panelWidth()
+    "
+    (click)="$event.stopPropagation()"
+  >
+    <div
+      class="flex items-center justify-between p-6 border-b border-gray-200 shrink-0"
+    >
+      <div class="font-light">
+        @if (heading()) {
+        <p class="text-base font-semibold text-gray-900">{{ heading() }}</p>
+        } @if (description()) {
+        <p class="mt-1 text-sm text-gray-600">{{ description() }}</p>
+        }
+      </div>
+      <button
+        (click)="onClose()"
+        class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+      >
+        <lucide-icon [img]="icons.X" [size]="20" />
+      </button>
+    </div>
+    <div class="px-6 py-4 flex-1 overflow-y-auto">
+      <ng-content></ng-content>
+    </div>
+    @if (primaryAction() || secondaryAction()) {
+    <div class="flex gap-3 px-6 pb-6 pt-3 shrink-0">
+      @if (secondaryAction()) {
+      <button
+        (click)="onSecondaryAction()"
+        [class]="getSecondaryButtonClasses()"
+      >
+        {{ secondaryAction()?.label }}
+      </button>
+      } @if (primaryAction()) {
+      <button (click)="onPrimaryAction()" [class]="getPrimaryButtonClasses()">
+        {{ primaryAction()?.label }}
+      </button>
+      }
+    </div>
+    }
+  </div>
+  }
 </div>
 }
