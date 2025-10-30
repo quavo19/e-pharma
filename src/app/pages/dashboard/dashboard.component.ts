@@ -18,7 +18,7 @@ import {
   SelectComponent,
   SelectOption,
 } from '../../components/select/select.component';
-import { LucideAngularModule, Calendar, Store } from 'lucide-angular';
+import { LucideAngularModule, Calendar, Store, Clock } from 'lucide-angular';
 
 @Component({
   selector: 'app-dashboard',
@@ -43,6 +43,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showPopup = signal(false);
 
   public readonly icons = { Calendar, Store };
+  public readonly shiftIcons = { Clock };
 
   branches: SelectOption[] = [
     { id: 'all', name: 'All Branches' },
@@ -50,6 +51,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     { id: 'Kumasi', name: 'Kumasi Main' },
     { id: 'Accra', name: 'Circle' },
   ];
+
+  shifts: SelectOption[] = [
+    { id: 'all', name: 'All Shifts' },
+    { id: 'morning', name: 'Morning' },
+    { id: 'afternoon', name: 'Afternoon' },
+    { id: 'night', name: 'Night' },
+  ];
+
+  selectedShift: string | number | null = 'all';
+  shiftName: string = 'All Shifts';
 
   branchData = [
     { id: 'Adenta', name: 'Adenta Old', location: 'Adenta, Greater Accra' },
@@ -86,6 +97,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     console.log('Selected filter:', value);
   }
 
+  onShiftChange(value: string | number | null): void {
+    this.selectedShift = value;
+    this.shiftName = this.getShiftName(value);
+    console.log('Selected shift:', value);
+  }
+
   getFilterName(value: string | number | null): string {
     if (!value) return '';
     const option = this.branches.find((opt) => opt.id === value);
@@ -98,6 +115,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   isDateRange(value: any): value is DateRange {
     return value && typeof value === 'object' && 'start' in value;
+  }
+
+  private getShiftName(value: string | number | null): string {
+    if (!value) return '';
+    const option = this.shifts.find((opt) => opt.id === value);
+    return option ? option.name : '';
   }
 
   private updateUrl(): void {

@@ -29,7 +29,7 @@
         </div>
         <div class="h-6 w-px bg-gray-300"></div>
 
-        <form [formGroup]="branchSearchForm">
+        <form [formGroup]="branchSearchForm" class="flex items-center gap-3">
           <app-select
             [options]="branches"
             [selectedValue]="selectedFilter"
@@ -40,10 +40,20 @@
             [searchControlName]="'branchSearch'"
             (selectionChange)="onFilterChange($event)"
           />
+          <p class="font-light">{{ branchName }}</p>
+          <div class="h-6 w-px bg-gray-300"></div>
+          <app-select
+            [options]="shifts"
+            [selectedValue]="selectedShift"
+            width="w-40"
+            [icon]="shiftIcons.Clock"
+            [iconOnly]="true"
+            (selectionChange)="onShiftChange($event)"
+          />
         </form>
 
         <p class="font-light text-gray-700">
-          {{ branchName }}
+          {{ shiftName }}
         </p>
       </div>
     </div>
