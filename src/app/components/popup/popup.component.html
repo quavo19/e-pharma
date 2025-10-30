@@ -1,8 +1,23 @@
 @if (isOpen()) {
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4 min-h-0">
-  <div class="absolute inset-0 bg-black/50" (click)="onClose()"></div>
+<div
+  class="fixed z-50 flex items-center justify-center p-4 min-h-0"
+  style="
+    top: 4rem;
+    left: 13.5rem;
+    right: 0;
+    bottom: 0;
+    overscroll-behavior: contain;
+  "
+>
   <div
-    class="relative bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-scroll"
+    class="absolute inset-0 bg-black/50"
+    (click)="onClose()"
+    (wheel)="$event.preventDefault()"
+    (touchmove)="$event.preventDefault()"
+    style="touch-action: none"
+  ></div>
+  <div
+    class="relative bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-scroll"
     (click)="$event.stopPropagation()"
   >
     <div class="flex items-center justify-between p-6 shrink-0">
