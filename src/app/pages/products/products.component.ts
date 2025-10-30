@@ -1,7 +1,20 @@
-import { Component, signal } from '@angular/core';
+import { Component, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, FormControl } from '@angular/forms';
-import { LucideAngularModule, Search, Plus, Download } from 'lucide-angular';
+import {
+  FormsModule,
+  FormControl,
+  ReactiveFormsModule,
+  FormGroup,
+} from '@angular/forms';
+import {
+  LucideAngularModule,
+  Search,
+  Plus,
+  Download,
+  Tag,
+  Building2,
+  MoreVertical,
+} from 'lucide-angular';
 import { InputComponent } from '../../components/input/input.component';
 import {
   SelectComponent,
@@ -13,6 +26,7 @@ import {
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     LucideAngularModule,
     InputComponent,
     SelectComponent,
@@ -23,7 +37,14 @@ export class ProductsComponent {
   searchControl = new FormControl('');
   filterControl = new FormControl('all');
 
-  public readonly icons = { Search, Plus, Download };
+  public readonly icons = {
+    Search,
+    Plus,
+    Download,
+    Tag,
+    Building2,
+    MoreVertical,
+  };
 
   products = [
     {
@@ -68,12 +89,26 @@ export class ProductsComponent {
     },
   ];
 
+  openMenuIndex: number | null = null;
+
   categories: SelectOption[] = [
     { id: 'all', name: 'All Categories' },
     { id: 'Pain Relief', name: 'Pain Relief' },
     { id: 'Antibiotics', name: 'Antibiotics' },
     { id: 'Vitamins', name: 'Vitamins' },
   ];
+
+  facilities: SelectOption[] = [
+    { id: 'all', name: 'All Facilities' },
+    { id: 'main', name: 'Main Facility' },
+    { id: 'east', name: 'East Wing' },
+    { id: 'west', name: 'West Wing' },
+  ];
+
+  selectedFacility: string | number | null = 'all';
+  facilitySearchForm = new FormGroup({
+    facilitySearch: new FormControl<string>(''),
+  });
 
   get filteredProducts() {
     const searchTerm = (this.searchControl.value || '').toLowerCase().trim();
@@ -107,5 +142,34 @@ export class ProductsComponent {
 
   onViewProduct(productId: string): void {
     console.log('View product:', productId);
+  }
+
+  onEditProduct(productId: string): void {
+    console.log('Edit', productId);
+  }
+
+  onDeleteProduct(productId: string): void {
+    console.log('Delete', productId);
+  }
+
+  onFacilityChange(value: string | number | null): void {
+    this.selectedFacility = value;
+    console.log('Selected facility:', value);
+  }
+
+  toggleRowMenu(index: number, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openMenuIndex = this.openMenuIndex === index ? null : index;
+  }
+
+  isMenuAbove(index: number): boolean {
+    const len = this.filteredProducts.length;
+    if (len < 3) return false;
+    return index >= len - 3;
+  }
+
+  @HostListener('document:click')
+  closeMenus(): void {
+    this.openMenuIndex = null;
   }
 }

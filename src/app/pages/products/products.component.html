@@ -1,12 +1,19 @@
 <main class="p-6">
   <section class="flex flex-col gap-2">
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between mb-3">
       <div>
         <p class="text-2xl font-semibold text-gray-800">Products</p>
         <p class="text-sm font-light text-gray-600">
           Manage and view all products in your inventory
         </p>
       </div>
+      <button
+        (click)="onAddProduct()"
+        class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-colors transition-transform duration-300 ease-out transform hover:scale-105 cursor-pointer"
+      >
+        Add New
+        <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
+      </button>
     </div>
 
     <div class="flex items-center justify-between mb-4">
@@ -15,35 +22,43 @@
           <app-input
             [placeholder]="'Search by name, ID, or category...'"
             [hasLeftIcon]="true"
+            size="sm"
             [control]="searchControl"
             [id]="'product-search'"
           >
             <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
           </app-input>
         </div>
+      </div>
+      <div class="flex items-center gap-3">
         <app-select
           [options]="categories"
           [selectedValue]="filterControl.value"
-          width="w-48"
+          class="w-48"
+          size="sm"
+          [icon]="icons.Tag"
           (selectionChange)="
             filterControl.setValue($event?.toString() || 'all')
           "
         />
-      </div>
-      <div class="flex items-center gap-3">
+        <div class="h-6 w-px bg-gray-300"></div>
+        <form [formGroup]="facilitySearchForm">
+          <app-select
+            [options]="facilities"
+            [selectedValue]="selectedFacility"
+            class="w-56"
+            size="sm"
+            [icon]="icons.Building2"
+            [enableSearch]="true"
+            [searchControlName]="'facilitySearch'"
+            (selectionChange)="onFacilityChange($event)"
+          />
+        </form>
         <button
           (click)="onExport()"
-          class="flex items-center font-light gap-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200"
+          class="flex items-center font-light gap-2 px-4 py-3 text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200"
         >
-          <lucide-icon [img]="icons.Download" [size]="16" />
-          Export
-        </button>
-        <button
-          (click)="onAddProduct()"
-          class="flex items-center font-light gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200"
-        >
-          <lucide-icon [img]="icons.Plus" [size]="16" />
-          Add Product
+          <lucide-icon [img]="icons.Download" [size]="14" />
         </button>
       </div>
     </div>
@@ -77,11 +92,7 @@
             >
               Quantity
             </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-            >
-              Status
-            </th>
+
             <th
               class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
             >
@@ -117,18 +128,44 @@
             >
               {{ product.quantity }}
             </td>
-            <td
-              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
-            >
-              {{ product.status }}
-            </td>
+
             <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <button
-                (click)="onViewProduct(product.id)"
-                class="text-green-600 hover:text-green-800 font-light cursor-pointer"
-              >
-                View
-              </button>
+              <div class="relative">
+                <button
+                  (click)="toggleRowMenu(i, $event)"
+                  class="p-2 rounded-lg hover:bg-gray-100 cursor-pointer"
+                >
+                  <lucide-icon [img]="icons.MoreVertical" [size]="18" />
+                </button>
+                @if (openMenuIndex === i) {
+                <div
+                  [class]="
+                    'absolute right-full mr-1 p-2 rounded-b-2xl rounded-tl-2xl min-w-32 bg-gray-50 shadow-lg z-10 divide-y divide-gray-200 flex flex-col gap-2'
+                  "
+                  [class.top-0]="!isMenuAbove(i)"
+                  [class.bottom-0]="isMenuAbove(i)"
+                >
+                  <button
+                    class="w-full text-center px-4 py-2 text-sm hover:bg-green-50 block cursor-pointer"
+                    (click)="onEditProduct(product.id); openMenuIndex = null"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="w-full text-center px-4 py-2 text-sm hover:bg-green-50 block cursor-pointer"
+                    (click)="onViewProduct(product.id); openMenuIndex = null"
+                  >
+                    View
+                  </button>
+                  <button
+                    class="w-full text-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 block cursor-pointer"
+                    (click)="onDeleteProduct(product.id); openMenuIndex = null"
+                  >
+                    Delete
+                  </button>
+                </div>
+                }
+              </div>
             </td>
           </tr>
           }
