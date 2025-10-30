@@ -17,10 +17,13 @@
     style="touch-action: none"
   ></div>
 
+  <ng-template #projectedContent>
+    <ng-content></ng-content>
+  </ng-template>
+
   @if (variant() === 'center') {
   <div
-    class="relative bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden mx-auto my-0"
-    style="height: auto"
+    class="relative bg-white rounded-xl shadow-xl max-w-4xl w-full h-[85vh] max-h-[85vh] flex flex-col overflow-hidden mx-auto my-0"
     (click)="$event.stopPropagation()"
   >
     <div class="flex items-center justify-between p-6 shrink-0">
@@ -39,7 +42,7 @@
       </button>
     </div>
     <div class="px-6 py-4 flex-1 overflow-y-auto min-h-0">
-      <ng-content></ng-content>
+      <ng-container [ngTemplateOutlet]="projectedContent"></ng-container>
     </div>
     @if (primaryAction() || secondaryAction()) {
     <div class="flex gap-3 p-6 shrink-0 border-t border-gray-200">
@@ -84,7 +87,7 @@
       </button>
     </div>
     <div class="px-6 py-4 flex-1 overflow-y-auto">
-      <ng-content></ng-content>
+      <ng-container [ngTemplateOutlet]="projectedContent"></ng-container>
     </div>
     @if (primaryAction() || secondaryAction()) {
     <div class="flex gap-3 px-6 pb-6 pt-3 shrink-0">
