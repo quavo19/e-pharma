@@ -9,6 +9,11 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, ChevronDown } from 'lucide-angular';
+import {
+  ReactiveFormsModule,
+  ControlContainer,
+  FormGroupDirective,
+} from '@angular/forms';
 
 export interface SelectOption {
   id: string | number;
@@ -17,8 +22,14 @@ export interface SelectOption {
 
 @Component({
   selector: 'app-select',
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule],
   templateUrl: './select.component.html',
+  viewProviders: [
+    {
+      provide: ControlContainer,
+      useExisting: FormGroupDirective,
+    },
+  ],
 })
 export class SelectComponent {
   private elementRef = inject(ElementRef);
@@ -31,6 +42,9 @@ export class SelectComponent {
   icon = input<any>(null);
   size = input<'sm' | 'md' | 'lg'>('md');
   width = input<string>('auto');
+  enableSearch = input(false);
+  searchControlName = input<string | null>(null);
+  searchPlaceholder = input<string>('Search...');
 
   selectionChange = output<string | number | null>();
 
