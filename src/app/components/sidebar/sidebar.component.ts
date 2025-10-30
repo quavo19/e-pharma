@@ -51,16 +51,23 @@ export class SidebarComponent {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.currentRoute = event.url;
+        this.currentRoute = this.stripUrl(event.urlAfterRedirects || event.url);
       });
-    this.currentRoute = this.router.url;
+    this.currentRoute = this.stripUrl(this.router.url);
   }
 
   isActiveRoute(route: string): boolean {
+    const current = this.currentRoute;
     if (route === '/') {
-      return this.currentRoute === '/';
+      return current === '/';
     }
-    return this.currentRoute.startsWith(route);
+    return current.startsWith(route);
+  }
+
+  private stripUrl(url: string): string {
+    if (!url) return '/';
+    const path = url.split('#')[0].split('?')[0];
+    return path || '/';
   }
 
   logout(): void {
