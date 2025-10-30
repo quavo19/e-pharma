@@ -140,6 +140,22 @@ export class ProductsComponent {
     console.log('Export clicked');
   }
 
+  exportOptions: SelectOption[] = [
+    { id: 'pdf', name: 'PDF' },
+    { id: 'excel', name: 'Excel' },
+  ];
+
+  selectedExport: string | number | null = null;
+
+  onExportTypeChange(value: string | number | null): void {
+    this.selectedExport = value;
+    if (value === 'pdf') {
+      console.log('Export as PDF');
+    } else if (value === 'excel') {
+      console.log('Export as Excel');
+    }
+  }
+
   onViewProduct(productId: string): void {
     console.log('View product:', productId);
   }

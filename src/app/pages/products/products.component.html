@@ -54,12 +54,15 @@
             (selectionChange)="onFacilityChange($event)"
           />
         </form>
-        <button
-          (click)="onExport()"
-          class="flex items-center font-light gap-2 px-4 py-3 text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200"
-        >
-          <lucide-icon [img]="icons.Download" [size]="14" />
-        </button>
+        <app-select
+          [options]="exportOptions"
+          [selectedValue]="selectedExport"
+          class="w-32"
+          placeholder="Export"
+          size="sm"
+          [icon]="icons.Download"
+          (selectionChange)="onExportTypeChange($event)"
+        />
       </div>
     </div>
 
