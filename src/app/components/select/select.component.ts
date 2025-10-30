@@ -63,10 +63,10 @@ export class SelectComponent {
 
   get buttonClasses(): string {
     const baseClasses =
-      'flex items-center gap-3 rounded-xl font-light border transition-all duration-200';
+      'flex items-center gap-3 rounded-xl font-light border transition-all duration-200 w-full';
     const disabledClasses = this.disabled()
       ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
-      : 'bg-white text-gray-700 border-gray-300 hover:border-green-400 hover:bg-green-50';
+      : ' text-gray-700 border-gray-300 hover:border-green-400 hover:bg-green-50';
 
     const sizeClasses = {
       sm: 'px-3 py-2 text-sm h-10',
@@ -88,7 +88,7 @@ export class SelectComponent {
 
   get dropdownClasses(): string {
     const widthClass = this.iconOnly() ? `${this.width()}` : 'w-full';
-    return `absolute top-full left-0 mt-2  bg-white border border-gray-200 rounded-xl shadow-lg z-50 ${widthClass}`;
+    return `absolute top-full left-0 mt-2 bg-gray-50 border-gray-200 rounded-xl shadow-lg z-50 ${widthClass}`;
   }
 
   toggleDropdown(): void {
