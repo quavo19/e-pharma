@@ -5,6 +5,7 @@ import {
   FormControl,
   ReactiveFormsModule,
   FormGroup,
+  Validators,
 } from '@angular/forms';
 import {
   LucideAngularModule,
@@ -20,6 +21,8 @@ import {
   SelectComponent,
   SelectOption,
 } from '../../components/select/select.component';
+import { ExportSelectComponent } from '../../components/export-select/export-select.component';
+import { PopupComponent } from '../../components/popup/popup.component';
 
 @Component({
   selector: 'app-products',
@@ -30,12 +33,77 @@ import {
     LucideAngularModule,
     InputComponent,
     SelectComponent,
+    ExportSelectComponent,
+    PopupComponent,
   ],
   templateUrl: './products.component.html',
 })
 export class ProductsComponent {
   searchControl = new FormControl('');
   filterControl = new FormControl('all');
+
+  // Add Drug form
+  addDrugForm = new FormGroup({
+    name: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    shelve: new FormControl<string>('', { nonNullable: true }),
+    drugClass: new FormControl<string>('', { nonNullable: true }),
+    quantity: new FormControl<number | null>(null, {
+      validators: [Validators.min(0)],
+    }),
+    strength: new FormControl<number | null>(null, {
+      validators: [Validators.min(0)],
+    }),
+    unit: new FormControl<string>('mg', { nonNullable: true }),
+    createdBy: new FormControl<string>(''),
+    expiryDate: new FormControl<string>(''),
+    brand: new FormControl<string>(''),
+    dosageForm: new FormControl<string>(''),
+    stockThreshold: new FormControl<number | null>(null, {
+      validators: [Validators.min(0)],
+    }),
+    costPrice: new FormControl<number | null>(null, {
+      validators: [Validators.min(0)],
+    }),
+    sellingPrice: new FormControl<number | null>(null, {
+      validators: [Validators.min(0)],
+    }),
+    discountValue: new FormControl<number | null>(null, {
+      validators: [Validators.min(0), Validators.max(100)],
+    }),
+    supplierName: new FormControl<string>(''),
+    supplierContact: new FormControl<string>(''),
+  });
+
+  // Select options for dropdowns
+  drugClassOptions: SelectOption[] = [
+    { id: 'Pain Killer', name: 'Pain Killer' },
+    { id: 'Antibiotic', name: 'Antibiotic' },
+    { id: 'Antipyretic', name: 'Antipyretic' },
+    { id: 'Antimalarial', name: 'Antimalarial' },
+  ];
+
+  dosageFormOptions: SelectOption[] = [
+    { id: 'tablet', name: 'Tablet' },
+    { id: 'capsule', name: 'Capsule' },
+    { id: 'syrup', name: 'Syrup' },
+    { id: 'injection', name: 'Injection' },
+    { id: 'ointment', name: 'Ointment' },
+  ];
+
+  unitOptions: SelectOption[] = [
+    { id: 'mg', name: 'mg' },
+    { id: 'g', name: 'g' },
+    { id: 'mcg', name: 'mcg' },
+    { id: 'ml', name: 'ml' },
+  ];
+
+  // Local state for selects
+  selectedDrugClass: string | number | null = '';
+  selectedDosageForm: string | number | null = '';
+  selectedUnit: string | number | null = 'mg';
 
   public readonly icons = {
     Search,
@@ -54,6 +122,8 @@ export class ProductsComponent {
       stock: 'Available',
       quantity: 150,
       status: 'Active',
+      expiryDate: '2026-03-15',
+      inputtedBy: 'Alice Johnson',
     },
     {
       id: 'P002',
@@ -62,6 +132,8 @@ export class ProductsComponent {
       stock: 'Low Stock',
       quantity: 8,
       status: 'Active',
+      expiryDate: '2025-12-01',
+      inputtedBy: 'Michael Smith',
     },
     {
       id: 'P003',
@@ -70,6 +142,8 @@ export class ProductsComponent {
       stock: 'Out of Stock',
       quantity: 0,
       status: 'Inactive',
+      expiryDate: '2025-08-30',
+      inputtedBy: 'Grace Lee',
     },
     {
       id: 'P004',
@@ -78,6 +152,8 @@ export class ProductsComponent {
       stock: 'Available',
       quantity: 75,
       status: 'Active',
+      expiryDate: '2027-01-20',
+      inputtedBy: 'David Kim',
     },
     {
       id: 'P005',
@@ -86,6 +162,8 @@ export class ProductsComponent {
       stock: 'Available',
       quantity: 200,
       status: 'Active',
+      expiryDate: '2026-09-10',
+      inputtedBy: 'Sara Ahmed',
     },
   ];
 
@@ -133,7 +211,18 @@ export class ProductsComponent {
   }
 
   onAddProduct(): void {
-    console.log('Add product clicked');
+    this.isAddOpen = true;
+  }
+
+  onSubmitAddDrug(): void {
+    if (this.addDrugForm.invalid) {
+      this.addDrugForm.markAllAsTouched();
+      return;
+    }
+    const value = this.addDrugForm.getRawValue();
+    console.log('Add Drug payload:', value);
+    this.isAddOpen = false;
+    this.addDrugForm.reset({ unit: 'mg' });
   }
 
   onExport(): void {
@@ -145,10 +234,7 @@ export class ProductsComponent {
     { id: 'excel', name: 'Excel' },
   ];
 
-  selectedExport: string | number | null = null;
-
   onExportTypeChange(value: string | number | null): void {
-    this.selectedExport = value;
     if (value === 'pdf') {
       console.log('Export as PDF');
     } else if (value === 'excel') {
@@ -171,6 +257,40 @@ export class ProductsComponent {
   onFacilityChange(value: string | number | null): void {
     this.selectedFacility = value;
     console.log('Selected facility:', value);
+  }
+
+  isAddOpen = false;
+
+  addDrugPrimaryAction = {
+    label: 'Save',
+    variant: 'primary' as const,
+    action: () => this.onSubmitAddDrug(),
+  };
+
+  addDrugSecondaryAction = {
+    label: 'Cancel',
+    variant: 'secondary' as const,
+    action: () => this.closeAdd(),
+  };
+
+  closeAdd(): void {
+    this.isAddOpen = false;
+  }
+
+  // Select change handlers to sync with form
+  onDrugClassChange(value: string | number | null): void {
+    this.selectedDrugClass = value;
+    this.addDrugForm.patchValue({ drugClass: (value ?? '').toString() });
+  }
+
+  onDosageFormChange(value: string | number | null): void {
+    this.selectedDosageForm = value;
+    this.addDrugForm.patchValue({ dosageForm: (value ?? '').toString() });
+  }
+
+  onUnitChange(value: string | number | null): void {
+    this.selectedUnit = value;
+    this.addDrugForm.patchValue({ unit: (value ?? '').toString() });
   }
 
   toggleRowMenu(index: number, event: MouseEvent): void {

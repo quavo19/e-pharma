@@ -1,5 +1,167 @@
 <main class="p-6">
   <section class="flex flex-col gap-2">
+    <app-popup
+      [isOpen]="isAddOpen"
+      [heading]="'Add Drug'"
+      [description]="'Create a new product'"
+      [variant]="'right'"
+      [panelWidth]="'w-[44rem]'"
+      [primaryAction]="addDrugPrimaryAction"
+      [secondaryAction]="addDrugSecondaryAction"
+      (close)="closeAdd()"
+    >
+      <form
+        [formGroup]="addDrugForm"
+        (ngSubmit)="onSubmitAddDrug()"
+        class="flex flex-col gap-4"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <app-input
+            [label]="'Name'"
+            [placeholder]="'Paracetamol'"
+            [control]="addDrugForm.controls.name"
+            [id]="'drug-name'"
+            [required]="true"
+            variant="select"
+          />
+          <app-input
+            [label]="'Shelve'"
+            [placeholder]="'AMA'"
+            [control]="addDrugForm.controls.shelve"
+            [id]="'drug-shelve'"
+            variant="select"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-primary text-base mb-1">Drug Class</label>
+            <app-select
+              [options]="drugClassOptions"
+              [selectedValue]="selectedDrugClass"
+              placeholder="Select class"
+              (selectionChange)="onDrugClassChange($event)"
+            />
+          </div>
+          <div>
+            <label class="block text-primary text-base mb-1">Dosage Form</label>
+            <app-select
+              [options]="dosageFormOptions"
+              [selectedValue]="selectedDosageForm"
+              placeholder="Select dosage form"
+              (selectionChange)="onDosageFormChange($event)"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <app-input
+            [label]="'Quantity'"
+            type="number"
+            [placeholder]="'56'"
+            [control]="addDrugForm.controls.quantity"
+            [id]="'drug-quantity'"
+            variant="select"
+          />
+          <app-input
+            [label]="'Strength'"
+            type="number"
+            [placeholder]="'500'"
+            [control]="addDrugForm.controls.strength"
+            [id]="'drug-strength'"
+            variant="select"
+          />
+          <div>
+            <label class="block text-primary text-base mb-1">Unit</label>
+            <app-select
+              [options]="unitOptions"
+              [selectedValue]="selectedUnit"
+              placeholder="Select unit"
+              (selectionChange)="onUnitChange($event)"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <app-input
+            [label]="'Created By'"
+            [placeholder]="'Pharmacist K. Mensah'"
+            [control]="addDrugForm.controls.createdBy"
+            [id]="'drug-created-by'"
+            variant="select"
+          />
+          <app-input
+            [label]="'Expiry Date'"
+            type="date"
+            [control]="addDrugForm.controls.expiryDate"
+            [id]="'drug-expiry'"
+            variant="select"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <app-input
+            [label]="'Brand'"
+            [placeholder]="'GSK'"
+            [control]="addDrugForm.controls.brand"
+            [id]="'drug-brand'"
+            variant="select"
+          />
+          <app-input
+            [label]="'Stock Threshold'"
+            type="number"
+            [placeholder]="'6'"
+            [control]="addDrugForm.controls.stockThreshold"
+            [id]="'drug-stock-threshold'"
+            variant="select"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <app-input
+            [label]="'Cost Price'"
+            type="number"
+            [placeholder]="'562'"
+            [control]="addDrugForm.controls.costPrice"
+            [id]="'drug-cost-price'"
+            variant="select"
+          />
+          <app-input
+            [label]="'Selling Price'"
+            type="number"
+            [placeholder]="'67'"
+            [control]="addDrugForm.controls.sellingPrice"
+            [id]="'drug-selling-price'"
+            variant="select"
+          />
+          <app-input
+            [label]="'Discount Value (%)'"
+            type="number"
+            [placeholder]="'20'"
+            [control]="addDrugForm.controls.discountValue"
+            [id]="'drug-discount'"
+            variant="select"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <app-input
+            [label]="'Supplier Name'"
+            [placeholder]="'usdi'"
+            [control]="addDrugForm.controls.supplierName"
+            [id]="'drug-supplier-name'"
+            variant="select"
+          />
+          <app-input
+            [label]="'Supplier Contact'"
+            [placeholder]="'23359588326'"
+            [control]="addDrugForm.controls.supplierContact"
+            [id]="'drug-supplier-contact'"
+            variant="select"
+          />
+        </div>
+      </form>
+    </app-popup>
     <div class="flex items-center justify-between mb-3">
       <div>
         <p class="text-2xl font-semibold text-gray-800">Products</p>
@@ -54,50 +216,61 @@
             (selectionChange)="onFacilityChange($event)"
           />
         </form>
-        <app-select
-          [options]="exportOptions"
-          [selectedValue]="selectedExport"
+        <div class="h-6 w-px bg-gray-300"></div>
+
+        <app-export-select
+          [actions]="exportOptions"
           class="w-32"
-          placeholder="Export"
+          [placeholder]="'Export'"
           size="sm"
           [icon]="icons.Download"
-          (selectionChange)="onExportTypeChange($event)"
+          (actionSelected)="onExportTypeChange($event)"
         />
       </div>
     </div>
 
     <div class="overflow-auto">
       <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-green-100 sticky top-0 z-10">
-          <tr>
+        <thead class="bg-green-700 sticky top-0 z-10">
+          <tr class="text-white">
             <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
             >
               #
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
             >
               Product Name
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
             >
               Category
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
             >
               Stock
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
             >
               Quantity
             </th>
+            <th
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Expiry Date
+            </th>
+            <th
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Inputted By
+            </th>
 
             <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
             >
               Action
             </th>
@@ -130,6 +303,16 @@
               class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
             >
               {{ product.quantity }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+            >
+              {{ product.expiryDate }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+            >
+              {{ product.inputtedBy }}
             </td>
 
             <td class="px-6 py-4 whitespace-nowrap text-sm">
