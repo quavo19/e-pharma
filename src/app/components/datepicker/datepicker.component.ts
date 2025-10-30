@@ -183,7 +183,6 @@ export class DatepickerComponent implements ControlValueAccessor {
         } else {
           newRange = { start: currentRange.start, end: selectedDate };
         }
-        this.isOpen.set(false);
       }
 
       this.selectedRange.set(newRange);
@@ -193,7 +192,6 @@ export class DatepickerComponent implements ControlValueAccessor {
       this.selectedDate.set(selectedDate);
       this.onChange(selectedDate);
       this.dateChange.emit(selectedDate);
-      this.isOpen.set(false);
     }
   }
 
