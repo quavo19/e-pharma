@@ -1,6 +1,11 @@
 import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormGroup,
+  FormControl,
+} from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DashboardCardsComponent } from '../../components/dashboard-cards/dashboard-cards.component';
 import { TopProductsComponent } from '../../components/top-products/top-products.component';
@@ -20,6 +25,7 @@ import { LucideAngularModule, Calendar, Store } from 'lucide-angular';
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     LucideAngularModule,
     DashboardCardsComponent,
     TopProductsComponent,
@@ -50,6 +56,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     { id: 'Kumasi', name: 'Kumasi Main', location: 'Kumasi, Ashanti Region' },
     { id: 'Accra', name: 'Circle', location: 'Circle, Greater Accra' },
   ];
+
+  branchSearchForm = new FormGroup({
+    branchSearch: new FormControl<string>(''),
+  });
 
   constructor(private router: Router, private route: ActivatedRoute) {}
 
