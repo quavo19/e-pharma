@@ -23,6 +23,7 @@ export class InputComponent {
   public readonly keyEvent = output();
   public readonly isForChatBox = input<boolean>(false);
   public readonly size = input<'sm' | 'md' | 'lg'>('md');
+  public readonly variant = input<'default' | 'select'>('default');
 
   @Output() inputBlur = new EventEmitter<FocusEvent>();
 
@@ -37,11 +38,26 @@ export class InputComponent {
     return 'h-12 text-base px-3';
   }
 
-  public errorAndStateClasses(): Record<string, boolean> {
-    return {
-      'border-red-400': !!this.errorMessage(),
-      'border-light': !this.errorMessage(),
-      'bg-gray-100 cursor-not-allowed opacity-50': this.isDisabled(),
-    };
+  public variantClasses(): string {
+    const variant = this.variant();
+    // default keeps existing design; select matches app-select bg/border tones
+    if (variant === 'select') {
+      return 'bg-white border-gray-300 text-gray-700';
+    }
+    return 'bg-light border-light';
+  }
+
+  public combinedClasses(): string {
+    const base = `border block w-full rounded-xl outline-none placeholder:text-typo-primary ${this.sizeClasses()}`;
+    const variant = this.variantClasses();
+    const errorClass = this.errorMessage()
+      ? 'border-red-400'
+      : this.variant() === 'select'
+      ? 'border-gray-300'
+      : 'border-light';
+    const disabledClass = this.isDisabled()
+      ? 'bg-gray-100 cursor-not-allowed opacity-50'
+      : '';
+    return `${base} ${variant} ${errorClass} ${disabledClass}`.trim();
   }
 }

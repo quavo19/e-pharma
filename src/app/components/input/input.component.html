@@ -30,11 +30,7 @@
       [class.rounded-r-none]="isForChatBox()"
       (blur)="inputBlur.emit($event)"
       (keydown)="handleyKeyEvent($event)"
-      [class]="
-        'border bg-light block w-full rounded-xl border-light outline-none placeholder:text-typo-primary ' +
-        sizeClasses()
-      "
-      [ngClass]="errorAndStateClasses()"
+      [class]="combinedClasses()"
     />
   </div>
 
