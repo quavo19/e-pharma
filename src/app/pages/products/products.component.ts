@@ -1,4 +1,5 @@
-import { Component, HostListener, signal } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
   FormsModule,
@@ -12,9 +13,7 @@ import {
   Search,
   Plus,
   Download,
-  Tag,
-  Building2,
-  MoreVertical,
+  XCircle,
 } from 'lucide-angular';
 import { InputComponent } from '../../components/input/input.component';
 import {
@@ -23,6 +22,14 @@ import {
 } from '../../components/select/select.component';
 import { ExportSelectComponent } from '../../components/export-select/export-select.component';
 import { PopupComponent } from '../../components/popup/popup.component';
+import {
+  ActionMenuComponent,
+  ActionMenuItem,
+} from '../../components/action-menu/action-menu.component';
+import {
+  TableHeaderDropdownComponent,
+  TableHeaderDropdownOption,
+} from '../../components/table-header-dropdown/table-header-dropdown.component';
 
 @Component({
   selector: 'app-products',
@@ -35,12 +42,16 @@ import { PopupComponent } from '../../components/popup/popup.component';
     SelectComponent,
     ExportSelectComponent,
     PopupComponent,
+    ActionMenuComponent,
+    TableHeaderDropdownComponent,
   ],
   templateUrl: './products.component.html',
 })
-export class ProductsComponent {
+export class ProductsComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
   searchControl = new FormControl('');
-  filterControl = new FormControl('all');
 
   // Add Drug form
   addDrugForm = new FormGroup({
@@ -109,9 +120,7 @@ export class ProductsComponent {
     Search,
     Plus,
     Download,
-    Tag,
-    Building2,
-    MoreVertical,
+    XCircle,
   };
 
   products = [
@@ -124,6 +133,7 @@ export class ProductsComponent {
       status: 'Active',
       expiryDate: '2026-03-15',
       inputtedBy: 'Alice Johnson',
+      facility: 'main',
     },
     {
       id: 'P002',
@@ -134,6 +144,7 @@ export class ProductsComponent {
       status: 'Active',
       expiryDate: '2025-12-01',
       inputtedBy: 'Michael Smith',
+      facility: 'east',
     },
     {
       id: 'P003',
@@ -144,6 +155,7 @@ export class ProductsComponent {
       status: 'Inactive',
       expiryDate: '2025-08-30',
       inputtedBy: 'Grace Lee',
+      facility: 'west',
     },
     {
       id: 'P004',
@@ -154,6 +166,7 @@ export class ProductsComponent {
       status: 'Active',
       expiryDate: '2027-01-20',
       inputtedBy: 'David Kim',
+      facility: 'main',
     },
     {
       id: 'P005',
@@ -164,36 +177,51 @@ export class ProductsComponent {
       status: 'Active',
       expiryDate: '2026-09-10',
       inputtedBy: 'Sara Ahmed',
+      facility: 'north',
     },
   ];
 
-  openMenuIndex: number | null = null;
-
-  categories: SelectOption[] = [
-    { id: 'all', name: 'All Categories' },
-    { id: 'Pain Relief', name: 'Pain Relief' },
-    { id: 'Antibiotics', name: 'Antibiotics' },
-    { id: 'Vitamins', name: 'Vitamins' },
+  // Dropdown options for table headers
+  nameSortOptions: TableHeaderDropdownOption[] = [
+    { id: 'asc', label: 'Ascending' },
+    { id: 'desc', label: 'Descending' },
   ];
 
-  facilities: SelectOption[] = [
-    { id: 'all', name: 'All Facilities' },
-    { id: 'main', name: 'Main Facility' },
-    { id: 'east', name: 'East Wing' },
-    { id: 'west', name: 'West Wing' },
+  expiryDateSortOptions: TableHeaderDropdownOption[] = [
+    { id: 'asc', label: 'Ascending' },
+    { id: 'desc', label: 'Descending' },
   ];
 
-  selectedFacility: string | number | null = 'all';
-  facilitySearchForm = new FormGroup({
-    facilitySearch: new FormControl<string>(''),
-  });
+  inputtedBySortOptions: TableHeaderDropdownOption[] = [
+    { id: 'asc', label: 'Ascending' },
+    { id: 'desc', label: 'Descending' },
+  ];
+
+  categoryOptions: TableHeaderDropdownOption[] = [];
+
+  facilityOptions: TableHeaderDropdownOption[] = [
+    { id: 'main', label: 'Main Facility' },
+    { id: 'east', label: 'East Wing' },
+    { id: 'west', label: 'West Wing' },
+    { id: 'north', label: 'North Wing' },
+  ];
+
+  ngOnInit(): void {
+    // Extract unique categories from products
+    const categories = [...new Set(this.products.map((p) => p.category))];
+    this.categoryOptions = categories.map((cat) => ({
+      id: cat,
+      label: cat,
+    }));
+  }
 
   get filteredProducts() {
     const searchTerm = (this.searchControl.value || '').toLowerCase().trim();
-    const filterTerm = this.filterControl.value;
+    const queryParams = this.route.snapshot.queryParams;
 
-    let filtered = this.products;
+    let filtered = [...this.products];
 
+    // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(
         (p) =>
@@ -203,8 +231,49 @@ export class ProductsComponent {
       );
     }
 
-    if (filterTerm && filterTerm !== 'all') {
-      filtered = filtered.filter((p) => p.category === filterTerm);
+    // Apply category filter from URL
+    if (queryParams['category']) {
+      filtered = filtered.filter((p) => p.category === queryParams['category']);
+    }
+
+    // Apply facility filter from URL
+    if (queryParams['facility']) {
+      filtered = filtered.filter((p) => p.facility === queryParams['facility']);
+    }
+
+    // Apply sorting from URL
+    if (queryParams['nameSort']) {
+      filtered.sort((a, b) => {
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
+        if (queryParams['nameSort'] === 'asc') {
+          return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+        } else {
+          return nameA > nameB ? -1 : nameA < nameB ? 1 : 0;
+        }
+      });
+    }
+
+    if (queryParams['expiryDateSort']) {
+      filtered.sort((a, b) => {
+        const dateA = new Date(a.expiryDate).getTime();
+        const dateB = new Date(b.expiryDate).getTime();
+        return queryParams['expiryDateSort'] === 'asc'
+          ? dateA - dateB
+          : dateB - dateA;
+      });
+    }
+
+    if (queryParams['inputtedBySort']) {
+      filtered.sort((a, b) => {
+        const nameA = a.inputtedBy.toLowerCase();
+        const nameB = b.inputtedBy.toLowerCase();
+        if (queryParams['inputtedBySort'] === 'asc') {
+          return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+        } else {
+          return nameA > nameB ? -1 : nameA < nameB ? 1 : 0;
+        }
+      });
     }
 
     return filtered;
@@ -254,9 +323,36 @@ export class ProductsComponent {
     console.log('Delete', productId);
   }
 
-  onFacilityChange(value: string | number | null): void {
-    this.selectedFacility = value;
-    console.log('Selected facility:', value);
+  get hasActiveFilters(): boolean {
+    const queryParams = this.route.snapshot.queryParams;
+    const filterKeys = [
+      'nameSort',
+      'expiryDateSort',
+      'inputtedBySort',
+      'category',
+      'facility',
+    ];
+    return filterKeys.some((key) => queryParams[key]);
+  }
+
+  clearAllFilters(): void {
+    const paramsToRemove = [
+      'nameSort',
+      'expiryDateSort',
+      'inputtedBySort',
+      'category',
+      'facility',
+    ];
+    const currentParams = { ...this.route.snapshot.queryParams };
+
+    paramsToRemove.forEach((key) => {
+      delete currentParams[key];
+    });
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: currentParams,
+    });
   }
 
   isAddOpen = false;
@@ -293,19 +389,26 @@ export class ProductsComponent {
     this.addDrugForm.patchValue({ unit: (value ?? '').toString() });
   }
 
-  toggleRowMenu(index: number, event: MouseEvent): void {
-    event.stopPropagation();
-    this.openMenuIndex = this.openMenuIndex === index ? null : index;
+  getMenuItems(product: { id: string }): ActionMenuItem[] {
+    return [
+      {
+        label: 'Edit',
+        action: () => this.onEditProduct(product.id),
+      },
+      {
+        label: 'View',
+        action: () => this.onViewProduct(product.id),
+      },
+      {
+        label: 'Delete',
+        action: () => this.onDeleteProduct(product.id),
+        variant: 'danger',
+      },
+    ];
   }
 
-  isMenuAbove(index: number): boolean {
-    const len = this.filteredProducts.length;
-    if (len < 3) return false;
-    return index >= len - 3;
-  }
-
-  @HostListener('document:click')
-  closeMenus(): void {
-    this.openMenuIndex = null;
+  getFacilityLabel(facilityId: string): string {
+    const facility = this.facilityOptions.find((f) => f.id === facilityId);
+    return facility?.label || facilityId;
   }
 }
