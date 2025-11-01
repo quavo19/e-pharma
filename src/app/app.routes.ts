@@ -26,6 +26,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'users',
+    loadComponent: () =>
+      import('./pages/users/users.component').then((m) => m.UsersComponent),
+  },
+  {
     path: '404',
     loadComponent: () =>
       import('./pages/not-found/not-found.component').then(
