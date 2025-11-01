@@ -1,0 +1,76 @@
+<div class="overflow-auto">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-green-700 sticky top-0 z-10">
+      <tr class="text-white">
+        <th
+          class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+        >
+          #
+        </th>
+        @for (column of columns(); track column.key) {
+        <th
+          class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+        >
+          @if (column.headerDropdown) {
+          <div class="flex items-center gap-2">
+            <span>{{ column.label }}</span>
+            <app-table-header-dropdown
+              [options]="column.headerDropdown.options"
+              [clearLabel]="column.headerDropdown.clearLabel || 'Clear'"
+              [queryParamKey]="column.headerDropdown.queryParamKey"
+              [enableSearch]="column.headerDropdown.enableSearch || false"
+              [dropdownWidth]="
+                column.headerDropdown.dropdownWidth || 'min-w-[120px]'
+              "
+            />
+          </div>
+          } @else {
+          {{ column.label }}
+          }
+        </th>
+        } @if (getActionMenuItems()) {
+        <th
+          class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+        >
+          Action
+        </th>
+        }
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      @for (item of data(); track trackBy()($index, item); let i = $index) {
+      <tr class="hover:bg-gray-50">
+        <td
+          class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+        >
+          {{ i + 1 }}
+        </td>
+        @for (column of columns(); track column.key) {
+        <td
+          class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+        >
+          @if (column.cellTemplate) {
+          <ng-container
+            *ngTemplateOutlet="
+              column.cellTemplate;
+              context: { $implicit: item, index: i }
+            "
+          />
+          } @else {
+          {{ getNestedValue(item, column.key) }}
+          }
+        </td>
+        } @if (getActionMenuItems()) {
+        <td class="px-6 py-4 whitespace-nowrap text-sm">
+          <app-action-menu
+            [items]="getActionMenuItems()!(item, i)"
+            [rowIndex]="i"
+            [totalItems]="data().length"
+          />
+        </td>
+        }
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
