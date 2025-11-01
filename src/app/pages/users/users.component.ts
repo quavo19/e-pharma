@@ -1,4 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  inject,
+  ViewChild,
+  TemplateRef,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule, FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -20,6 +28,10 @@ import {
   TableHeaderDropdownComponent,
   TableHeaderDropdownOption,
 } from '../../components/table-header-dropdown/table-header-dropdown.component';
+import {
+  DataTableComponent,
+  TableColumn,
+} from '../../components/data-table/data-table.component';
 
 export interface User {
   id: string;
@@ -42,12 +54,11 @@ export interface User {
     LucideAngularModule,
     InputComponent,
     ExportSelectComponent,
-    ActionMenuComponent,
-    TableHeaderDropdownComponent,
+    DataTableComponent,
   ],
   templateUrl: './users.component.html',
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -308,5 +319,67 @@ export class UsersComponent implements OnInit {
       relativeTo: this.route,
       queryParams: currentParams,
     });
+  }
+
+  @ViewChild('nameCellTemplate') nameCellTemplate?: TemplateRef<any>;
+  @ViewChild('statusCellTemplate') statusCellTemplate?: TemplateRef<any>;
+
+  tableColumns = signal<TableColumn[]>([]);
+
+  ngAfterViewInit(): void {
+    // Initialize columns after view init so templates are available
+    this.tableColumns.set([
+      {
+        key: 'dateAdded',
+        label: 'Date Added',
+        headerDropdown: {
+          options: this.dateSortOptions,
+          queryParamKey: 'dateSort',
+          clearLabel: 'Clear Sort',
+        },
+      },
+      {
+        key: 'name',
+        label: 'Name',
+        headerDropdown: {
+          options: this.nameSortOptions,
+          queryParamKey: 'nameSort',
+          clearLabel: 'Clear Sort',
+        },
+        cellTemplate: this.nameCellTemplate,
+      },
+      {
+        key: 'role',
+        label: 'Role',
+        headerDropdown: {
+          options: this.roleOptions,
+          queryParamKey: 'role',
+          clearLabel: 'Clear Filter',
+          enableSearch: true,
+        },
+      },
+      {
+        key: 'branch',
+        label: 'Branch',
+        headerDropdown: {
+          options: this.facilityOptions,
+          queryParamKey: 'facility',
+          clearLabel: 'Clear Filter',
+          enableSearch: true,
+          dropdownWidth: 'min-w-[150px]',
+        },
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        headerDropdown: {
+          options: this.statusOptions,
+          queryParamKey: 'status',
+          clearLabel: 'Clear Filter',
+          dropdownWidth: 'min-w-[130px]',
+        },
+        cellTemplate: this.statusCellTemplate,
+      },
+    ]);
   }
 }
