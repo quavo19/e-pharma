@@ -171,7 +171,7 @@
       </div>
       <button
         (click)="onAddProduct()"
-        class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-colors transition-transform duration-300 ease-out transform hover:scale-105 cursor-pointer"
+        class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
       >
         Add New
         <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
@@ -193,30 +193,16 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <app-select
-          [options]="categories"
-          [selectedValue]="filterControl.value"
-          class="w-48"
-          size="sm"
-          [icon]="icons.Tag"
-          (selectionChange)="
-            filterControl.setValue($event?.toString() || 'all')
-          "
-        />
+        @if (hasActiveFilters) {
+        <button
+          (click)="clearAllFilters()"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.XCircle" [size]="16" />
+          Clear Filters
+        </button>
         <div class="h-6 w-px bg-gray-300"></div>
-        <form [formGroup]="facilitySearchForm">
-          <app-select
-            [options]="facilities"
-            [selectedValue]="selectedFacility"
-            class="w-56"
-            size="sm"
-            [icon]="icons.Building2"
-            [enableSearch]="true"
-            [searchControlName]="'facilitySearch'"
-            (selectionChange)="onFacilityChange($event)"
-          />
-        </form>
-        <div class="h-6 w-px bg-gray-300"></div>
+        }
 
         <app-export-select
           [actions]="exportOptions"
@@ -241,12 +227,26 @@
             <th
               class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
             >
-              Product Name
+              <div class="flex items-center gap-2">
+                <span>Product Name</span>
+                <app-table-header-dropdown
+                  [options]="nameSortOptions"
+                  [clearLabel]="'Clear Sort'"
+                  [queryParamKey]="'nameSort'"
+                />
+              </div>
             </th>
             <th
               class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
             >
-              Category
+              <div class="flex items-center gap-2">
+                <span>Category</span>
+                <app-table-header-dropdown
+                  [options]="categoryOptions"
+                  [clearLabel]="'Clear Filter'"
+                  [queryParamKey]="'category'"
+                />
+              </div>
             </th>
             <th
               class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
@@ -261,12 +261,40 @@
             <th
               class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
             >
-              Expiry Date
+              <div class="flex items-center gap-2">
+                <span>Expiry Date</span>
+                <app-table-header-dropdown
+                  [options]="expiryDateSortOptions"
+                  [clearLabel]="'Clear Sort'"
+                  [queryParamKey]="'expiryDateSort'"
+                />
+              </div>
             </th>
             <th
               class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
             >
-              Inputted By
+              <div class="flex items-center gap-2">
+                <span>Inputted By</span>
+                <app-table-header-dropdown
+                  [options]="inputtedBySortOptions"
+                  [clearLabel]="'Clear Sort'"
+                  [queryParamKey]="'inputtedBySort'"
+                />
+              </div>
+            </th>
+            <th
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              <div class="flex items-center gap-2">
+                <span>Facility</span>
+                <app-table-header-dropdown
+                  [options]="facilityOptions"
+                  [enableSearch]="true"
+                  [clearLabel]="'Clear Filter'"
+                  [queryParamKey]="'facility'"
+                  [dropdownWidth]="'min-w-[150px]'"
+                />
+              </div>
             </th>
 
             <th
@@ -314,44 +342,17 @@
             >
               {{ product.inputtedBy }}
             </td>
-
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+            >
+              {{ getFacilityLabel(product.facility) }}
+            </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <div class="relative">
-                <button
-                  (click)="toggleRowMenu(i, $event)"
-                  class="p-2 rounded-lg hover:bg-gray-100 cursor-pointer"
-                >
-                  <lucide-icon [img]="icons.MoreVertical" [size]="18" />
-                </button>
-                @if (openMenuIndex === i) {
-                <div
-                  [class]="
-                    'absolute right-full mr-1 p-2 rounded-b-2xl rounded-tl-2xl min-w-32 bg-gray-50 shadow-lg z-10 divide-y divide-gray-200 flex flex-col gap-2'
-                  "
-                  [class.top-0]="!isMenuAbove(i)"
-                  [class.bottom-0]="isMenuAbove(i)"
-                >
-                  <button
-                    class="w-full text-center px-4 py-2 text-sm hover:bg-green-50 block cursor-pointer"
-                    (click)="onEditProduct(product.id); openMenuIndex = null"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="w-full text-center px-4 py-2 text-sm hover:bg-green-50 block cursor-pointer"
-                    (click)="onViewProduct(product.id); openMenuIndex = null"
-                  >
-                    View
-                  </button>
-                  <button
-                    class="w-full text-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 block cursor-pointer"
-                    (click)="onDeleteProduct(product.id); openMenuIndex = null"
-                  >
-                    Delete
-                  </button>
-                </div>
-                }
-              </div>
+              <app-action-menu
+                [items]="getMenuItems(product)"
+                [rowIndex]="i"
+                [totalItems]="filteredProducts.length"
+              />
             </td>
           </tr>
           }
