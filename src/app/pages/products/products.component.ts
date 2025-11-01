@@ -30,6 +30,10 @@ import {
   TableHeaderDropdownComponent,
   TableHeaderDropdownOption,
 } from '../../components/table-header-dropdown/table-header-dropdown.component';
+import {
+  DataTableComponent,
+  TableColumn,
+} from '../../components/data-table/data-table.component';
 
 @Component({
   selector: 'app-products',
@@ -42,8 +46,7 @@ import {
     SelectComponent,
     ExportSelectComponent,
     PopupComponent,
-    ActionMenuComponent,
-    TableHeaderDropdownComponent,
+    DataTableComponent,
   ],
   templateUrl: './products.component.html',
 })
@@ -276,7 +279,11 @@ export class ProductsComponent implements OnInit {
       });
     }
 
-    return filtered;
+    // Map facility IDs to labels for display
+    return filtered.map((p) => ({
+      ...p,
+      facilityLabel: this.getFacilityLabel(p.facility),
+    }));
   }
 
   onAddProduct(): void {
@@ -410,5 +417,66 @@ export class ProductsComponent implements OnInit {
   getFacilityLabel(facilityId: string): string {
     const facility = this.facilityOptions.find((f) => f.id === facilityId);
     return facility?.label || facilityId;
+  }
+
+  // Table columns configuration
+  get tableColumns(): TableColumn[] {
+    return [
+      {
+        key: 'name',
+        label: 'Product Name',
+        headerDropdown: {
+          options: this.nameSortOptions,
+          queryParamKey: 'nameSort',
+          clearLabel: 'Clear Sort',
+        },
+      },
+      {
+        key: 'category',
+        label: 'Category',
+        headerDropdown: {
+          options: this.categoryOptions,
+          queryParamKey: 'category',
+          clearLabel: 'Clear Filter',
+        },
+      },
+      {
+        key: 'stock',
+        label: 'Stock',
+      },
+      {
+        key: 'quantity',
+        label: 'Quantity',
+      },
+      {
+        key: 'expiryDate',
+        label: 'Expiry Date',
+        headerDropdown: {
+          options: this.expiryDateSortOptions,
+          queryParamKey: 'expiryDateSort',
+          clearLabel: 'Clear Sort',
+        },
+      },
+      {
+        key: 'inputtedBy',
+        label: 'Inputted By',
+        headerDropdown: {
+          options: this.inputtedBySortOptions,
+          queryParamKey: 'inputtedBySort',
+          clearLabel: 'Clear Sort',
+        },
+      },
+      {
+        key: 'facilityLabel',
+        label: 'Facility',
+        headerDropdown: {
+          options: this.facilityOptions,
+          queryParamKey: 'facility',
+          clearLabel: 'Clear Filter',
+          enableSearch: true,
+          dropdownWidth: 'min-w-[150px]',
+        },
+      },
+    ];
   }
 }
