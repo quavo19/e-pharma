@@ -1,0 +1,30 @@
+<div class="relative">
+  <button
+    (click)="toggleMenu($event)"
+    class="p-2 rounded-lg hover:bg-gray-100 cursor-pointer"
+  >
+    <lucide-icon [img]="icons.MoreVertical" [size]="18" />
+  </button>
+  @if (isOpen()) {
+  <div
+    [class]="
+      'absolute right-full mr-1 p-2 rounded-b-2xl rounded-tl-2xl min-w-32 bg-gray-50 shadow-lg z-50 divide-y divide-gray-200 flex flex-col gap-2'
+    "
+    [class.top-0]="!isMenuAbove()"
+    [class.bottom-0]="isMenuAbove()"
+  >
+    @for (item of items(); track item.label) {
+    <button
+      [class]="
+        item.variant === 'danger'
+          ? 'w-full text-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 block cursor-pointer'
+          : 'w-full text-center px-4 py-2 text-sm hover:bg-green-50 block cursor-pointer'
+      "
+      (click)="onItemClick(item, $event)"
+    >
+      {{ item.label }}
+    </button>
+    }
+  </div>
+  }
+</div>
