@@ -48,6 +48,7 @@ export class TableHeaderDropdownComponent implements OnInit, OnDestroy {
   searchValue = signal<string>('');
   searchControl = new FormControl('');
   currentParamValue = signal<string | number | null>(null);
+  dropdownPosition = signal<{ top: string; left: string } | null>(null);
   private routeSubscription?: Subscription;
 
   filteredOptions = computed(() => {
@@ -96,10 +97,22 @@ export class TableHeaderDropdownComponent implements OnInit, OnDestroy {
   toggleDropdown(): void {
     const newValue = !this.isOpen();
     this.isOpen.set(newValue);
-    if (!newValue) {
+    if (newValue) {
+      // Calculate position for fixed positioning to escape overflow container
+      const button = this.elementRef.nativeElement.querySelector('button');
+      if (button) {
+        const rect = button.getBoundingClientRect();
+        // Position dropdown below the button, aligned to the right edge
+        this.dropdownPosition.set({
+          top: `${rect.bottom + window.scrollY + 8}px`,
+          left: `${rect.right + window.scrollX}px`,
+        });
+      }
+    } else {
       // Reset search when closing
       this.searchControl.setValue('');
       this.searchValue.set('');
+      this.dropdownPosition.set(null);
     }
   }
 
@@ -132,5 +145,6 @@ export class TableHeaderDropdownComponent implements OnInit, OnDestroy {
     this.searchControl.setValue('');
     this.searchValue.set('');
     this.isOpen.set(false);
+    this.dropdownPosition.set(null);
   }
 }
