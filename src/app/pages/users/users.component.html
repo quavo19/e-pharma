@@ -53,156 +53,46 @@
       </div>
     </div>
 
-    <div class="overflow-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-green-700 sticky top-0 z-10">
-          <tr class="text-white">
-            <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
-            >
-              #
-            </th>
-            <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
-            >
-              <div class="flex items-center gap-2">
-                <span>Date Added</span>
-                <app-table-header-dropdown
-                  [options]="dateSortOptions"
-                  [clearLabel]="'Clear Sort'"
-                  [queryParamKey]="'dateSort'"
-                />
-              </div>
-            </th>
-            <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
-            >
-              <div class="flex items-center gap-2">
-                <span>Name</span>
-                <app-table-header-dropdown
-                  [options]="nameSortOptions"
-                  [clearLabel]="'Clear Sort'"
-                  [queryParamKey]="'nameSort'"
-                />
-              </div>
-            </th>
-            <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
-            >
-              <div class="flex items-center gap-2">
-                <span>Role</span>
-                <app-table-header-dropdown
-                  [options]="roleOptions"
-                  [enableSearch]="true"
-                  [clearLabel]="'Clear Filter'"
-                  [queryParamKey]="'role'"
-                />
-              </div>
-            </th>
-            <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
-            >
-              <div class="flex items-center gap-2">
-                <span>Branch</span>
-                <app-table-header-dropdown
-                  [options]="facilityOptions"
-                  [enableSearch]="true"
-                  [clearLabel]="'Clear Filter'"
-                  [queryParamKey]="'facility'"
-                  [dropdownWidth]="'min-w-[150px]'"
-                />
-              </div>
-            </th>
-            <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
-            >
-              <div class="flex items-center gap-2">
-                <span>Status</span>
-                <app-table-header-dropdown
-                  [options]="statusOptions"
-                  [clearLabel]="'Clear Filter'"
-                  [queryParamKey]="'status'"
-                  [dropdownWidth]="'min-w-[130px]'"
-                />
-              </div>
-            </th>
-            <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
-            >
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          @for (user of filteredUsers; track user.id; let i = $index) {
-          <tr class="hover:bg-gray-50">
-            <td
-              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
-            >
-              {{ i + 1 }}
-            </td>
-            <td
-              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
-            >
-              {{ user.dateAdded }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 rounded-full bg-green-700 text-white flex items-center justify-center text-sm font-medium"
-                >
-                  @if (user.avatar) {
-                  <img
-                    [src]="getAvatarUrl(user)"
-                    [alt]="user.name"
-                    class="w-full h-full rounded-full object-cover"
-                  />
-                  } @else {
-                  {{ getInitials(user.name) }}
-                  }
-                </div>
-                <div class="flex flex-col">
-                  <span class="text-sm font-light text-gray-900">{{
-                    user.name
-                  }}</span>
-                  <span class="text-xs text-gray-500">{{ user.phone }}</span>
-                </div>
-              </div>
-            </td>
-            <td
-              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
-            >
-              {{ user.role }}
-            </td>
-            <td
-              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
-            >
-              {{ user.branch }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span
-                class="inline-block py-2 text-xs font-medium rounded-full border text-center min-w-[80px]"
-                [class.bg-green-100]="user.status === 'Active'"
-                [class.text-green-800]="user.status === 'Active'"
-                [class.bg-red-100]="user.status === 'Inactive'"
-                [class.text-red-800]="user.status === 'Inactive'"
-                [class.border-green-500]="user.status === 'Active'"
-                [class.border-red-500]="user.status === 'Inactive'"
-              >
-                {{ user.status }}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <app-action-menu
-                [items]="getMenuItems(user)"
-                [rowIndex]="i"
-                [totalItems]="filteredUsers.length"
-              />
-            </td>
-          </tr>
+    <ng-template #nameCellTemplate let-user let-index="index">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-full bg-green-700 text-white flex items-center justify-center text-sm font-medium"
+        >
+          @if (user.avatar) {
+          <img
+            [src]="getAvatarUrl(user)"
+            [alt]="user.name"
+            class="w-full h-full rounded-full object-cover"
+          />
+          } @else {
+          {{ getInitials(user.name) }}
           }
-        </tbody>
-      </table>
-    </div>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm font-light text-gray-900">{{ user.name }}</span>
+          <span class="text-xs text-gray-500">{{ user.phone }}</span>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #statusCellTemplate let-user let-index="index">
+      <span
+        class="inline-block py-2 text-xs font-medium rounded-full border text-center min-w-[80px]"
+        [class.bg-green-100]="user.status === 'Active'"
+        [class.text-green-800]="user.status === 'Active'"
+        [class.bg-red-100]="user.status === 'Inactive'"
+        [class.text-red-800]="user.status === 'Inactive'"
+        [class.border-green-500]="user.status === 'Active'"
+        [class.border-red-500]="user.status === 'Inactive'"
+      >
+        {{ user.status }}
+      </span>
+    </ng-template>
+
+    <app-data-table
+      [columns]="tableColumns()"
+      [data]="filteredUsers"
+      [getActionMenuItems]="getMenuItems"
+    />
   </section>
 </main>
