@@ -20,9 +20,13 @@
   @if (isOpen()) {
   <div
     [class]="
-      'absolute right-0 origin-top-right bg-gray-50 border-gray-200 rounded-xl shadow-lg z-50 mt-2 ' +
+      'fixed origin-top-right font-light bg-gray-50 border-gray-200 rounded-xl shadow-lg z-50 mt-2 ' +
       dropdownWidth()
     "
+    [style.top]="dropdownPosition()?.top || 'auto'"
+    [style.right]="dropdownPosition() ? 'auto' : undefined"
+    [style.left]="dropdownPosition()?.left || 'auto'"
+    [style.transform]="dropdownPosition() ? 'translateX(-100%)' : undefined"
     role="menu"
     aria-orientation="vertical"
     tabindex="-1"
@@ -32,7 +36,7 @@
     <div class="p-2 border-b border-gray-100">
       <input
         type="text"
-        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none text-black"
+        class="w-full px-3 py-2 text-sm font-light border border-gray-300 rounded-lg focus:outline-none text-black"
         [placeholder]="placeholder()"
         [formControl]="searchControl"
         (input)="onSearchChange()"
