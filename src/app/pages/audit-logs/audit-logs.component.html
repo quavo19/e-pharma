@@ -1,0 +1,85 @@
+<main class="p-6">
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <p class="text-2xl font-semibold text-gray-800">Audit Logs</p>
+        <p class="text-sm font-light text-gray-600">
+          Track and view all system activity and user actions
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-4">
+        <div class="w-80">
+          <app-input
+            [placeholder]="'Search by user, event title, or description...'"
+            [hasLeftIcon]="true"
+            size="sm"
+            [control]="searchControl"
+            [id]="'audit-log-search'"
+          >
+            <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
+          </app-input>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <app-export-select
+          [actions]="exportOptions"
+          class="w-32"
+          [placeholder]="'Export'"
+          size="sm"
+          [icon]="icons.Download"
+          (actionSelected)="onExportTypeChange($event)"
+        />
+      </div>
+    </div>
+
+    <ng-template #timestampCellTemplate let-log let-index="index">
+      <div class="flex flex-col">
+        <span class="text-sm font-light text-gray-900">{{
+          log.timestamp | date : "MMM dd, yyyy"
+        }}</span>
+        <span class="text-xs text-gray-500">{{
+          log.timestamp | date : "hh:mm a"
+        }}</span>
+      </div>
+    </ng-template>
+
+    <ng-template #userCellTemplate let-log let-index="index">
+      <div class="flex flex-col">
+        <span class="text-sm font-light text-gray-900">{{ log.user }}</span>
+        <span class="text-xs text-gray-500">{{ log.userRole }}</span>
+      </div>
+    </ng-template>
+
+    <ng-template #detailsCellTemplate let-log let-index="index">
+      <div class="flex flex-col gap-1">
+        <span class="text-sm font-medium text-gray-900">{{
+          log.eventTitle
+        }}</span>
+        <span class="text-xs text-gray-500">{{ log.eventDescription }}</span>
+      </div>
+    </ng-template>
+
+    <ng-template #statusCellTemplate let-log let-index="index">
+      <span
+        class="inline-block py-2 text-xs font-medium rounded-full border text-center min-w-[80px]"
+        [class.bg-green-100]="log.status === 'Success'"
+        [class.text-green-800]="log.status === 'Success'"
+        [class.bg-red-100]="log.status === 'Failed'"
+        [class.text-red-800]="log.status === 'Failed'"
+        [class.border-green-500]="log.status === 'Success'"
+        [class.border-red-500]="log.status === 'Failed'"
+      >
+        {{ log.status }}
+      </span>
+    </ng-template>
+
+    <app-data-table
+      [columns]="tableColumns()"
+      [data]="filteredAuditLogs"
+      [getActionMenuItems]="getMenuItems"
+    />
+  </section>
+</main>
