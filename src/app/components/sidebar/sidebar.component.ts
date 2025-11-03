@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import {
   LucideAngularModule,
   Home,
@@ -11,10 +11,24 @@ import {
   Layers,
   RotateCcw,
   BarChart3,
+  ChevronDown,
+  Shield,
+  ShoppingCart,
+  Store,
+  FlaskConical,
+  Warehouse,
+  Pill,
 } from 'lucide-angular';
 import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
+
+interface NavigationItem {
+  label: string;
+  icon: any;
+  route?: string;
+  children?: NavigationItem[];
+}
 
 @Component({
   selector: 'app-sidebar',
@@ -33,16 +47,51 @@ export class SidebarComponent {
     Layers,
     RotateCcw,
     BarChart3,
+    ChevronDown,
+    Shield,
+    ShoppingCart,
+    Store,
+    FlaskConical,
+    Warehouse,
+    Pill,
   };
   public currentRoute: string = '';
+  isUserManagementOpen = signal(false);
+  isInventoryOpen = signal(false);
 
-  public readonly navigationItems = [
+  public readonly navigationItems: NavigationItem[] = [
     { label: 'Dashboard', icon: this.icons.Home, route: '/' },
-    { label: 'Products', icon: this.icons.Package, route: '/products' },
+    {
+      label: 'Inventory',
+      icon: this.icons.Package,
+      children: [
+        { label: 'Products', icon: this.icons.Package, route: '/products' },
+        {
+          label: 'Drug Classes',
+          icon: this.icons.FlaskConical,
+          route: '/drug-classes',
+        },
+        { label: 'Shelves', icon: this.icons.Warehouse, route: '/shelves' },
+        {
+          label: 'Dosage Forms',
+          icon: this.icons.Pill,
+          route: '/dosage-forms',
+        },
+      ],
+    },
     { label: 'Audit Logs', icon: this.icons.NotebookPen, route: '/audit-logs' },
     { label: 'POS', icon: this.icons.CreditCard, route: '/POS' },
     { label: 'Batches', icon: this.icons.Layers, route: '/batches' },
-    { label: 'Users', icon: this.icons.Users, route: '/users' },
+    { label: 'Sales', icon: this.icons.ShoppingCart, route: '/sales' },
+    { label: 'Branches', icon: this.icons.Store, route: '/branches' },
+    {
+      label: 'User Management',
+      icon: this.icons.Users,
+      children: [
+        { label: 'Users', icon: this.icons.Users, route: '/users' },
+        { label: 'Roles', icon: this.icons.Shield, route: '/roles' },
+      ],
+    },
     { label: 'Refunds', icon: this.icons.RotateCcw, route: '/settings' },
     { label: 'Reports', icon: this.icons.BarChart3, route: '/logout' },
   ];
@@ -52,8 +101,34 @@ export class SidebarComponent {
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.currentRoute = this.stripUrl(event.urlAfterRedirects || event.url);
+        // Auto-expand User Management if on users or roles route
+        if (this.currentRoute === '/users' || this.currentRoute === '/roles') {
+          this.isUserManagementOpen.set(true);
+        }
+        // Auto-expand Inventory if on inventory-related routes
+        if (
+          this.currentRoute === '/products' ||
+          this.currentRoute === '/drug-classes' ||
+          this.currentRoute === '/shelves' ||
+          this.currentRoute === '/dosage-forms'
+        ) {
+          this.isInventoryOpen.set(true);
+        }
       });
     this.currentRoute = this.stripUrl(this.router.url);
+    // Auto-expand User Management if on users or roles route
+    if (this.currentRoute === '/users' || this.currentRoute === '/roles') {
+      this.isUserManagementOpen.set(true);
+    }
+    // Auto-expand Inventory if on inventory-related routes
+    if (
+      this.currentRoute === '/products' ||
+      this.currentRoute === '/drug-classes' ||
+      this.currentRoute === '/shelves' ||
+      this.currentRoute === '/dosage-forms'
+    ) {
+      this.isInventoryOpen.set(true);
+    }
   }
 
   isActiveRoute(route: string): boolean {
@@ -62,6 +137,27 @@ export class SidebarComponent {
       return current === '/';
     }
     return current.startsWith(route);
+  }
+
+  toggleUserManagement(): void {
+    this.isUserManagementOpen.set(!this.isUserManagementOpen());
+  }
+
+  toggleInventory(): void {
+    this.isInventoryOpen.set(!this.isInventoryOpen());
+  }
+
+  isUserManagementActive(): boolean {
+    return this.currentRoute === '/users' || this.currentRoute === '/roles';
+  }
+
+  isInventoryActive(): boolean {
+    return (
+      this.currentRoute === '/products' ||
+      this.currentRoute === '/drug-classes' ||
+      this.currentRoute === '/shelves' ||
+      this.currentRoute === '/dosage-forms'
+    );
   }
 
   private stripUrl(url: string): string {
