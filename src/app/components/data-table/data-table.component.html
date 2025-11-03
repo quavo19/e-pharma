@@ -38,7 +38,19 @@
       </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
-      @for (item of data(); track trackBy()($index, item); let i = $index) {
+      @if (data().length === 0) {
+      <tr>
+        <td [attr.colspan]="totalColumns" class="text-center">
+          <div
+            class="w-full flex-col flex justify-center items-center gap-4 py-8"
+          >
+            <img src="/images/no-data.png" alt="no data" />
+            <p class="text-green-700 font-medium">No Data Found</p>
+          </div>
+        </td>
+      </tr>
+      } @else { @for (item of data(); track trackBy()($index, item); let i =
+      $index) {
       <tr class="hover:bg-gray-50">
         <td
           class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
@@ -70,7 +82,7 @@
         </td>
         }
       </tr>
-      }
+      } }
     </tbody>
   </table>
 </div>
