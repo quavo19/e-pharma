@@ -6,6 +6,7 @@ export interface PopupAction {
   label: string;
   variant: 'primary' | 'secondary' | 'danger';
   action: () => void;
+  icon?: any;
 }
 
 @Component({
