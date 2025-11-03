@@ -1,0 +1,143 @@
+<main class="p-6 relative">
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <p class="text-2xl font-semibold text-gray-800">Drug Classes</p>
+        <p class="text-sm font-light text-gray-600">
+          Manage drug classes and categories
+        </p>
+      </div>
+      <button
+        (click)="onAddDrugClass()"
+        class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
+      >
+        Add New
+        <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
+      </button>
+    </div>
+
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-4">
+        <div class="w-80">
+          <app-input
+            [placeholder]="'Search by name or description...'"
+            [hasLeftIcon]="true"
+            size="sm"
+            [control]="searchControl"
+            [id]="'drug-class-search'"
+          >
+            <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
+          </app-input>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #nameCellTemplate let-drugClass let-index="index">
+      <span class="text-sm font-medium text-gray-900">{{
+        drugClass.name
+      }}</span>
+    </ng-template>
+
+    <app-data-table
+      [columns]="tableColumns()"
+      [data]="filteredDrugClasses"
+      [getActionMenuItems]="getMenuItems"
+    />
+  </section>
+
+  <!-- Add Modal -->
+  <app-popup
+    [isOpen]="isAddModalOpen()"
+    heading="Add New Drug Class"
+    description="Create a new drug class"
+    variant="right"
+    panelWidth="w-[28rem]"
+    [primaryAction]="addModalPrimaryAction"
+    [secondaryAction]="addModalSecondaryAction"
+    (close)="closeAddModal()"
+  >
+    <form [formGroup]="drugClassForm" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Name"
+          [placeholder]="'Enter drug class name'"
+          [control]="drugClassForm.controls.name"
+          [id]="'drug-class-name'"
+          [required]="true"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Description</label>
+        <app-input
+          [placeholder]="'Enter description (optional)'"
+          [control]="drugClassForm.controls.description"
+          [id]="'drug-class-description'"
+          [textarea]="true"
+          size="md"
+        />
+      </div>
+    </form>
+  </app-popup>
+
+  <!-- Delete Confirmation Modal -->
+  <app-confirmation-modal
+    [isOpen]="isDeleteModalOpen()"
+    heading="Delete Drug Class"
+    [description]="deleteModalDescription"
+    [primaryAction]="deleteModalPrimaryAction"
+    [secondaryAction]="deleteModalSecondaryAction"
+    (close)="closeDeleteModal()"
+  />
+
+  <!-- View Modal -->
+  <app-popup
+    [isOpen]="isViewModalOpen()"
+    [heading]="viewingDrugClass ? viewingDrugClass.name : 'Drug Class Details'"
+    [description]="
+      isEditMode() ? 'Edit drug class information' : 'View drug class details'
+    "
+    variant="right"
+    panelWidth="w-[28rem]"
+    [primaryAction]="viewModalPrimaryAction"
+    [secondaryAction]="viewModalSecondaryAction"
+    (close)="closeViewModal()"
+  >
+    @if (viewingDrugClass) {
+    <form [formGroup]="drugClassForm" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">ID</label>
+        <p class="text-sm text-gray-900">{{ viewingDrugClass.id }}</p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Name"
+          [placeholder]="'Enter drug class name'"
+          [control]="drugClassForm.controls.name"
+          [id]="'edit-drug-class-name'"
+          [required]="true"
+          [isDisabled]="!isEditMode()"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Description</label>
+        <app-input
+          [placeholder]="'Enter description (optional)'"
+          [control]="drugClassForm.controls.description"
+          [id]="'edit-drug-class-description'"
+          [textarea]="true"
+          size="md"
+          [isDisabled]="!isEditMode()"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Date Created</label>
+        <p class="text-sm text-gray-900">{{ viewingDrugClass.dateCreated }}</p>
+      </div>
+    </form>
+    }
+  </app-popup>
+</main>
