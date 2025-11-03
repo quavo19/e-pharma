@@ -31,6 +31,13 @@ export const routes: Routes = [
       import('./pages/users/users.component').then((m) => m.UsersComponent),
   },
   {
+    path: 'audit-logs',
+    loadComponent: () =>
+      import('./pages/audit-logs/audit-logs.component').then(
+        (m) => m.AuditLogsComponent
+      ),
+  },
+  {
     path: '404',
     loadComponent: () =>
       import('./pages/not-found/not-found.component').then(
