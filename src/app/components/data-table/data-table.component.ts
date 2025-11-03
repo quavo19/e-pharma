@@ -36,4 +36,9 @@ export class DataTableComponent<T = any> {
   getNestedValue(obj: any, path: string): any {
     return path.split('.').reduce((current, prop) => current?.[prop], obj);
   }
+
+  get totalColumns(): number {
+    // Count: # column + all data columns + action column (if present)
+    return 1 + this.columns().length + (this.getActionMenuItems() ? 1 : 0);
+  }
 }
