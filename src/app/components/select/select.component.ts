@@ -47,6 +47,9 @@ export class SelectComponent implements OnInit, OnDestroy {
   enableSearch = input(false);
   searchControlName = input<string | null>(null);
   searchPlaceholder = input<string>('Search...');
+  label = input<string>();
+  required = input<boolean>(false);
+  id = input<string>('');
 
   selectionChange = output<string | number | null>();
 
