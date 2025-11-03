@@ -1,4 +1,4 @@
-<main class="p-6">
+<main class="p-6 relative">
   <section class="flex flex-col gap-2">
     <div class="flex items-center justify-between mb-3">
       <div>
@@ -41,6 +41,14 @@
         </button>
         <div class="h-6 w-px bg-gray-300"></div>
         }
+
+        <button
+          (click)="openFilterModal()"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.SlidersHorizontal" [size]="16" />
+          Filter
+        </button>
 
         <app-export-select
           [actions]="exportOptions"
@@ -95,4 +103,269 @@
       [getActionMenuItems]="getMenuItems"
     />
   </section>
+
+  <app-popup
+    [isOpen]="isFilterModalOpen()"
+    heading="Filters"
+    description="Select filters to apply to the users table"
+    variant="right"
+    panelWidth="w-[28rem]"
+    [primaryAction]="filterModalPrimaryAction"
+    [secondaryAction]="filterModalSecondaryAction"
+    (close)="closeFilterModal()"
+  >
+    <form [formGroup]="filterForm" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Role</label>
+        <app-select
+          [options]="roleOptions"
+          [selectedValue]="filterForm.get('role')?.value ?? null"
+          placeholder="Select role"
+          [enableSearch]="true"
+          [searchControlName]="'roleSearch'"
+          [searchPlaceholder]="'Search roles...'"
+          (selectionChange)="onRoleChange($event)"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Branch</label>
+        <app-select
+          [options]="facilityOptions"
+          [selectedValue]="filterForm.get('facility')?.value ?? null"
+          placeholder="Select branch"
+          [enableSearch]="true"
+          [searchControlName]="'facilitySearch'"
+          [searchPlaceholder]="'Search branches...'"
+          (selectionChange)="onFacilityChange($event)"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Status</label>
+        <app-select
+          [options]="statusOptions"
+          [selectedValue]="filterForm.get('status')?.value ?? null"
+          placeholder="Select status"
+          (selectionChange)="onStatusChange($event)"
+        />
+      </div>
+    </form>
+  </app-popup>
+
+  <!-- Add User Modal -->
+  <app-popup
+    [isOpen]="isAddUserModalOpen()"
+    heading="Add New User"
+    description="Create a new user account"
+    variant="right"
+    panelWidth="w-[28rem]"
+    [primaryAction]="addUserModalPrimaryAction"
+    [secondaryAction]="addUserModalSecondaryAction"
+    (close)="closeAddUserModal()"
+  >
+    <form [formGroup]="addUserForm" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="First Name"
+          [placeholder]="'Enter first name'"
+          [control]="addUserForm.controls.firstName"
+          [id]="'user-first-name'"
+          [required]="true"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Last Name"
+          [placeholder]="'Enter last name'"
+          [control]="addUserForm.controls.lastName"
+          [id]="'user-last-name'"
+          [required]="true"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Phone Number"
+          [placeholder]="'Enter phone number'"
+          [control]="addUserForm.controls.phone"
+          [id]="'user-phone'"
+          [required]="true"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Email"
+          [placeholder]="'Enter email address'"
+          [control]="addUserForm.controls.email"
+          [id]="'user-email'"
+          [required]="true"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-select
+          [options]="facilityOptions"
+          [selectedValue]="addUserForm.get('branch')?.value ?? null"
+          placeholder="Select branch"
+          [enableSearch]="true"
+          [searchControlName]="'branchSearch'"
+          [searchPlaceholder]="'Search branches...'"
+          (selectionChange)="onBranchChange($event)"
+          [label]="'Branch'"
+          [required]="true"
+          [id]="'user-branch-select'"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-select
+          [options]="roleOptions"
+          [selectedValue]="addUserForm.get('role')?.value ?? null"
+          placeholder="Select role"
+          [enableSearch]="true"
+          [searchControlName]="'roleSearch'"
+          [searchPlaceholder]="'Search roles...'"
+          (selectionChange)="onRoleChangeInAddForm($event)"
+          [label]="'Role'"
+          [required]="true"
+          [id]="'user-role-select'"
+        />
+      </div>
+    </form>
+  </app-popup>
+
+  <!-- Delete Confirmation Modal -->
+  <app-confirmation-modal
+    [isOpen]="isDeleteModalOpen()"
+    heading="Delete User"
+    [description]="deleteModalDescription"
+    [primaryAction]="deleteModalPrimaryAction"
+    [secondaryAction]="deleteModalSecondaryAction"
+    (close)="closeDeleteModal()"
+  />
+
+  <!-- Status Toggle Confirmation Modal -->
+  <app-confirmation-modal
+    [isOpen]="isStatusModalOpen()"
+    [heading]="statusModalHeading"
+    [description]="statusModalDescription"
+    [primaryAction]="statusModalPrimaryAction"
+    [secondaryAction]="statusModalSecondaryAction"
+    (close)="closeStatusModal()"
+  />
+
+  <!-- View User Modal -->
+  <app-popup
+    [isOpen]="isViewUserModalOpen()"
+    [heading]="viewingUser ? viewingUser.name : 'User Details'"
+    [description]="isEditMode() ? 'Edit user information' : 'View user details'"
+    variant="right"
+    panelWidth="w-[28rem]"
+    [primaryAction]="viewUserModalPrimaryAction"
+    [secondaryAction]="viewUserModalSecondaryAction"
+    (close)="closeViewUserModal()"
+  >
+    @if (viewingUser) {
+    <form [formGroup]="editUserForm" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="First Name"
+          [placeholder]="'Enter first name'"
+          [control]="editUserForm.controls.firstName"
+          [id]="'edit-first-name'"
+          [required]="true"
+          [isDisabled]="!isEditMode()"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Last Name"
+          [placeholder]="'Enter last name'"
+          [control]="editUserForm.controls.lastName"
+          [id]="'edit-last-name'"
+          [required]="true"
+          [isDisabled]="!isEditMode()"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Phone Number"
+          [placeholder]="'Enter phone number'"
+          [control]="editUserForm.controls.phone"
+          [id]="'edit-phone'"
+          [required]="true"
+          [isDisabled]="!isEditMode()"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Email"
+          [placeholder]="'Enter email address'"
+          [control]="editUserForm.controls.email"
+          [id]="'edit-email'"
+          [required]="true"
+          [isDisabled]="!isEditMode()"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-select
+          [options]="facilityOptions"
+          [selectedValue]="editUserForm.get('branch')?.value ?? null"
+          placeholder="Select branch"
+          [enableSearch]="isEditMode()"
+          [searchControlName]="'branchSearch'"
+          [searchPlaceholder]="'Search branches...'"
+          (selectionChange)="onBranchChangeInEdit($event)"
+          [label]="'Branch'"
+          [required]="true"
+          [id]="'edit-branch-select'"
+          [disabled]="!isEditMode()"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-select
+          [options]="roleOptions"
+          [selectedValue]="editUserForm.get('role')?.value ?? null"
+          placeholder="Select role"
+          [enableSearch]="isEditMode()"
+          [searchControlName]="'roleSearch'"
+          [searchPlaceholder]="'Search roles...'"
+          (selectionChange)="onRoleChangeInEdit($event)"
+          [label]="'Role'"
+          [required]="true"
+          [id]="'edit-role-select'"
+          [disabled]="!isEditMode()"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Status</label>
+        <span
+          class="inline-block py-1 px-3 text-xs font-medium rounded-full border text-center w-fit"
+          [class.bg-green-100]="viewingUser.status === 'Active'"
+          [class.text-green-800]="viewingUser.status === 'Active'"
+          [class.bg-red-100]="viewingUser.status === 'Inactive'"
+          [class.text-red-800]="viewingUser.status === 'Inactive'"
+          [class.border-green-500]="viewingUser.status === 'Active'"
+          [class.border-red-500]="viewingUser.status === 'Inactive'"
+        >
+          {{ viewingUser.status }}
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Date Added</label>
+        <p class="text-sm text-gray-900">{{ viewingUser.dateAdded }}</p>
+      </div>
+    </form>
+    }
+  </app-popup>
 </main>
