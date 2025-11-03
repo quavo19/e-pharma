@@ -1,0 +1,137 @@
+<main class="p-6 relative">
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <p class="text-2xl font-semibold text-gray-800">Shelves</p>
+        <p class="text-sm font-light text-gray-600">
+          Manage product shelves and storage locations
+        </p>
+      </div>
+      <button
+        (click)="onAddShelve()"
+        class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
+      >
+        Add New
+        <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
+      </button>
+    </div>
+
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-4">
+        <div class="w-80">
+          <app-input
+            [placeholder]="'Search by name or location...'"
+            [hasLeftIcon]="true"
+            size="sm"
+            [control]="searchControl"
+            [id]="'shelve-search'"
+          >
+            <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
+          </app-input>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #nameCellTemplate let-shelve let-index="index">
+      <span class="text-sm font-medium text-gray-900">{{ shelve.name }}</span>
+    </ng-template>
+
+    <app-data-table
+      [columns]="tableColumns()"
+      [data]="filteredShelves"
+      [getActionMenuItems]="getMenuItems"
+    />
+  </section>
+
+  <!-- Add Modal -->
+  <app-popup
+    [isOpen]="isAddModalOpen()"
+    heading="Add New Shelve"
+    description="Create a new shelve"
+    variant="right"
+    panelWidth="w-[28rem]"
+    [primaryAction]="addModalPrimaryAction"
+    [secondaryAction]="addModalSecondaryAction"
+    (close)="closeAddModal()"
+  >
+    <form [formGroup]="shelveForm" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Name"
+          [placeholder]="'Enter shelve name'"
+          [control]="shelveForm.controls.name"
+          [id]="'shelve-name'"
+          [required]="true"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Location"
+          [placeholder]="'Enter location (optional)'"
+          [control]="shelveForm.controls.location"
+          [id]="'shelve-location'"
+        />
+      </div>
+    </form>
+  </app-popup>
+
+  <!-- Delete Confirmation Modal -->
+  <app-confirmation-modal
+    [isOpen]="isDeleteModalOpen()"
+    heading="Delete Shelve"
+    [description]="deleteModalDescription"
+    [primaryAction]="deleteModalPrimaryAction"
+    [secondaryAction]="deleteModalSecondaryAction"
+    (close)="closeDeleteModal()"
+  />
+
+  <!-- View Modal -->
+  <app-popup
+    [isOpen]="isViewModalOpen()"
+    [heading]="viewingShelve ? viewingShelve.name : 'Shelve Details'"
+    [description]="
+      isEditMode() ? 'Edit shelve information' : 'View shelve details'
+    "
+    variant="right"
+    panelWidth="w-[28rem]"
+    [primaryAction]="viewModalPrimaryAction"
+    [secondaryAction]="viewModalSecondaryAction"
+    (close)="closeViewModal()"
+  >
+    @if (viewingShelve) {
+    <form [formGroup]="shelveForm" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">ID</label>
+        <p class="text-sm text-gray-900">{{ viewingShelve.id }}</p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Name"
+          [placeholder]="'Enter shelve name'"
+          [control]="shelveForm.controls.name"
+          [id]="'edit-shelve-name'"
+          [required]="true"
+          [isDisabled]="!isEditMode()"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <app-input
+          label="Location"
+          [placeholder]="'Enter location (optional)'"
+          [control]="shelveForm.controls.location"
+          [id]="'edit-shelve-location'"
+          [isDisabled]="!isEditMode()"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Date Created</label>
+        <p class="text-sm text-gray-900">{{ viewingShelve.dateCreated }}</p>
+      </div>
+    </form>
+    }
+  </app-popup>
+</main>
