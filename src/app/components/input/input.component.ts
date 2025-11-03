@@ -22,8 +22,9 @@ export class InputComponent {
   public readonly id = input.required<string>();
   public readonly keyEvent = output();
   public readonly isForChatBox = input<boolean>(false);
-  public readonly size = input<'sm' | 'md' | 'lg'>('md');
+  public readonly size = input<'sm' | 'md' | 'lg' | 'xl'>('md');
   public readonly variant = input<'default' | 'select'>('default');
+  public readonly textarea = input<boolean>(false);
 
   @Output() inputBlur = new EventEmitter<FocusEvent>();
 
@@ -33,9 +34,19 @@ export class InputComponent {
 
   public sizeClasses(): string {
     const size = this.size();
-    if (size === 'sm') return 'h-10 text-sm px-3';
-    if (size === 'lg') return 'h-14 text-lg px-4';
-    return 'h-12 text-base px-3';
+    if (this.textarea()) {
+      // Textarea size classes (height for textarea)
+      if (size === 'sm') return 'min-h-20 text-sm px-3 py-2';
+      if (size === 'md') return 'min-h-24 text-base px-3 py-2';
+      if (size === 'xl') return 'min-h-32 text-base px-3 py-2';
+      return 'min-h-28 text-base px-3 py-2'; // lg
+    } else {
+      // Input size classes
+      if (size === 'sm') return 'h-10 text-sm px-3';
+      if (size === 'lg') return 'h-14 text-lg px-4';
+      if (size === 'xl') return 'h-16 text-lg px-4';
+      return 'h-12 text-base px-3'; // md
+    }
   }
 
   public variantClasses(): string {
