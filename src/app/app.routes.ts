@@ -26,9 +26,35 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'drug-classes',
+    loadComponent: () =>
+      import('./pages/drug-classes/drug-classes.component').then(
+        (m) => m.DrugClassesComponent
+      ),
+  },
+  {
+    path: 'shelves',
+    loadComponent: () =>
+      import('./pages/shelves/shelves.component').then(
+        (m) => m.ShelvesComponent
+      ),
+  },
+  {
+    path: 'dosage-forms',
+    loadComponent: () =>
+      import('./pages/dosage-forms/dosage-forms.component').then(
+        (m) => m.DosageFormsComponent
+      ),
+  },
+  {
     path: 'users',
     loadComponent: () =>
       import('./pages/users/users.component').then((m) => m.UsersComponent),
+  },
+  {
+    path: 'roles',
+    loadComponent: () =>
+      import('./pages/roles/roles.component').then((m) => m.RolesComponent),
   },
   {
     path: 'audit-logs',
