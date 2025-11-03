@@ -14,6 +14,9 @@ import {
   Plus,
   Download,
   XCircle,
+  SlidersHorizontal,
+  Eye,
+  Trash2,
 } from 'lucide-angular';
 import { InputComponent } from '../../components/input/input.component';
 import {
@@ -27,13 +30,11 @@ import {
   ActionMenuItem,
 } from '../../components/action-menu/action-menu.component';
 import {
-  TableHeaderDropdownComponent,
-  TableHeaderDropdownOption,
-} from '../../components/table-header-dropdown/table-header-dropdown.component';
-import {
   DataTableComponent,
   TableColumn,
 } from '../../components/data-table/data-table.component';
+import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
+import { FormBuilder } from '@angular/forms';
 
 @Component({
   selector: 'app-products',
@@ -47,14 +48,39 @@ import {
     ExportSelectComponent,
     PopupComponent,
     DataTableComponent,
+    ConfirmationModalComponent,
   ],
   templateUrl: './products.component.html',
 })
 export class ProductsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
 
   searchControl = new FormControl('');
+  isFilterModalOpen = signal(false);
+  isDeleteModalOpen = signal(false);
+  isViewProductModalOpen = signal(false);
+  isEditMode = signal(false);
+  viewingProduct: any = null;
+  productToDelete: any = null;
+
+  editProductForm = this.fb.group({
+    name: new FormControl<string>('', { nonNullable: true }),
+    category: new FormControl<string | null>(null),
+    stock: new FormControl<string>('', { nonNullable: true }),
+    quantity: new FormControl<number | null>(null),
+    expiryDate: new FormControl<string>('', { nonNullable: true }),
+    branch: new FormControl<string | null>(null),
+  });
+
+  filterForm = this.fb.group({
+    category: new FormControl<string>(''),
+    categorySearch: new FormControl<string>(''),
+    expiryDateSort: new FormControl<string | null>(null),
+    branch: new FormControl<string | null>(null),
+    branchSearch: new FormControl<string>(''),
+  });
 
   // Add Drug form
   addDrugForm = new FormGroup({
@@ -124,6 +150,9 @@ export class ProductsComponent implements OnInit {
     Plus,
     Download,
     XCircle,
+    SlidersHorizontal,
+    Eye,
+    Trash2,
   };
 
   products = [
@@ -184,29 +213,19 @@ export class ProductsComponent implements OnInit {
     },
   ];
 
-  // Dropdown options for table headers
-  nameSortOptions: TableHeaderDropdownOption[] = [
-    { id: 'asc', label: 'Ascending' },
-    { id: 'desc', label: 'Descending' },
+  // Filter options for filter modal
+  expiryDateSortOptions: SelectOption[] = [
+    { id: 'asc', name: 'Ascending' },
+    { id: 'desc', name: 'Descending' },
   ];
 
-  expiryDateSortOptions: TableHeaderDropdownOption[] = [
-    { id: 'asc', label: 'Ascending' },
-    { id: 'desc', label: 'Descending' },
-  ];
+  categoryOptions: SelectOption[] = [];
 
-  inputtedBySortOptions: TableHeaderDropdownOption[] = [
-    { id: 'asc', label: 'Ascending' },
-    { id: 'desc', label: 'Descending' },
-  ];
-
-  categoryOptions: TableHeaderDropdownOption[] = [];
-
-  facilityOptions: TableHeaderDropdownOption[] = [
-    { id: 'main', label: 'Main Facility' },
-    { id: 'east', label: 'East Wing' },
-    { id: 'west', label: 'West Wing' },
-    { id: 'north', label: 'North Wing' },
+  branchOptions: SelectOption[] = [
+    { id: 'main', name: 'Main Facility' },
+    { id: 'east', name: 'East Wing' },
+    { id: 'west', name: 'West Wing' },
+    { id: 'north', name: 'North Wing' },
   ];
 
   ngOnInit(): void {
@@ -214,7 +233,7 @@ export class ProductsComponent implements OnInit {
     const categories = [...new Set(this.products.map((p) => p.category))];
     this.categoryOptions = categories.map((cat) => ({
       id: cat,
-      label: cat,
+      name: cat,
     }));
   }
 
@@ -239,24 +258,12 @@ export class ProductsComponent implements OnInit {
       filtered = filtered.filter((p) => p.category === queryParams['category']);
     }
 
-    // Apply facility filter from URL
-    if (queryParams['facility']) {
-      filtered = filtered.filter((p) => p.facility === queryParams['facility']);
+    // Apply branch filter from URL
+    if (queryParams['branch']) {
+      filtered = filtered.filter((p) => p.facility === queryParams['branch']);
     }
 
     // Apply sorting from URL
-    if (queryParams['nameSort']) {
-      filtered.sort((a, b) => {
-        const nameA = a.name.toLowerCase();
-        const nameB = b.name.toLowerCase();
-        if (queryParams['nameSort'] === 'asc') {
-          return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
-        } else {
-          return nameA > nameB ? -1 : nameA < nameB ? 1 : 0;
-        }
-      });
-    }
-
     if (queryParams['expiryDateSort']) {
       filtered.sort((a, b) => {
         const dateA = new Date(a.expiryDate).getTime();
@@ -267,22 +274,10 @@ export class ProductsComponent implements OnInit {
       });
     }
 
-    if (queryParams['inputtedBySort']) {
-      filtered.sort((a, b) => {
-        const nameA = a.inputtedBy.toLowerCase();
-        const nameB = b.inputtedBy.toLowerCase();
-        if (queryParams['inputtedBySort'] === 'asc') {
-          return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
-        } else {
-          return nameA > nameB ? -1 : nameA < nameB ? 1 : 0;
-        }
-      });
-    }
-
-    // Map facility IDs to labels for display
+    // Map branch IDs to labels for display
     return filtered.map((p) => ({
       ...p,
-      facilityLabel: this.getFacilityLabel(p.facility),
+      branchLabel: this.getBranchLabel(p.facility),
     }));
   }
 
@@ -319,37 +314,172 @@ export class ProductsComponent implements OnInit {
   }
 
   onViewProduct(productId: string): void {
-    console.log('View product:', productId);
+    const product = this.products.find((p) => p.id === productId);
+    if (product) {
+      this.viewingProduct = product;
+      this.isEditMode.set(false);
+      this.editProductForm.patchValue({
+        name: product.name,
+        category: product.category,
+        stock: product.stock,
+        quantity: product.quantity,
+        expiryDate: product.expiryDate,
+        branch: product.facility,
+      });
+      this.isViewProductModalOpen.set(true);
+    }
   }
 
-  onEditProduct(productId: string): void {
-    console.log('Edit', productId);
+  closeViewProductModal(): void {
+    this.isViewProductModalOpen.set(false);
+    this.isEditMode.set(false);
+    this.viewingProduct = null;
+    this.editProductForm.reset();
+  }
+
+  enterEditMode(): void {
+    this.isEditMode.set(true);
+  }
+
+  cancelEdit(): void {
+    if (this.viewingProduct) {
+      // Reset form to original values
+      this.editProductForm.patchValue({
+        name: this.viewingProduct.name,
+        category: this.viewingProduct.category,
+        stock: this.viewingProduct.stock,
+        quantity: this.viewingProduct.quantity,
+        expiryDate: this.viewingProduct.expiryDate,
+        branch: this.viewingProduct.facility,
+      });
+    }
+    this.isEditMode.set(false);
+  }
+
+  saveProductChanges(): void {
+    if (this.editProductForm.invalid || !this.viewingProduct) {
+      return;
+    }
+
+    const formValue = this.editProductForm.value;
+    const product = this.products.find((p) => p.id === this.viewingProduct.id);
+    if (product) {
+      product.name = formValue.name || '';
+      product.category = formValue.category || '';
+      product.stock = formValue.stock || '';
+      product.quantity = formValue.quantity || 0;
+      product.expiryDate = formValue.expiryDate || '';
+      product.facility = formValue.branch || '';
+    }
+
+    this.isEditMode.set(false);
+    // Update viewingProduct to reflect changes
+    if (this.viewingProduct) {
+      this.viewingProduct = { ...this.viewingProduct, ...product };
+    }
+  }
+
+  onCategoryChangeInEdit(value: string | number | null): void {
+    this.editProductForm.patchValue({ category: value as string | null });
+  }
+
+  onBranchChangeInEdit(value: string | number | null): void {
+    this.editProductForm.patchValue({ branch: value as string | null });
   }
 
   onDeleteProduct(productId: string): void {
-    console.log('Delete', productId);
+    const product = this.products.find((p) => p.id === productId);
+    if (product) {
+      this.productToDelete = product;
+      this.isDeleteModalOpen.set(true);
+    }
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen.set(false);
+    this.productToDelete = null;
+  }
+
+  confirmDelete(): void {
+    if (this.productToDelete) {
+      const index = this.products.findIndex(
+        (p) => p.id === this.productToDelete.id
+      );
+      if (index !== -1) {
+        this.products.splice(index, 1);
+      }
+    }
+    this.closeDeleteModal();
+  }
+
+  openFilterModal(): void {
+    // Load current filter values from URL params
+    const queryParams = this.route.snapshot.queryParams;
+    this.filterForm.patchValue({
+      category: queryParams['category'] || '',
+      categorySearch: '',
+      expiryDateSort: queryParams['expiryDateSort'] || null,
+      branch: queryParams['branch'] || null,
+      branchSearch: '',
+    });
+    this.isFilterModalOpen.set(true);
+  }
+
+  closeFilterModal(): void {
+    this.isFilterModalOpen.set(false);
+  }
+
+  onCategoryChange(value: string | number | null): void {
+    this.filterForm.patchValue({ category: value as string | null });
+  }
+
+  onExpiryDateSortChange(value: string | number | null): void {
+    this.filterForm.patchValue({ expiryDateSort: value as string | null });
+  }
+
+  onBranchChange(value: string | number | null): void {
+    this.filterForm.patchValue({ branch: value as string | null });
+  }
+
+  applyFilters(): void {
+    const formValue = this.filterForm.value;
+    const queryParams: any = { ...this.route.snapshot.queryParams };
+
+    // Update query params based on form values
+    if (formValue.category) {
+      queryParams['category'] = formValue.category;
+    } else {
+      delete queryParams['category'];
+    }
+
+    if (formValue.expiryDateSort) {
+      queryParams['expiryDateSort'] = formValue.expiryDateSort;
+    } else {
+      delete queryParams['expiryDateSort'];
+    }
+
+    if (formValue.branch) {
+      queryParams['branch'] = formValue.branch;
+    } else {
+      delete queryParams['branch'];
+    }
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+    });
+
+    this.closeFilterModal();
   }
 
   get hasActiveFilters(): boolean {
     const queryParams = this.route.snapshot.queryParams;
-    const filterKeys = [
-      'nameSort',
-      'expiryDateSort',
-      'inputtedBySort',
-      'category',
-      'facility',
-    ];
+    const filterKeys = ['expiryDateSort', 'category', 'branch'];
     return filterKeys.some((key) => queryParams[key]);
   }
 
   clearAllFilters(): void {
-    const paramsToRemove = [
-      'nameSort',
-      'expiryDateSort',
-      'inputtedBySort',
-      'category',
-      'facility',
-    ];
+    const paramsToRemove = ['expiryDateSort', 'category', 'branch'];
     const currentParams = { ...this.route.snapshot.queryParams };
 
     paramsToRemove.forEach((key) => {
@@ -360,6 +490,79 @@ export class ProductsComponent implements OnInit {
       relativeTo: this.route,
       queryParams: currentParams,
     });
+
+    this.filterForm.reset();
+  }
+
+  get filterModalPrimaryAction() {
+    return {
+      label: 'Apply Filters',
+      variant: 'primary' as const,
+      action: () => this.applyFilters(),
+    };
+  }
+
+  get filterModalSecondaryAction() {
+    return {
+      label: 'Cancel',
+      variant: 'secondary' as const,
+      action: () => this.closeFilterModal(),
+    };
+  }
+
+  get deleteModalPrimaryAction() {
+    return {
+      label: 'Delete',
+      variant: 'danger' as const,
+      action: () => this.confirmDelete(),
+    };
+  }
+
+  get deleteModalSecondaryAction() {
+    return {
+      label: 'Cancel',
+      variant: 'secondary' as const,
+      action: () => this.closeDeleteModal(),
+    };
+  }
+
+  get deleteModalDescription(): string {
+    if (this.productToDelete) {
+      return `Are you sure you want to delete the product "${this.productToDelete.name}"? This action cannot be undone.`;
+    }
+    return '';
+  }
+
+  get viewProductModalPrimaryAction() {
+    if (this.isEditMode()) {
+      return {
+        label: 'Save',
+        variant: 'primary' as const,
+        action: () => this.saveProductChanges(),
+      };
+    } else {
+      return {
+        label: 'Edit',
+        variant: 'primary' as const,
+        action: () => this.enterEditMode(),
+      };
+    }
+  }
+
+  get viewProductModalSecondaryAction() {
+    if (this.isEditMode()) {
+      return {
+        label: 'Cancel',
+        variant: 'secondary' as const,
+        action: () => this.cancelEdit(),
+      };
+    } else {
+      return {
+        label: 'Close',
+        variant: 'secondary' as const,
+        action: () => this.closeViewProductModal(),
+      };
+    }
   }
 
   isAddOpen = false;
@@ -396,27 +599,25 @@ export class ProductsComponent implements OnInit {
     this.addDrugForm.patchValue({ unit: (value ?? '').toString() });
   }
 
-  getMenuItems(product: { id: string }): ActionMenuItem[] {
+  getMenuItems = (product: { id: string }): ActionMenuItem[] => {
     return [
-      {
-        label: 'Edit',
-        action: () => this.onEditProduct(product.id),
-      },
       {
         label: 'View',
         action: () => this.onViewProduct(product.id),
+        icon: this.icons.Eye,
       },
       {
         label: 'Delete',
         action: () => this.onDeleteProduct(product.id),
         variant: 'danger',
+        icon: this.icons.Trash2,
       },
     ];
-  }
+  };
 
-  getFacilityLabel(facilityId: string): string {
-    const facility = this.facilityOptions.find((f) => f.id === facilityId);
-    return facility?.label || facilityId;
+  getBranchLabel(branchId: string): string {
+    const branch = this.branchOptions.find((b) => b.id === branchId);
+    return branch?.name || branchId;
   }
 
   // Table columns configuration
@@ -425,24 +626,14 @@ export class ProductsComponent implements OnInit {
       {
         key: 'name',
         label: 'Product Name',
-        headerDropdown: {
-          options: this.nameSortOptions,
-          queryParamKey: 'nameSort',
-          clearLabel: 'Clear Sort',
-        },
       },
       {
         key: 'category',
-        label: 'Category',
-        headerDropdown: {
-          options: this.categoryOptions,
-          queryParamKey: 'category',
-          clearLabel: 'Clear Filter',
-        },
+        label: 'Drug Class',
       },
       {
         key: 'stock',
-        label: 'Stock',
+        label: 'Shelve',
       },
       {
         key: 'quantity',
@@ -451,31 +642,14 @@ export class ProductsComponent implements OnInit {
       {
         key: 'expiryDate',
         label: 'Expiry Date',
-        headerDropdown: {
-          options: this.expiryDateSortOptions,
-          queryParamKey: 'expiryDateSort',
-          clearLabel: 'Clear Sort',
-        },
       },
       {
         key: 'inputtedBy',
         label: 'Inputted By',
-        headerDropdown: {
-          options: this.inputtedBySortOptions,
-          queryParamKey: 'inputtedBySort',
-          clearLabel: 'Clear Sort',
-        },
       },
       {
-        key: 'facilityLabel',
-        label: 'Facility',
-        headerDropdown: {
-          options: this.facilityOptions,
-          queryParamKey: 'facility',
-          clearLabel: 'Clear Filter',
-          enableSearch: true,
-          dropdownWidth: 'min-w-[150px]',
-        },
+        key: 'branchLabel',
+        label: 'Branch',
       },
     ];
   }
