@@ -1,23 +1,87 @@
-<nav class="w-54 h-full text-white flex flex-col gap-4">
-  <div class="bg-green-800 h-full w-full py-6 px-4 flex flex-col">
-    <h3 class="font-bold text-center pt-6 text-white">Logo</h3>
-    <div class="flex flex-col gap-3 mt-6 flex-1">
-      @for (item of navigationItems; track item.route) {
-      <a [routerLink]="item.route" [class]="
-          isActiveRoute(item.route)
-            ? 'flex items-center gap-3 w-full py-3 px-4 rounded-lg bg-tertiary text-white transform scale-105 transition-all duration-200'
+<nav class="w-58 h-full text-white flex flex-col gap-4">
+  <div
+    class="bg-green-800 h-full w-full py-6 px-4 flex flex-col overflow-hidden"
+  >
+    <h3 class="font-bold text-center pt-6 text-white shrink-0">Logo</h3>
+    <div
+      class="flex flex-col gap-3 mt-6 flex-1 overflow-y-auto min-h-0 scrollbar-hide"
+    >
+      @for (item of navigationItems; track item.label) { @if (item.children &&
+      item.children.length > 0) {
+      <div class="flex flex-col">
+        <button
+          (click)="
+            item.label === 'User Management'
+              ? toggleUserManagement()
+              : toggleInventory()
+          "
+          [class]="
+            (
+              item.label === 'User Management'
+                ? isUserManagementActive()
+                : isInventoryActive()
+            )
+              ? 'flex items-center justify-between w-full py-3 px-4 rounded-lg bg-tertiary text-white transition-all duration-200'
+              : 'flex items-center justify-between w-full py-3 px-4 rounded-xl bg-transparent text-white/70 hover:bg-tertiary hover:text-white transition-all duration-200'
+          "
+        >
+          <div class="flex items-center gap-3">
+            <lucide-icon [img]="item.icon" [size]="20" />
+            <span class="font-light text-sm">{{ item.label }}</span>
+          </div>
+          <lucide-icon
+            [img]="icons.ChevronDown"
+            [size]="16"
+            class="transition-transform duration-200"
+            [class.rotate-180]="
+              item.label === 'User Management'
+                ? isUserManagementOpen()
+                : isInventoryOpen()
+            "
+          />
+        </button>
+        @if (item.label === 'User Management' ? isUserManagementOpen() :
+        isInventoryOpen()) {
+        <div
+          class="flex flex-col gap-1 mt-1 ml-4 pl-4 border-l-2 border-white/20"
+        >
+          @for (child of item.children; track child.route) {
+          <a
+            [routerLink]="child.route"
+            [class]="
+              isActiveRoute(child.route || '')
+                ? 'flex items-center gap-3 w-full py-2 px-4 rounded-lg bg-white/20 text-white transition-all duration-200'
+                : 'flex items-center gap-3 w-full py-2 px-4 rounded-xl bg-transparent text-white/60 hover:bg-white/10 hover:text-white transition-all duration-200'
+            "
+          >
+            <lucide-icon [img]="child.icon" [size]="18" />
+            <span class="font-light text-xs">{{ child.label }}</span>
+          </a>
+          }
+        </div>
+        }
+      </div>
+      } @else {
+      <a
+        [routerLink]="item.route"
+        [class]="
+          isActiveRoute(item.route || '')
+            ? 'flex items-center gap-3 w-full py-3 px-4 rounded-lg bg-tertiary text-white transition-all duration-200'
             : 'flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-transparent text-white/70 hover:bg-tertiary hover:text-white transition-all duration-200'
-        ">
+        "
+      >
         <lucide-icon [img]="item.icon" [size]="20" />
-        <span class="font-light">{{ item.label }}</span>
+        <span class="font-light text-sm">{{ item.label }}</span>
       </a>
-      }
+      } }
     </div>
-    <div class="mt-auto pt-4">
-      <button (click)="logout()"
-        class="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-lg bg-tertiary text-white hover:bg-secondary transition-all duration-200 transform hover:scale-105">
+    <div class="mt-auto pt-4 shrink-0">
+      <button
+        (click)="logout()"
+        class="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-lg bg-tertiary text-white hover:bg-secondary transition-all duration-200 transform hover:scale-105"
+      >
         <lucide-icon [img]="icons.LogOut" [size]="20" />
-        <span class="font-medium">Logout</span>
+        <span class="font-medium text-sm">Logout</span>
       </button>
     </div>
   </div>
