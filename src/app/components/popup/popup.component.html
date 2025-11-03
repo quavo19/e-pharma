@@ -1,13 +1,7 @@
 @if (isOpen()) {
 <div
-  class="fixed z-50 p-4 min-h-0"
-  style="
-    top: 4rem;
-    left: 13.5rem;
-    right: 0;
-    bottom: 0;
-    overscroll-behavior: contain;
-  "
+  class="fixed z-50 p-4 min-h-0 inset-0"
+  style="overscroll-behavior: contain"
 >
   <div
     class="absolute inset-0 bg-black/50"
@@ -50,11 +44,22 @@
       <button
         (click)="onSecondaryAction()"
         [class]="getSecondaryButtonClasses()"
+        class="flex items-center justify-center gap-2"
       >
+        @if (secondaryAction()?.icon) {
+        <lucide-icon [img]="secondaryAction()!.icon" [size]="16" />
+        }
         {{ secondaryAction()?.label }}
       </button>
       } @if (primaryAction()) {
-      <button (click)="onPrimaryAction()" [class]="getPrimaryButtonClasses()">
+      <button
+        (click)="onPrimaryAction()"
+        [class]="getPrimaryButtonClasses()"
+        class="flex items-center justify-center gap-2"
+      >
+        @if (primaryAction()?.icon) {
+        <lucide-icon [img]="primaryAction()!.icon" [size]="16" />
+        }
         {{ primaryAction()?.label }}
       </button>
       }
@@ -95,11 +100,22 @@
       <button
         (click)="onSecondaryAction()"
         [class]="getSecondaryButtonClasses()"
+        class="flex items-center justify-center gap-2"
       >
+        @if (secondaryAction()?.icon) {
+        <lucide-icon [img]="secondaryAction()!.icon" [size]="16" />
+        }
         {{ secondaryAction()?.label }}
       </button>
       } @if (primaryAction()) {
-      <button (click)="onPrimaryAction()" [class]="getPrimaryButtonClasses()">
+      <button
+        (click)="onPrimaryAction()"
+        [class]="getPrimaryButtonClasses()"
+        class="flex items-center justify-center gap-2"
+      >
+        @if (primaryAction()?.icon) {
+        <lucide-icon [img]="primaryAction()!.icon" [size]="16" />
+        }
         {{ primaryAction()?.label }}
       </button>
       }
