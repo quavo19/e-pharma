@@ -9,10 +9,24 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule, FormControl, ReactiveFormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, Download } from 'lucide-angular';
+import {
+  FormsModule,
+  FormControl,
+  ReactiveFormsModule,
+  FormBuilder,
+} from '@angular/forms';
+import {
+  LucideAngularModule,
+  Search,
+  Download,
+  SlidersHorizontal,
+  XCircle,
+  Eye,
+  Trash2,
+} from 'lucide-angular';
 import { InputComponent } from '../../components/input/input.component';
 import { SelectOption } from '../../components/select/select.component';
+import { SelectComponent } from '../../components/select/select.component';
 import { ExportSelectComponent } from '../../components/export-select/export-select.component';
 import {
   DataTableComponent,
@@ -22,7 +36,8 @@ import {
   ActionMenuComponent,
   ActionMenuItem,
 } from '../../components/action-menu/action-menu.component';
-import { TableHeaderDropdownOption } from '../../components/table-header-dropdown/table-header-dropdown.component';
+import { PopupComponent } from '../../components/popup/popup.component';
+import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
 
 export interface AuditLog {
   id: string;
@@ -43,35 +58,53 @@ export interface AuditLog {
     ReactiveFormsModule,
     LucideAngularModule,
     InputComponent,
+    SelectComponent,
     ExportSelectComponent,
     DataTableComponent,
+    PopupComponent,
+    ConfirmationModalComponent,
   ],
   templateUrl: './audit-logs.component.html',
 })
 export class AuditLogsComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
 
   searchControl = new FormControl('');
+  isFilterModalOpen = signal(false);
+  isDeleteModalOpen = signal(false);
+  isViewModalOpen = signal(false);
+  logToDelete: AuditLog | null = null;
+  viewingLog: AuditLog | null = null;
+
+  filterForm = this.fb.group({
+    dateFilter: new FormControl<string | null>(null),
+    status: new FormControl<string | null>(null),
+  });
 
   public readonly icons = {
     Search,
     Download,
+    SlidersHorizontal,
+    XCircle,
+    Eye,
+    Trash2,
   };
 
-  // Date filter options for table header dropdown
-  dateFilterOptions: TableHeaderDropdownOption[] = [
-    { id: '24h', label: 'Last 24 Hours' },
-    { id: '7d', label: 'Last 7 Days' },
-    { id: '30d', label: 'Last Month' },
-    { id: '90d', label: 'Last 3 Months' },
-    { id: '365d', label: 'Last Year' },
+  // Date filter options for filter modal
+  dateFilterOptions: SelectOption[] = [
+    { id: '24h', name: 'Last 24 Hours' },
+    { id: '7d', name: 'Last 7 Days' },
+    { id: '30d', name: 'Last Month' },
+    { id: '90d', name: 'Last 3 Months' },
+    { id: '365d', name: 'Last Year' },
   ];
 
-  // Status filter options for table header dropdown
-  statusFilterOptions: TableHeaderDropdownOption[] = [
-    { id: 'Success', label: 'Success' },
-    { id: 'Failed', label: 'Failed' },
+  // Status filter options for filter modal
+  statusFilterOptions: SelectOption[] = [
+    { id: 'Success', name: 'Success' },
+    { id: 'Failed', name: 'Failed' },
   ];
 
   exportOptions: SelectOption[] = [
@@ -157,11 +190,6 @@ export class AuditLogsComponent implements OnInit, AfterViewInit {
         key: 'timestamp',
         label: 'Timestamp',
         cellTemplate: this.timestampCellTemplate,
-        headerDropdown: {
-          options: this.dateFilterOptions,
-          queryParamKey: 'dateFilter',
-          clearLabel: 'Clear Filter',
-        },
       },
       {
         key: 'user',
@@ -177,11 +205,6 @@ export class AuditLogsComponent implements OnInit, AfterViewInit {
         key: 'status',
         label: 'Status',
         cellTemplate: this.statusCellTemplate,
-        headerDropdown: {
-          options: this.statusFilterOptions,
-          queryParamKey: 'status',
-          clearLabel: 'Clear Filter',
-        },
       },
     ]);
   }
@@ -250,25 +273,176 @@ export class AuditLogsComponent implements OnInit, AfterViewInit {
   }
 
   onViewLog(logId: string): void {
-    console.log('View log:', logId);
+    const log = this.auditLogs.find((l) => l.id === logId);
+    if (log) {
+      this.viewingLog = log;
+      this.isViewModalOpen.set(true);
+    }
+  }
+
+  closeViewModal(): void {
+    this.isViewModalOpen.set(false);
+    this.viewingLog = null;
   }
 
   onDeleteLog(logId: string): void {
-    console.log('Delete log:', logId);
+    const log = this.auditLogs.find((l) => l.id === logId);
+    if (log) {
+      this.logToDelete = log;
+      this.isDeleteModalOpen.set(true);
+    }
   }
 
-  getMenuItems(log: AuditLog): ActionMenuItem[] {
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen.set(false);
+    this.logToDelete = null;
+  }
+
+  confirmDelete(): void {
+    if (this.logToDelete) {
+      const index = this.auditLogs.findIndex(
+        (l) => l.id === this.logToDelete!.id
+      );
+      if (index !== -1) {
+        this.auditLogs.splice(index, 1);
+      }
+    }
+    this.closeDeleteModal();
+  }
+
+  getMenuItems = (log: AuditLog): ActionMenuItem[] => {
     return [
       {
         label: 'View',
         action: () => this.onViewLog(log.id),
+        icon: this.icons.Eye,
       },
       {
         label: 'Delete',
         action: () => this.onDeleteLog(log.id),
         variant: 'danger',
+        icon: this.icons.Trash2,
       },
     ];
+  };
+
+  openFilterModal(): void {
+    // Load current filter values from URL params
+    const queryParams = this.route.snapshot.queryParams;
+    this.filterForm.patchValue({
+      dateFilter: queryParams['dateFilter'] || null,
+      status: queryParams['status'] || null,
+    });
+    this.isFilterModalOpen.set(true);
+  }
+
+  closeFilterModal(): void {
+    this.isFilterModalOpen.set(false);
+  }
+
+  onDateFilterChange(value: string | number | null): void {
+    this.filterForm.patchValue({ dateFilter: value as string | null });
+  }
+
+  onStatusFilterChange(value: string | number | null): void {
+    this.filterForm.patchValue({ status: value as string | null });
+  }
+
+  applyFilters(): void {
+    const formValue = this.filterForm.value;
+    const queryParams: any = { ...this.route.snapshot.queryParams };
+
+    // Update query params based on form values
+    if (formValue.dateFilter) {
+      queryParams['dateFilter'] = formValue.dateFilter;
+    } else {
+      delete queryParams['dateFilter'];
+    }
+
+    if (formValue.status) {
+      queryParams['status'] = formValue.status;
+    } else {
+      delete queryParams['status'];
+    }
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+    });
+
+    this.closeFilterModal();
+  }
+
+  get hasActiveFilters(): boolean {
+    const queryParams = this.route.snapshot.queryParams;
+    return !!(queryParams['dateFilter'] || queryParams['status']);
+  }
+
+  clearAllFilters(): void {
+    const paramsToRemove = ['dateFilter', 'status'];
+    const currentParams = { ...this.route.snapshot.queryParams };
+
+    paramsToRemove.forEach((key) => {
+      delete currentParams[key];
+    });
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: currentParams,
+    });
+
+    this.filterForm.reset();
+  }
+
+  get filterModalPrimaryAction() {
+    return {
+      label: 'Apply Filters',
+      variant: 'primary' as const,
+      action: () => this.applyFilters(),
+    };
+  }
+
+  get filterModalSecondaryAction() {
+    return {
+      label: 'Cancel',
+      variant: 'secondary' as const,
+      action: () => this.closeFilterModal(),
+    };
+  }
+
+  get deleteModalPrimaryAction() {
+    return {
+      label: 'Delete',
+      variant: 'danger' as const,
+      action: () => this.confirmDelete(),
+    };
+  }
+
+  get deleteModalSecondaryAction() {
+    return {
+      label: 'Cancel',
+      variant: 'secondary' as const,
+      action: () => this.closeDeleteModal(),
+    };
+  }
+
+  get deleteModalDescription(): string {
+    if (this.logToDelete) {
+      return `Are you sure you want to delete the audit log "${this.logToDelete.eventTitle}"? This action cannot be undone.`;
+    }
+    return '';
+  }
+
+  get viewModalPrimaryAction() {
+    return {
+      label: 'Close',
+      variant: 'primary' as const,
+      action: () => this.closeViewModal(),
+    };
+  }
+
+  get viewModalSecondaryAction() {
+    return null;
   }
 
   formatTimestamp(date: Date): string {
