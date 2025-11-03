@@ -1,0 +1,56 @@
+@if (isOpen()) {
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4"
+  (click)="onOverlayClick($event)"
+>
+  <div
+    class="absolute inset-0 bg-black/50"
+    (click)="onClose()"
+    (wheel)="$event.preventDefault()"
+    (touchmove)="$event.preventDefault()"
+    style="touch-action: none"
+  ></div>
+
+  <div
+    class="relative bg-white rounded-xl shadow-xl w-full max-w-md flex flex-col overflow-hidden"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="relative flex items-center justify-center p-4 shrink-0">
+      @if (heading()) {
+      <p class="text-xl font-semibold text-gray-900 text-center">
+        {{ heading() }}
+      </p>
+      }
+      <button
+        (click)="onClose()"
+        class="absolute right-4 top-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+      >
+        <lucide-icon [img]="icons.X" [size]="20" />
+      </button>
+    </div>
+
+    <div class="px-6 flex-1 text-center">
+      @if (description()) {
+      <p class="text-sm text-gray-600">{{ description() }}</p>
+      }
+    </div>
+
+    @if (primaryAction() || secondaryAction()) {
+    <div class="flex gap-3 p-6 shrink-0 justify-center">
+      @if (secondaryAction()) {
+      <button
+        (click)="onSecondaryAction()"
+        [class]="getSecondaryButtonClasses()"
+      >
+        {{ secondaryAction()?.label }}
+      </button>
+      } @if (primaryAction()) {
+      <button (click)="onPrimaryAction()" [class]="getPrimaryButtonClasses()">
+        {{ primaryAction()?.label }}
+      </button>
+      }
+    </div>
+    }
+  </div>
+</div>
+}
