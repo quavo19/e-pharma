@@ -16,27 +16,36 @@ import {
   Plus,
   Download,
   XCircle,
+  SlidersHorizontal,
+  Power,
+  PowerOff,
+  FilePenLine,
+  Trash2,
+  Eye,
+  X,
+  Save,
 } from 'lucide-angular';
 import { InputComponent } from '../../components/input/input.component';
 import { SelectOption } from '../../components/select/select.component';
+import { SelectComponent } from '../../components/select/select.component';
 import { ExportSelectComponent } from '../../components/export-select/export-select.component';
 import {
   ActionMenuComponent,
   ActionMenuItem,
 } from '../../components/action-menu/action-menu.component';
 import {
-  TableHeaderDropdownComponent,
-  TableHeaderDropdownOption,
-} from '../../components/table-header-dropdown/table-header-dropdown.component';
-import {
   DataTableComponent,
   TableColumn,
 } from '../../components/data-table/data-table.component';
+import { PopupComponent } from '../../components/popup/popup.component';
+import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 export interface User {
   id: string;
   name: string;
   phone: string;
+  email?: string;
   role: string;
   branch: string;
   status: 'Active' | 'Inactive';
@@ -53,22 +62,97 @@ export interface User {
     ReactiveFormsModule,
     LucideAngularModule,
     InputComponent,
+    SelectComponent,
     ExportSelectComponent,
     DataTableComponent,
+    PopupComponent,
+    ConfirmationModalComponent,
   ],
   templateUrl: './users.component.html',
 })
 export class UsersComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
 
   searchControl = new FormControl('');
+  isFilterModalOpen = signal(false);
+  isAddUserModalOpen = signal(false);
+  isDeleteModalOpen = signal(false);
+  isStatusModalOpen = signal(false);
+  isViewUserModalOpen = signal(false);
+  isEditMode = signal(false);
+  viewingUser: User | null = null;
+  userToDelete: User | null = null;
+  userToToggleStatus: User | null = null;
 
-  facilityOptions: TableHeaderDropdownOption[] = [
-    { id: 'main', label: 'Main Facility' },
-    { id: 'east', label: 'East Wing' },
-    { id: 'west', label: 'West Wing' },
-    { id: 'north', label: 'North Wing' },
+  filterForm = this.fb.group({
+    role: new FormControl<string | null>(null),
+    roleSearch: new FormControl<string>(''),
+    status: new FormControl<string | null>(null),
+    facility: new FormControl<string | null>(null),
+    facilitySearch: new FormControl<string>(''),
+  });
+
+  addUserForm = this.fb.group({
+    firstName: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    lastName: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    phone: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    email: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    branch: new FormControl<string | null>(null, {
+      validators: [Validators.required],
+    }),
+    branchSearch: new FormControl<string>(''),
+    role: new FormControl<string | null>(null, {
+      validators: [Validators.required],
+    }),
+    roleSearch: new FormControl<string>(''),
+  });
+
+  editUserForm = this.fb.group({
+    firstName: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    lastName: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    phone: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    email: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    branch: new FormControl<string | null>(null, {
+      validators: [Validators.required],
+    }),
+    branchSearch: new FormControl<string>(''),
+    role: new FormControl<string | null>(null, {
+      validators: [Validators.required],
+    }),
+    roleSearch: new FormControl<string>(''),
+  });
+
+  facilityOptions: SelectOption[] = [
+    { id: 'main', name: 'Main Branch' },
+    { id: 'east', name: 'East Branch' },
+    { id: 'west', name: 'West Branch' },
+    { id: 'north', name: 'North Branch' },
   ];
 
   public readonly icons = {
@@ -76,6 +160,14 @@ export class UsersComponent implements OnInit, AfterViewInit {
     Plus,
     Download,
     XCircle,
+    SlidersHorizontal,
+    Power,
+    PowerOff,
+    FilePenLine,
+    Trash2,
+    Eye,
+    X,
+    Save,
   };
 
   users: User[] = [
@@ -146,28 +238,27 @@ export class UsersComponent implements OnInit, AfterViewInit {
     { id: 'excel', name: 'Excel' },
   ];
 
-  // Dropdown options
-  dateSortOptions: TableHeaderDropdownOption[] = [
-    { id: 'asc', label: 'Ascending' },
-    { id: 'desc', label: 'Descending' },
-  ];
+  // Filter options for select components
 
-  nameSortOptions: TableHeaderDropdownOption[] = [
-    { id: 'asc', label: 'Ascending' },
-    { id: 'desc', label: 'Descending' },
-  ];
+  roleOptions: SelectOption[] = [];
 
-  roleOptions: TableHeaderDropdownOption[] = [];
-
-  statusOptions: TableHeaderDropdownOption[] = [
-    { id: 'Active', label: 'Active' },
-    { id: 'Inactive', label: 'Inactive' },
+  statusOptions: SelectOption[] = [
+    { id: 'Active', name: 'Active' },
+    { id: 'Inactive', name: 'Inactive' },
   ];
 
   ngOnInit(): void {
     // Extract unique roles from users
     const roles = [...new Set(this.users.map((u) => u.role))];
-    this.roleOptions = roles.map((role) => ({ id: role, label: role }));
+    this.roleOptions = roles.map((role) => ({ id: role, name: role }));
+
+    // Load initial filter values from URL params
+    const queryParams = this.route.snapshot.queryParams;
+    this.filterForm.patchValue({
+      role: queryParams['role'] || null,
+      status: queryParams['status'] || null,
+      facility: queryParams['facility'] || null,
+    });
   }
 
   get filteredUsers() {
@@ -203,34 +294,67 @@ export class UsersComponent implements OnInit, AfterViewInit {
       filtered = filtered.filter((u) => u.status === queryParams['status']);
     }
 
-    // Apply sorting from URL
-    if (queryParams['dateSort']) {
-      filtered.sort((a, b) => {
-        const dateA = new Date(a.dateAdded).getTime();
-        const dateB = new Date(b.dateAdded).getTime();
-        return queryParams['dateSort'] === 'asc'
-          ? dateA - dateB
-          : dateB - dateA;
-      });
-    }
-
-    if (queryParams['nameSort']) {
-      filtered.sort((a, b) => {
-        const nameA = a.name.toLowerCase();
-        const nameB = b.name.toLowerCase();
-        if (queryParams['nameSort'] === 'asc') {
-          return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
-        } else {
-          return nameA > nameB ? -1 : nameA < nameB ? 1 : 0;
-        }
-      });
-    }
-
     return filtered;
   }
 
   onAddUser(): void {
-    console.log('Add user');
+    this.addUserForm.reset();
+    this.addUserForm.patchValue({
+      branchSearch: '',
+      roleSearch: '',
+    });
+    this.isAddUserModalOpen.set(true);
+  }
+
+  closeAddUserModal(): void {
+    this.isAddUserModalOpen.set(false);
+    this.addUserForm.reset();
+  }
+
+  saveUser(): void {
+    if (this.addUserForm.invalid) {
+      return;
+    }
+
+    const formValue = this.addUserForm.value;
+    const newUser: User = {
+      id: `U${String(this.users.length + 1).padStart(3, '0')}`,
+      name: `${formValue.firstName} ${formValue.lastName}`,
+      phone: formValue.phone || '',
+      email: formValue.email || '',
+      role: formValue.role || '',
+      branch: formValue.branch || '',
+      facility: formValue.branch || '',
+      status: 'Active',
+      dateAdded: new Date().toISOString().split('T')[0],
+    };
+
+    this.users.push(newUser);
+    this.closeAddUserModal();
+  }
+
+  get addUserModalPrimaryAction() {
+    return {
+      label: 'Create User',
+      variant: 'primary' as const,
+      action: () => this.saveUser(),
+    };
+  }
+
+  get addUserModalSecondaryAction() {
+    return {
+      label: 'Cancel',
+      variant: 'secondary' as const,
+      action: () => this.closeAddUserModal(),
+    };
+  }
+
+  onBranchChange(value: string | number | null): void {
+    this.addUserForm.patchValue({ branch: value as string | null });
+  }
+
+  onRoleChangeInAddForm(value: string | number | null): void {
+    this.addUserForm.patchValue({ role: value as string | null });
   }
 
   onExportTypeChange(value: string | number | null): void {
@@ -242,41 +366,241 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
   onViewUser(userId: string): void {
-    console.log('View user:', userId);
+    const user = this.users.find((u) => u.id === userId);
+    if (user) {
+      this.viewingUser = user;
+      this.isEditMode.set(false);
+      // Split name into first and last
+      const nameParts = user.name.split(' ');
+      this.editUserForm.patchValue({
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        phone: user.phone,
+        email: user.email || '',
+        branch: user.facility,
+        role: user.role,
+      });
+      this.isViewUserModalOpen.set(true);
+    }
+  }
+
+  closeViewUserModal(): void {
+    this.isViewUserModalOpen.set(false);
+    this.isEditMode.set(false);
+    this.viewingUser = null;
+    this.editUserForm.reset();
+  }
+
+  enterEditMode(): void {
+    this.isEditMode.set(true);
+  }
+
+  cancelEdit(): void {
+    if (this.viewingUser) {
+      // Reset form to original values
+      const nameParts = this.viewingUser.name.split(' ');
+      this.editUserForm.patchValue({
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        phone: this.viewingUser.phone,
+        email: this.viewingUser.email || '',
+        branch: this.viewingUser.facility,
+        role: this.viewingUser.role,
+      });
+    }
+    this.isEditMode.set(false);
+  }
+
+  saveUserChanges(): void {
+    if (this.editUserForm.invalid || !this.viewingUser) {
+      return;
+    }
+
+    const formValue = this.editUserForm.value;
+    const user = this.users.find((u) => u.id === this.viewingUser!.id);
+    if (user) {
+      user.name = `${formValue.firstName} ${formValue.lastName}`;
+      user.phone = formValue.phone || '';
+      user.email = formValue.email || '';
+      user.role = formValue.role || '';
+      user.branch = formValue.branch || '';
+      user.facility = formValue.branch || '';
+    }
+
+    this.isEditMode.set(false);
+    // Update viewingUser to reflect changes
+    if (this.viewingUser) {
+      this.viewingUser = { ...this.viewingUser, ...user };
+    }
+  }
+
+  onBranchChangeInEdit(value: string | number | null): void {
+    this.editUserForm.patchValue({ branch: value as string | null });
+  }
+
+  onRoleChangeInEdit(value: string | number | null): void {
+    this.editUserForm.patchValue({ role: value as string | null });
   }
 
   onToggleUserStatus(userId: string): void {
     const user = this.users.find((u) => u.id === userId);
     if (user) {
-      user.status = user.status === 'Active' ? 'Inactive' : 'Active';
-      console.log(
-        `${user.status === 'Active' ? 'Enabled' : 'Disabled'} user:`,
-        userId
-      );
+      this.userToToggleStatus = user;
+      this.isStatusModalOpen.set(true);
     }
   }
 
-  onDeleteUser(userId: string): void {
-    console.log('Delete user:', userId);
+  closeStatusModal(): void {
+    this.isStatusModalOpen.set(false);
+    this.userToToggleStatus = null;
   }
 
-  getMenuItems(user: User): ActionMenuItem[] {
+  confirmToggleStatus(): void {
+    if (this.userToToggleStatus) {
+      this.userToToggleStatus.status =
+        this.userToToggleStatus.status === 'Active' ? 'Inactive' : 'Active';
+      console.log(
+        `${
+          this.userToToggleStatus.status === 'Active' ? 'Enabled' : 'Disabled'
+        } user:`,
+        this.userToToggleStatus.id
+      );
+    }
+    this.closeStatusModal();
+  }
+
+  onDeleteUser(userId: string): void {
+    const user = this.users.find((u) => u.id === userId);
+    if (user) {
+      this.userToDelete = user;
+      this.isDeleteModalOpen.set(true);
+    }
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen.set(false);
+    this.userToDelete = null;
+  }
+
+  confirmDelete(): void {
+    if (this.userToDelete) {
+      const index = this.users.findIndex((u) => u.id === this.userToDelete!.id);
+      if (index !== -1) {
+        this.users.splice(index, 1);
+      }
+    }
+    this.closeDeleteModal();
+  }
+
+  get statusModalPrimaryAction() {
+    const variant =
+      this.userToToggleStatus?.status === 'Active' ? 'danger' : 'primary';
+    return {
+      label:
+        this.userToToggleStatus?.status === 'Active' ? 'Disable' : 'Enable',
+      variant: variant as 'primary' | 'secondary' | 'danger',
+      action: () => this.confirmToggleStatus(),
+    };
+  }
+
+  get statusModalSecondaryAction() {
+    return {
+      label: 'Cancel',
+      variant: 'secondary' as const,
+      action: () => this.closeStatusModal(),
+    };
+  }
+
+  get statusModalDescription(): string {
+    if (this.userToToggleStatus) {
+      const action =
+        this.userToToggleStatus.status === 'Active' ? 'disable' : 'enable';
+      return `Are you sure you want to ${action} the user "${this.userToToggleStatus.name}"?`;
+    }
+    return '';
+  }
+
+  get statusModalHeading(): string {
+    return this.userToToggleStatus?.status === 'Active'
+      ? 'Disable User'
+      : 'Enable User';
+  }
+
+  get deleteModalPrimaryAction() {
+    return {
+      label: 'Delete',
+      variant: 'danger' as const,
+      action: () => this.confirmDelete(),
+    };
+  }
+
+  get deleteModalSecondaryAction() {
+    return {
+      label: 'Cancel',
+      variant: 'secondary' as const,
+      action: () => this.closeDeleteModal(),
+    };
+  }
+
+  get deleteModalDescription(): string {
+    if (this.userToDelete) {
+      return `Are you sure you want to delete the user "${this.userToDelete.name}"? This action cannot be undone.`;
+    }
+    return '';
+  }
+
+  get viewUserModalPrimaryAction() {
+    if (this.isEditMode()) {
+      return {
+        label: 'Save',
+        variant: 'primary' as const,
+        action: () => this.saveUserChanges(),
+      };
+    } else {
+      return {
+        label: 'Edit',
+        variant: 'primary' as const,
+        action: () => this.enterEditMode(),
+      };
+    }
+  }
+
+  get viewUserModalSecondaryAction() {
+    if (this.isEditMode()) {
+      return {
+        label: 'Cancel',
+        variant: 'secondary' as const,
+        action: () => this.cancelEdit(),
+      };
+    } else {
+      return {
+        label: 'Close',
+        variant: 'secondary' as const,
+        action: () => this.closeViewUserModal(),
+      };
+    }
+  }
+
+  getMenuItems = (user: User): ActionMenuItem[] => {
     return [
       {
         label: user.status === 'Active' ? 'Disable' : 'Enable',
         action: () => this.onToggleUserStatus(user.id),
+        icon: user.status === 'Active' ? this.icons.PowerOff : this.icons.Power,
       },
       {
         label: 'View',
         action: () => this.onViewUser(user.id),
+        icon: this.icons.Eye,
       },
       {
         label: 'Delete',
         action: () => this.onDeleteUser(user.id),
         variant: 'danger',
+        icon: this.icons.Trash2,
       },
     ];
-  }
+  };
 
   getInitials(name: string): string {
     return name
@@ -296,19 +620,13 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
   get hasActiveFilters(): boolean {
     const queryParams = this.route.snapshot.queryParams;
-    const filterKeys = ['dateSort', 'nameSort', 'role', 'status', 'facility'];
+    const filterKeys = ['role', 'status', 'facility'];
     return filterKeys.some((key) => queryParams[key]);
   }
 
   clearAllFilters(): void {
-    // Clear all sort and filter params
-    const paramsToRemove = [
-      'dateSort',
-      'nameSort',
-      'role',
-      'status',
-      'facility',
-    ];
+    // Clear all filter params
+    const paramsToRemove = ['role', 'status', 'facility'];
     const currentParams = { ...this.route.snapshot.queryParams };
 
     paramsToRemove.forEach((key) => {
@@ -319,6 +637,85 @@ export class UsersComponent implements OnInit, AfterViewInit {
       relativeTo: this.route,
       queryParams: currentParams,
     });
+
+    // Reset form
+    this.filterForm.reset();
+  }
+
+  openFilterModal(): void {
+    // Load current filter values from URL params
+    const queryParams = this.route.snapshot.queryParams;
+    this.filterForm.patchValue({
+      role: queryParams['role'] || null,
+      status: queryParams['status'] || null,
+      facility: queryParams['facility'] || null,
+      roleSearch: '', // Reset search field
+      facilitySearch: '', // Reset search field
+    });
+    this.isFilterModalOpen.set(true);
+  }
+
+  closeFilterModal(): void {
+    this.isFilterModalOpen.set(false);
+  }
+
+  get filterModalPrimaryAction() {
+    return {
+      label: 'Apply Filters',
+      variant: 'primary' as const,
+      action: () => this.applyFilters(),
+    };
+  }
+
+  get filterModalSecondaryAction() {
+    return {
+      label: 'Cancel',
+      variant: 'secondary' as const,
+      action: () => this.closeFilterModal(),
+    };
+  }
+
+  onRoleChange(value: string | number | null): void {
+    this.filterForm.patchValue({ role: value as string | null });
+  }
+
+  onFacilityChange(value: string | number | null): void {
+    this.filterForm.patchValue({ facility: value as string | null });
+  }
+
+  onStatusChange(value: string | number | null): void {
+    this.filterForm.patchValue({ status: value as string | null });
+  }
+
+  applyFilters(): void {
+    const formValue = this.filterForm.value;
+    const queryParams: any = { ...this.route.snapshot.queryParams };
+
+    // Update query params based on form values
+    if (formValue.role) {
+      queryParams['role'] = formValue.role;
+    } else {
+      delete queryParams['role'];
+    }
+
+    if (formValue.status) {
+      queryParams['status'] = formValue.status;
+    } else {
+      delete queryParams['status'];
+    }
+
+    if (formValue.facility) {
+      queryParams['facility'] = formValue.facility;
+    } else {
+      delete queryParams['facility'];
+    }
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+    });
+
+    this.closeFilterModal();
   }
 
   @ViewChild('nameCellTemplate') nameCellTemplate?: TemplateRef<any>;
@@ -328,56 +725,28 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     // Initialize columns after view init so templates are available
+    // Remove headerDropdown from all columns
     this.tableColumns.set([
       {
         key: 'dateAdded',
         label: 'Date Added',
-        headerDropdown: {
-          options: this.dateSortOptions,
-          queryParamKey: 'dateSort',
-          clearLabel: 'Clear Sort',
-        },
       },
       {
         key: 'name',
         label: 'Name',
-        headerDropdown: {
-          options: this.nameSortOptions,
-          queryParamKey: 'nameSort',
-          clearLabel: 'Clear Sort',
-        },
         cellTemplate: this.nameCellTemplate,
       },
       {
         key: 'role',
         label: 'Role',
-        headerDropdown: {
-          options: this.roleOptions,
-          queryParamKey: 'role',
-          clearLabel: 'Clear Filter',
-          enableSearch: true,
-        },
       },
       {
         key: 'branch',
         label: 'Branch',
-        headerDropdown: {
-          options: this.facilityOptions,
-          queryParamKey: 'facility',
-          clearLabel: 'Clear Filter',
-          enableSearch: true,
-          dropdownWidth: 'min-w-[150px]',
-        },
       },
       {
         key: 'status',
         label: 'Status',
-        headerDropdown: {
-          options: this.statusOptions,
-          queryParamKey: 'status',
-          clearLabel: 'Clear Filter',
-          dropdownWidth: 'min-w-[130px]',
-        },
         cellTemplate: this.statusCellTemplate,
       },
     ]);
