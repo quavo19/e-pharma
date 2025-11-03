@@ -11,15 +11,38 @@
 
   <div class="relative w-full">
     @if (hasLeftIcon()) {
-    <div class="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+    <div
+      [class]="
+        textarea()
+          ? 'absolute left-4 top-3 z-10'
+          : 'absolute left-4 top-1/2 -translate-y-1/2 z-10'
+      "
+    >
       <ng-content select="[slot=left-icon]"></ng-content>
     </div>
     } @if (hasRightIcon()) {
-    <div class="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+    <div
+      [class]="
+        textarea()
+          ? 'absolute right-4 top-3 z-10'
+          : 'absolute right-4 top-1/2 -translate-y-1/2 z-10'
+      "
+    >
       <ng-content select="[slot=right-icon]"></ng-content>
     </div>
-    }
-
+    } @if (textarea()) {
+    <textarea
+      [id]="id()"
+      [placeholder]="placeholder()"
+      [formControl]="control()"
+      [class.pl-10]="hasLeftIcon()"
+      [class.pr-10]="hasRightIcon()"
+      (blur)="inputBlur.emit($event)"
+      (keydown)="handleyKeyEvent($event)"
+      [class]="combinedClasses()"
+      rows="4"
+    ></textarea>
+    } @else {
     <input
       [id]="id()"
       [type]="type()"
@@ -32,6 +55,7 @@
       (keydown)="handleyKeyEvent($event)"
       [class]="combinedClasses()"
     />
+    }
   </div>
 
   @if (!!errorMessage()) {
