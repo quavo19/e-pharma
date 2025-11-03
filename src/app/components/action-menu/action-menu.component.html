@@ -1,4 +1,4 @@
-<div class="relative">
+<div class="relative action-menu-container">
   <button
     (click)="toggleMenu($event)"
     class="p-2 rounded-lg hover:bg-gray-100 cursor-pointer"
@@ -7,21 +7,27 @@
   </button>
   @if (isOpen()) {
   <div
+    [attr.data-menu-id]="menuId"
     [class]="
-      'absolute right-full mr-1 p-2 rounded-b-2xl rounded-tl-2xl min-w-32 bg-gray-50 shadow-lg z-50 divide-y divide-gray-200 flex flex-col gap-2'
+      'fixed origin-top-right p-2 rounded-b-2xl rounded-tl-2xl min-w-32 bg-gray-50 shadow-lg z-50 divide-y divide-gray-200 flex flex-col gap-2'
     "
-    [class.top-0]="!isMenuAbove()"
-    [class.bottom-0]="isMenuAbove()"
+    [style.top]="dropdownPosition()?.top || 'auto'"
+    [style.right]="dropdownPosition()?.right || 'auto'"
+    [style.transform]="isMenuAbove() ? 'translateY(-100%)' : undefined"
+    (click)="$event.stopPropagation()"
   >
     @for (item of items(); track item.label) {
     <button
       [class]="
         item.variant === 'danger'
-          ? 'w-full text-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 block cursor-pointer'
-          : 'w-full text-center px-4 py-2 text-sm hover:bg-green-50 block cursor-pointer'
+          ? 'w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer text-left'
+          : 'w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-green-50 cursor-pointer text-left'
       "
       (click)="onItemClick(item, $event)"
     >
+      @if (item.icon) {
+      <lucide-icon [img]="item.icon" [size]="16" />
+      }
       {{ item.label }}
     </button>
     }
