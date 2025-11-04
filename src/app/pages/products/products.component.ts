@@ -90,7 +90,8 @@ export class ProductsComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required],
     }),
-    shelve: new FormControl<string>('', { nonNullable: true }),
+    shelve: new FormControl<string | null>(null),
+    shelveSearch: new FormControl<string>(''),
     drugClass: new FormControl<string>('', { nonNullable: true }),
     quantity: new FormControl<number | null>(null, {
       validators: [Validators.min(0)],
@@ -142,10 +143,21 @@ export class ProductsComponent implements OnInit {
     { id: 'ml', name: 'ml' },
   ];
 
+  // Shelve options
+  shelveOptions: SelectOption[] = [
+    { id: 'AMA', name: 'AMA' },
+    { id: 'BMB', name: 'BMB' },
+    { id: 'CMC', name: 'CMC' },
+    { id: 'DMD', name: 'DMD' },
+    { id: 'EME', name: 'EME' },
+    { id: 'FMF', name: 'FMF' },
+  ];
+
   // Local state for selects
   selectedDrugClass: string | number | null = '';
   selectedDosageForm: string | number | null = '';
   selectedUnit: string | number | null = 'mg';
+  selectedShelve: string | number | null = null;
 
   public readonly icons = {
     Search,
@@ -296,6 +308,10 @@ export class ProductsComponent implements OnInit {
     console.log('Add Drug payload:', value);
     this.isAddOpen = false;
     this.addDrugForm.reset({ unit: 'mg' });
+    this.selectedShelve = null;
+    this.selectedDrugClass = '';
+    this.selectedDosageForm = '';
+    this.selectedUnit = 'mg';
   }
 
   onExport(): void {
@@ -599,6 +615,11 @@ export class ProductsComponent implements OnInit {
   onUnitChange(value: string | number | null): void {
     this.selectedUnit = value;
     this.addDrugForm.patchValue({ unit: (value ?? '').toString() });
+  }
+
+  onShelveChange(value: string | number | null): void {
+    this.selectedShelve = value;
+    this.addDrugForm.patchValue({ shelve: (value as string) || null });
   }
 
   getMenuItems = (product: { id: string }): ActionMenuItem[] => {
