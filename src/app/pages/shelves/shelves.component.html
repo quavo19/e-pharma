@@ -43,7 +43,6 @@
     />
   </section>
 
-  <!-- Add Modal -->
   <app-popup
     [isOpen]="isAddModalOpen()"
     heading="Add New Shelve"
@@ -76,7 +75,6 @@
     </form>
   </app-popup>
 
-  <!-- Delete Confirmation Modal -->
   <app-confirmation-modal
     [isOpen]="isDeleteModalOpen()"
     heading="Delete Shelve"
@@ -86,7 +84,6 @@
     (close)="closeDeleteModal()"
   />
 
-  <!-- View Modal -->
   <app-popup
     [isOpen]="isViewModalOpen()"
     [heading]="viewingShelve ? viewingShelve.name : 'Shelve Details'"
@@ -101,11 +98,6 @@
   >
     @if (viewingShelve) {
     <form [formGroup]="shelveForm" class="flex flex-col gap-6">
-      <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700">ID</label>
-        <p class="text-sm text-gray-900">{{ viewingShelve.id }}</p>
-      </div>
-
       <div class="flex flex-col gap-2">
         <app-input
           label="Name"
@@ -126,10 +118,8 @@
           [isDisabled]="!isEditMode()"
         />
       </div>
-
-      <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700">Date Created</label>
-        <p class="text-sm text-gray-900">{{ viewingShelve.dateCreated }}</p>
+      <div class="flex text-gray-500 italic text-sm gap-2">
+        Date Created on {{ viewingShelve.dateCreated }}
       </div>
     </form>
     }
