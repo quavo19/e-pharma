@@ -45,7 +45,6 @@
     />
   </section>
 
-  <!-- Add Modal -->
   <app-popup
     [isOpen]="isAddModalOpen()"
     heading="Add New Drug Class"
@@ -80,7 +79,6 @@
     </form>
   </app-popup>
 
-  <!-- Delete Confirmation Modal -->
   <app-confirmation-modal
     [isOpen]="isDeleteModalOpen()"
     heading="Delete Drug Class"
@@ -90,7 +88,6 @@
     (close)="closeDeleteModal()"
   />
 
-  <!-- View Modal -->
   <app-popup
     [isOpen]="isViewModalOpen()"
     [heading]="viewingDrugClass ? viewingDrugClass.name : 'Drug Class Details'"
@@ -105,11 +102,6 @@
   >
     @if (viewingDrugClass) {
     <form [formGroup]="drugClassForm" class="flex flex-col gap-6">
-      <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700">ID</label>
-        <p class="text-sm text-gray-900">{{ viewingDrugClass.id }}</p>
-      </div>
-
       <div class="flex flex-col gap-2">
         <app-input
           label="Name"
@@ -133,9 +125,8 @@
         />
       </div>
 
-      <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700">Date Created</label>
-        <p class="text-sm text-gray-900">{{ viewingDrugClass.dateCreated }}</p>
+      <div class="flex text-gray-500 italic text-sm gap-2">
+        Date Created on {{ viewingDrugClass.dateCreated }}
       </div>
     </form>
     }
