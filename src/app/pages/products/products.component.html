@@ -15,150 +15,150 @@
         (ngSubmit)="onSubmitAddDrug()"
         class="flex flex-col gap-4"
       >
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <app-input
-            [label]="'Name'"
-            [placeholder]="'Paracetamol'"
-            [control]="addDrugForm.controls.name"
-            [id]="'drug-name'"
-            [required]="true"
-            variant="select"
-          />
-          <div>
-            <label class="block text-primary text-base mb-1">Shelve</label>
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Left Column -->
+          <div class="flex flex-col gap-4">
             <app-input
-              [placeholder]="'AMA'"
-              [control]="addDrugForm.controls.shelve"
-              [id]="'drug-shelve'"
+              [label]="'Name'"
+              [placeholder]="'Paracetamol'"
+              [control]="addDrugForm.controls.name"
+              [id]="'drug-name'"
+              [required]="true"
+              variant="select"
+            />
+            <div>
+              <label class="block text-primary text-base mb-1">Shelve</label>
+              <app-select
+                [options]="shelveOptions"
+                [selectedValue]="selectedShelve"
+                placeholder="Select shelve"
+                [enableSearch]="true"
+                [searchControlName]="'shelveSearch'"
+                [searchPlaceholder]="'Search shelves...'"
+                (selectionChange)="onShelveChange($event)"
+              />
+            </div>
+            <div>
+              <label class="block text-primary text-base mb-1"
+                >Drug Class</label
+              >
+              <app-select
+                [options]="drugClassOptions"
+                [selectedValue]="selectedDrugClass"
+                placeholder="Select class"
+                (selectionChange)="onDrugClassChange($event)"
+              />
+            </div>
+            <div>
+              <label class="block text-primary text-base mb-1"
+                >Dosage Form</label
+              >
+              <app-select
+                [options]="dosageFormOptions"
+                [selectedValue]="selectedDosageForm"
+                placeholder="Select dosage form"
+                (selectionChange)="onDosageFormChange($event)"
+              />
+            </div>
+            <app-input
+              [label]="'Quantity'"
+              type="number"
+              [placeholder]="'56'"
+              [control]="addDrugForm.controls.quantity"
+              [id]="'drug-quantity'"
+              variant="select"
+            />
+            <div class="grid grid-cols-2 gap-4">
+              <app-input
+                [label]="'Strength'"
+                type="number"
+                [placeholder]="'500'"
+                [control]="addDrugForm.controls.strength"
+                [id]="'drug-strength'"
+                variant="select"
+              />
+              <div>
+                <label class="block text-primary text-base mb-1">Unit</label>
+                <app-select
+                  [options]="unitOptions"
+                  [selectedValue]="selectedUnit"
+                  placeholder="Select unit"
+                  (selectionChange)="onUnitChange($event)"
+                />
+              </div>
+            </div>
+            <app-input
+              [label]="'Created By'"
+              [placeholder]="'Pharmacist K. Mensah'"
+              [control]="addDrugForm.controls.createdBy"
+              [id]="'drug-created-by'"
               variant="select"
             />
           </div>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-primary text-base mb-1">Drug Class</label>
-            <app-select
-              [options]="drugClassOptions"
-              [selectedValue]="selectedDrugClass"
-              placeholder="Select class"
-              (selectionChange)="onDrugClassChange($event)"
+          <!-- Right Column -->
+          <div class="flex flex-col gap-4">
+            <app-inline-date-input
+              [label]="'Expiry Date'"
+              [control]="addDrugForm.controls.expiryDate"
+              [id]="'drug-expiry'"
+            />
+            <app-input
+              [label]="'Brand'"
+              [placeholder]="'GSK'"
+              [control]="addDrugForm.controls.brand"
+              [id]="'drug-brand'"
+              variant="select"
+            />
+            <app-input
+              [label]="'Stock Threshold'"
+              type="number"
+              [placeholder]="'6'"
+              [control]="addDrugForm.controls.stockThreshold"
+              [id]="'drug-stock-threshold'"
+              variant="select"
+            />
+            <app-input
+              [label]="'Cost Price'"
+              type="number"
+              [placeholder]="'562'"
+              [control]="addDrugForm.controls.costPrice"
+              [id]="'drug-cost-price'"
+              variant="select"
+            />
+            <div class="grid grid-cols-2 gap-4">
+              <app-input
+                [label]="'Selling Price'"
+                type="number"
+                [placeholder]="'67'"
+                [control]="addDrugForm.controls.sellingPrice"
+                [id]="'drug-selling-price'"
+                variant="select"
+              />
+              <app-input
+                [label]="'Discount Value (%)'"
+                type="number"
+                [placeholder]="'20'"
+                [control]="addDrugForm.controls.discountValue"
+                [id]="'drug-discount'"
+                variant="select"
+              />
+            </div>
+            <app-input
+              [label]="'Supplier Name'"
+              [placeholder]="'usdi'"
+              [control]="addDrugForm.controls.supplierName"
+              [id]="'drug-supplier-name'"
+              variant="select"
+            />
+            <app-input
+              [label]="'Supplier Contact'"
+              [placeholder]="'23359588326'"
+              [control]="addDrugForm.controls.supplierContact"
+              [id]="'drug-supplier-contact'"
+              variant="select"
             />
           </div>
-          <div>
-            <label class="block text-primary text-base mb-1">Dosage Form</label>
-            <app-select
-              [options]="dosageFormOptions"
-              [selectedValue]="selectedDosageForm"
-              placeholder="Select dosage form"
-              (selectionChange)="onDosageFormChange($event)"
-            />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <app-input
-            [label]="'Quantity'"
-            type="number"
-            [placeholder]="'56'"
-            [control]="addDrugForm.controls.quantity"
-            [id]="'drug-quantity'"
-            variant="select"
-          />
-          <app-input
-            [label]="'Strength'"
-            type="number"
-            [placeholder]="'500'"
-            [control]="addDrugForm.controls.strength"
-            [id]="'drug-strength'"
-            variant="select"
-          />
-          <div>
-            <label class="block text-primary text-base mb-1">Unit</label>
-            <app-select
-              [options]="unitOptions"
-              [selectedValue]="selectedUnit"
-              placeholder="Select unit"
-              (selectionChange)="onUnitChange($event)"
-            />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <app-input
-            [label]="'Created By'"
-            [placeholder]="'Pharmacist K. Mensah'"
-            [control]="addDrugForm.controls.createdBy"
-            [id]="'drug-created-by'"
-            variant="select"
-          />
-          <app-inline-date-input
-            [label]="'Expiry Date'"
-            [control]="addDrugForm.controls.expiryDate"
-            [id]="'drug-expiry'"
-          />
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <app-input
-            [label]="'Brand'"
-            [placeholder]="'GSK'"
-            [control]="addDrugForm.controls.brand"
-            [id]="'drug-brand'"
-            variant="select"
-          />
-          <app-input
-            [label]="'Stock Threshold'"
-            type="number"
-            [placeholder]="'6'"
-            [control]="addDrugForm.controls.stockThreshold"
-            [id]="'drug-stock-threshold'"
-            variant="select"
-          />
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <app-input
-            [label]="'Cost Price'"
-            type="number"
-            [placeholder]="'562'"
-            [control]="addDrugForm.controls.costPrice"
-            [id]="'drug-cost-price'"
-            variant="select"
-          />
-          <app-input
-            [label]="'Selling Price'"
-            type="number"
-            [placeholder]="'67'"
-            [control]="addDrugForm.controls.sellingPrice"
-            [id]="'drug-selling-price'"
-            variant="select"
-          />
-          <app-input
-            [label]="'Discount Value (%)'"
-            type="number"
-            [placeholder]="'20'"
-            [control]="addDrugForm.controls.discountValue"
-            [id]="'drug-discount'"
-            variant="select"
-          />
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <app-input
-            [label]="'Supplier Name'"
-            [placeholder]="'usdi'"
-            [control]="addDrugForm.controls.supplierName"
-            [id]="'drug-supplier-name'"
-            variant="select"
-          />
-          <app-input
-            [label]="'Supplier Contact'"
-            [placeholder]="'23359588326'"
-            [control]="addDrugForm.controls.supplierContact"
-            [id]="'drug-supplier-contact'"
-            variant="select"
-          />
         </div>
       </form>
     </app-popup>
