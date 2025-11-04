@@ -34,6 +34,7 @@ import {
   TableColumn,
 } from '../../components/data-table/data-table.component';
 import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
+import { InlineDateInputComponent } from '../../components/inline-date-input/inline-date-input.component';
 import { FormBuilder } from '@angular/forms';
 
 @Component({
@@ -49,6 +50,7 @@ import { FormBuilder } from '@angular/forms';
     PopupComponent,
     DataTableComponent,
     ConfirmationModalComponent,
+    InlineDateInputComponent,
   ],
   templateUrl: './products.component.html',
 })
