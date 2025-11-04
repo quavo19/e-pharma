@@ -12,22 +12,15 @@
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-4">
         <div class="w-80">
-          <app-input
-            [placeholder]="'Search by name or description...'"
-            [hasLeftIcon]="true"
-            size="sm"
-            [control]="searchControl"
-            [id]="'role-search'"
-          >
+          <app-input [placeholder]="'Search by name or description...'" [hasLeftIcon]="true" size="sm"
+            [control]="searchControl" [id]="'role-search'">
             <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
           </app-input>
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <button
-          (click)="onAddRole()"
-          class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
-        >
+        <button (click)="onAddRole()"
+          class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer">
           Add New Role
           <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
         </button>
@@ -35,71 +28,41 @@
     </div>
 
     <ng-template #statusCellTemplate let-role let-index="index">
-      <span
-        class="inline-block py-2 text-xs font-medium rounded-full border text-center min-w-[80px]"
-        [class.bg-green-100]="role.status === 'Active'"
-        [class.text-green-800]="role.status === 'Active'"
-        [class.bg-red-100]="role.status === 'Inactive'"
-        [class.text-red-800]="role.status === 'Inactive'"
-        [class.border-green-500]="role.status === 'Active'"
-        [class.border-red-500]="role.status === 'Inactive'"
-      >
+      <span class="inline-block py-2 text-xs font-medium rounded-full border text-center min-w-[80px]"
+        [class.bg-green-100]="role.status === 'Active'" [class.text-green-800]="role.status === 'Active'"
+        [class.bg-red-100]="role.status === 'Inactive'" [class.text-red-800]="role.status === 'Inactive'"
+        [class.border-green-500]="role.status === 'Active'" [class.border-red-500]="role.status === 'Inactive'">
         {{ role.status }}
       </span>
     </ng-template>
 
-    <app-data-table
-      [columns]="tableColumns()"
-      [data]="filteredRoles"
-      [getActionMenuItems]="getMenuItems"
-    />
+    <app-data-table [columns]="tableColumns()" [data]="filteredRoles" [getActionMenuItems]="getMenuItems" />
   </section>
 
-  <app-popup
-    [isOpen]="isRoleModalOpen()"
-    [heading]="editingRole ? 'Edit Role' : 'Create New Role'"
-    [description]="
+  <app-popup [isOpen]="isRoleModalOpen()" [heading]="editingRole ? 'Edit Role' : 'Create New Role'" [description]="
       editingRole
         ? 'Update role details and permissions'
         : 'Create a new role with custom permissions'
-    "
-    variant="right"
-    panelWidth="w-[40rem]"
-    [primaryAction]="roleModalPrimaryAction"
-    [secondaryAction]="roleModalSecondaryAction"
-    (close)="closeRoleModal()"
-  >
+    " variant="right" panelWidth="w-[40rem]" [primaryAction]="roleModalPrimaryAction"
+    [secondaryAction]="roleModalSecondaryAction" (close)="closeRoleModal()">
     <form [formGroup]="roleForm" class="flex flex-col gap-6">
       <div class="flex flex-col gap-2">
-        <app-input
-          [placeholder]="'Enter role name'"
-          label="Role Name"
-          [control]="roleForm.controls.name"
-          [id]="'role-name'"
-          [required]="true"
-        />
+        <app-input [placeholder]="'Enter role name'" label="Role Name" [control]="roleForm.controls.name"
+          [id]="'role-name'" [required]="true" />
       </div>
 
       <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700">Description</label>
-        <app-input
-          [placeholder]="'Enter role description'"
-          [control]="roleForm.controls.description"
-          [id]="'role-description'"
-          [textarea]="true"
-          size="md"
-        />
+        <app-input label="Role Description" [placeholder]="'Enter role description'"
+          [control]="roleForm.controls.description" [id]="'role-description'" [textarea]="true" size="md" />
       </div>
 
       <div class="flex flex-col gap-4">
-        <label class="text-sm font-medium text-gray-700">Permissions</label>
+        <p class="text-sm font-medium text-gray-700">Permissions</p>
         <div class="max-h-96 overflow-y-auto">
           <div class="flex flex-wrap gap-3">
             @for (permission of permissions; track permission.id) {
             <div class="flex items-center gap-2">
-              <app-custom-checkbox
-                [control]="permissionControls.get(permission.id) || null"
-              />
+              <app-custom-checkbox [control]="permissionControls.get(permission.id) || null" />
               <span class="text-sm text-gray-900">
                 {{ permission.name }}
               </span>
@@ -111,23 +74,11 @@
     </form>
   </app-popup>
 
-  <!-- Delete Confirmation Modal -->
-  <app-confirmation-modal
-    [isOpen]="isDeleteModalOpen()"
-    heading="Delete Role"
-    [description]="deleteModalDescription"
-    [primaryAction]="deleteModalPrimaryAction"
-    [secondaryAction]="deleteModalSecondaryAction"
-    (close)="closeDeleteModal()"
-  />
+  <app-confirmation-modal [isOpen]="isDeleteModalOpen()" heading="Delete Role" [description]="deleteModalDescription"
+    [primaryAction]="deleteModalPrimaryAction" [secondaryAction]="deleteModalSecondaryAction"
+    (close)="closeDeleteModal()" />
 
-  <!-- Status Toggle Confirmation Modal -->
-  <app-confirmation-modal
-    [isOpen]="isStatusModalOpen()"
-    [heading]="statusModalHeading"
-    [description]="statusModalDescription"
-    [primaryAction]="statusModalPrimaryAction"
-    [secondaryAction]="statusModalSecondaryAction"
-    (close)="closeStatusModal()"
-  />
+  <app-confirmation-modal [isOpen]="isStatusModalOpen()" [heading]="statusModalHeading"
+    [description]="statusModalDescription" [primaryAction]="statusModalPrimaryAction"
+    [secondaryAction]="statusModalSecondaryAction" (close)="closeStatusModal()" />
 </main>
