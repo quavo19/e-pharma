@@ -37,8 +37,12 @@
       [formControl]="control()"
       [class.pl-10]="hasLeftIcon()"
       [class.pr-10]="hasRightIcon()"
+      [attr.disabled]="isDisabled() ? '' : null"
       (blur)="inputBlur.emit($event)"
       (keydown)="handleyKeyEvent($event)"
+      (keypress)="handleKeyPress($event)"
+      (paste)="handlePaste($event)"
+      (input)="handleInput($event)"
       [class]="combinedClasses()"
       rows="4"
     ></textarea>
@@ -50,9 +54,13 @@
       [formControl]="control()"
       [class.pl-10]="hasLeftIcon()"
       [class.pr-10]="hasRightIcon()"
+      [attr.disabled]="isDisabled() ? '' : null"
       [class.rounded-r-none]="isForChatBox()"
       (blur)="inputBlur.emit($event)"
       (keydown)="handleyKeyEvent($event)"
+      (keypress)="handleKeyPress($event)"
+      (paste)="handlePaste($event)"
+      (input)="handleInput($event)"
       [class]="combinedClasses()"
     />
     }
