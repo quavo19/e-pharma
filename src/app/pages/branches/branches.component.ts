@@ -245,7 +245,6 @@ export class BranchesComponent implements OnInit {
   exportOptions: SelectOption[] = [
     { id: 'pdf', name: 'PDF' },
     { id: 'excel', name: 'Excel' },
-    { id: 'text', name: 'Text' },
   ];
 
   onExportTypeChange(value: string | number | null): void {
@@ -253,31 +252,7 @@ export class BranchesComponent implements OnInit {
       console.log('Export as PDF');
     } else if (value === 'excel') {
       console.log('Export as Excel');
-    } else if (value === 'text') {
-      this.exportAsText();
     }
-  }
-
-  exportAsText(): void {
-    const branches = this.filteredBranches;
-    let textContent =
-      'Branch ID\tBranch Name\tRegion\tLocation\tManager\tPhone Number\tEmail\tDate Created\n';
-
-    branches.forEach((branch) => {
-      textContent += `${branch.id}\t${branch.name}\t${branch.region}\t${
-        branch.location
-      }\t${branch.manager || 'N/A'}\t${branch.phoneNumber || 'N/A'}\t${
-        branch.email || 'N/A'
-      }\t${branch.dateCreated}\n`;
-    });
-
-    const blob = new Blob([textContent], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `branches_${new Date().toISOString().split('T')[0]}.txt`;
-    link.click();
-    window.URL.revokeObjectURL(url);
   }
 
   onViewBranch(branchId: string): void {
