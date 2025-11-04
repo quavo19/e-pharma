@@ -64,6 +64,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'branches',
+    loadComponent: () =>
+      import('./pages/branches/branches.component').then(
+        (m) => m.BranchesComponent
+      ),
+  },
+  {
     path: '404',
     loadComponent: () =>
       import('./pages/not-found/not-found.component').then(
