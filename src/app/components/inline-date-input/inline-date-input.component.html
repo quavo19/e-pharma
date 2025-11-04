@@ -1,0 +1,169 @@
+<div
+  [ngClass]="[className()]"
+  class="flex flex-col justify-start text-primary text-base items-start gap-1 w-full"
+>
+  @if (label()) {
+  <label [for]="id()" class="block" [class]="disabled() ? 'opacity-50' : ''">
+    {{ label() }}
+    @if (required()) {
+    <span class="text-red-700">*</span>
+    }
+  </label>
+  }
+
+  <div class="relative w-full">
+    <button
+      (click)="toggleCalendar()"
+      [disabled]="disabled()"
+      [class]="buttonClasses"
+      type="button"
+    >
+      <lucide-icon [img]="icons.Calendar" [size]="20" class="text-gray-500" />
+      <span class="flex-1 text-left">{{ displayText() }}</span>
+      <lucide-icon
+        [img]="icons.ChevronDown"
+        [size]="16"
+        class="text-gray-500 transition-transform duration-200"
+        [class.rotate-180]="isOpen()"
+      />
+    </button>
+
+    @if (isOpen()) {
+    <div [class]="dropdownClasses">
+      <div class="p-4">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <button
+                (click)="toggleYearDropdown()"
+                type="button"
+                class="flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg text-sm hover:border-primary focus:border-primary min-w-20"
+              >
+                <span>{{ currentYear() }}</span>
+                <lucide-icon
+                  [img]="icons.ChevronDown"
+                  [size]="14"
+                  class="text-gray-500"
+                />
+              </button>
+              @if (showYearDropdown()) {
+              <div
+                class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-40 overflow-y-auto min-w-20"
+              >
+                @for (year of years(); track year) {
+                <button
+                  (click)="selectYear(year)"
+                  type="button"
+                  [class]="
+                    'w-full px-3 py-2 text-left text-sm hover:bg-gray-100 ' +
+                    (year === currentYear()
+                      ? 'bg-primary text-white'
+                      : 'text-gray-700')
+                  "
+                >
+                  {{ year }}
+                </button>
+                }
+              </div>
+              }
+            </div>
+
+            <div class="relative">
+              <button
+                (click)="toggleMonthDropdown()"
+                type="button"
+                class="flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg text-sm hover:border-primary focus:border-primary min-w-32"
+              >
+                <span>{{ months()[currentMonth()] }}</span>
+                <lucide-icon
+                  [img]="icons.ChevronDown"
+                  [size]="14"
+                  class="text-gray-500"
+                />
+              </button>
+              @if (showMonthDropdown()) {
+              <div
+                class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-40 overflow-y-auto min-w-32"
+              >
+                @for (month of months(); track month; let i = $index) {
+                <button
+                  (click)="selectMonth(i)"
+                  type="button"
+                  [class]="
+                    'w-full px-3 py-2 text-left text-sm hover:bg-gray-100 ' +
+                    (i === currentMonth()
+                      ? 'bg-primary text-white'
+                      : 'text-gray-700')
+                  "
+                >
+                  {{ month }}
+                </button>
+                }
+              </div>
+              }
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            <button
+              (click)="navigateMonth('prev')"
+              type="button"
+              class="p-2 hover:bg-gray-100 rounded-md transition-colors duration-200"
+            >
+              <lucide-icon
+                [img]="icons.ChevronLeft"
+                [size]="16"
+                class="text-gray-600"
+              />
+            </button>
+            <button
+              (click)="navigateMonth('next')"
+              type="button"
+              class="p-2 hover:bg-gray-100 rounded-md transition-colors duration-200"
+            >
+              <lucide-icon
+                [img]="icons.ChevronRight"
+                [size]="16"
+                class="text-gray-600"
+              />
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-7 gap-1 mb-2">
+          @for (day of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; track
+          day) {
+          <div class="text-center text-sm font-medium text-gray-500 py-2">
+            {{ day }}
+          </div>
+          }
+        </div>
+
+        <div class="grid grid-cols-7 gap-1">
+          @for (day of days(); track $index) { @if (day !== null) {
+          <button
+            (click)="selectDate(day)"
+            type="button"
+            [class]="
+              'w-10 h-10 text-sm rounded-md transition-all duration-200 flex items-center justify-center ' +
+              (isSelectedDate(day)
+                ? 'bg-primary text-white font-semibold'
+                : isToday(day)
+                ? 'bg-gray-300 text-gray-700 font-semibold'
+                : 'text-gray-700 hover:bg-gray-100')
+            "
+          >
+            {{ day }}
+          </button>
+          } @else {
+          <div class="w-10 h-10"></div>
+          } }
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+
+  @if (!!errorMessage()) {
+  <span class="text-xs mt-1 text-red-700 text-left">{{ errorMessage() }}</span>
+  }
+</div>
