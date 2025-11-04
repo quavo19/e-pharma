@@ -8,6 +8,8 @@ import {
   inject,
   OnInit,
   OnDestroy,
+  effect,
+  AfterViewChecked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, ChevronDown } from 'lucide-angular';
@@ -33,8 +35,9 @@ export interface SelectOption {
     },
   ],
 })
-export class SelectComponent implements OnInit, OnDestroy {
+export class SelectComponent implements OnInit, OnDestroy, AfterViewChecked {
   private elementRef = inject(ElementRef);
+  private shouldFocusSearch = false;
 
   options = input<SelectOption[]>([]);
   selectedValue = input<string | number | null>(null);
@@ -55,6 +58,15 @@ export class SelectComponent implements OnInit, OnDestroy {
 
   isOpen = signal(false);
   public readonly icons = { ChevronDown };
+
+  constructor() {
+    // Effect to focus search input when dropdown opens with search enabled
+    effect(() => {
+      if (this.isOpen() && this.enableSearch() && this.searchControlName()) {
+        this.shouldFocusSearch = true;
+      }
+    });
+  }
 
   private onCaptureClick = (event: Event) => {
     // Close when clicking anywhere outside the component, even if
@@ -117,7 +129,46 @@ export class SelectComponent implements OnInit, OnDestroy {
 
   toggleDropdown(): void {
     if (!this.disabled()) {
-      this.isOpen.set(!this.isOpen());
+      const wasOpen = this.isOpen();
+      this.isOpen.set(!wasOpen);
+
+      // If opening with search enabled, focus the search input
+      if (
+        !wasOpen &&
+        this.isOpen() &&
+        this.enableSearch() &&
+        this.searchControlName()
+      ) {
+        // Use requestAnimationFrame to ensure DOM is updated
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const searchInput = this.elementRef.nativeElement.querySelector(
+              `input[formControlName="${this.searchControlName()}"]`
+            ) as HTMLInputElement;
+            if (searchInput) {
+              searchInput.focus();
+            }
+          });
+        });
+      }
+    }
+  }
+
+  ngAfterViewChecked(): void {
+    // Focus search input after view is checked if dropdown just opened
+    if (
+      this.shouldFocusSearch &&
+      this.isOpen() &&
+      this.enableSearch() &&
+      this.searchControlName()
+    ) {
+      const searchInput = this.elementRef.nativeElement.querySelector(
+        `input[formControlName="${this.searchControlName()}"]`
+      ) as HTMLInputElement;
+      if (searchInput) {
+        searchInput.focus();
+        this.shouldFocusSearch = false;
+      }
     }
   }
 
