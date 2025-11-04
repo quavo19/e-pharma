@@ -497,7 +497,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
       this.userToToggleStatus?.status === 'Active' ? 'danger' : 'primary';
     return {
       label:
-        this.userToToggleStatus?.status === 'Active' ? 'Disable' : 'Enable',
+        this.userToToggleStatus?.status === 'Active'
+          ? 'Deactivate'
+          : 'Activate',
       variant: variant as 'primary' | 'secondary' | 'danger',
       action: () => this.confirmToggleStatus(),
     };
@@ -584,7 +586,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   getMenuItems = (user: User): ActionMenuItem[] => {
     return [
       {
-        label: user.status === 'Active' ? 'Disable' : 'Enable',
+        label: user.status === 'Active' ? 'Deactivate' : 'Activate',
         action: () => this.onToggleUserStatus(user.id),
         icon: user.status === 'Active' ? this.icons.PowerOff : this.icons.Power,
       },
