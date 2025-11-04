@@ -92,12 +92,10 @@
             [id]="'drug-created-by'"
             variant="select"
           />
-          <app-input
+          <app-inline-date-input
             [label]="'Expiry Date'"
-            type="date"
             [control]="addDrugForm.controls.expiryDate"
             [id]="'drug-expiry'"
-            variant="select"
           />
         </div>
 
@@ -357,12 +355,11 @@
         </div>
 
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">Expiry Date</label>
-          <app-input
-            type="date"
+          <app-inline-date-input
+            [label]="'Expiry Date'"
             [control]="editProductForm.controls.expiryDate"
             [id]="'edit-product-expiry'"
-            [isDisabled]="!isEditMode()"
+            [disabled]="!isEditMode()"
           />
         </div>
       </div>
