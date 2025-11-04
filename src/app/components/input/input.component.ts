@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, Output, EventEmitter, output } from '@angular/core';
+import {
+  Component,
+  input,
+  Output,
+  EventEmitter,
+  output,
+  effect,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -28,8 +35,49 @@ export class InputComponent {
 
   @Output() inputBlur = new EventEmitter<FocusEvent>();
 
+  constructor() {
+    // Sync FormControl disabled state with isDisabled input
+    effect(() => {
+      const control = this.control();
+      const disabled = this.isDisabled();
+      if (control) {
+        if (disabled && !control.disabled) {
+          control.disable({ emitEvent: false });
+        } else if (!disabled && control.disabled) {
+          control.enable({ emitEvent: false });
+        }
+      }
+    });
+  }
+
   protected handleyKeyEvent(event: KeyboardEvent): void {
+    if (this.isDisabled()) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
     if (event.key === 'Enter') this.keyEvent.emit();
+  }
+
+  protected handleKeyPress(event: KeyboardEvent): void {
+    if (this.isDisabled()) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+
+  protected handlePaste(event: ClipboardEvent): void {
+    if (this.isDisabled()) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+
+  protected handleInput(event: Event): void {
+    if (this.isDisabled()) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
   }
 
   public sizeClasses(): string {
