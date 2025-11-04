@@ -309,20 +309,18 @@
     <div class="flex flex-col gap-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">Product Name</label>
           <app-input
+            [label]="'Product Name'"
             [placeholder]="'Enter product name'"
             [control]="editProductForm.controls.name"
             [id]="'edit-product-name'"
             [isDisabled]="!isEditMode()"
           />
         </div>
-      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">Drug Class</label>
           <app-select
+            [label]="'Drug Class'"
             [options]="categoryOptions"
             [selectedValue]="editProductForm.get('category')?.value ?? null"
             placeholder="Select drug class"
@@ -332,21 +330,34 @@
         </div>
 
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">Shelve</label>
-          <app-input
-            [placeholder]="'Enter shelve'"
-            [control]="editProductForm.controls.stock"
-            [id]="'edit-product-shelve'"
-            [isDisabled]="!isEditMode()"
+          <app-select
+            [label]="'Shelve'"
+            [options]="shelveOptions"
+            [selectedValue]="selectedShelve"
+            placeholder="Select shelve"
+            [enableSearch]="true"
+            [searchControlName]="'shelveSearch'"
+            [searchPlaceholder]="'Search shelves...'"
+            [disabled]="!isEditMode()"
+            (selectionChange)="onShelveChangeInEdit($event)"
           />
         </div>
-      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">Quantity</label>
+          <app-select
+            [label]="'Dosage Form'"
+            [options]="dosageFormOptions"
+            [selectedValue]="selectedDosageForm"
+            placeholder="Select dosage form"
+            [disabled]="!isEditMode()"
+            (selectionChange)="onDosageFormChangeInEdit($event)"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2">
           <app-input
             type="number"
+            [label]="'Quantity'"
             [placeholder]="'Enter quantity'"
             [control]="editProductForm.controls.quantity"
             [id]="'edit-product-quantity'"
@@ -354,6 +365,27 @@
           />
         </div>
 
+        <div class="grid grid-cols-2 gap-4">
+          <app-input
+            [label]="'Strength'"
+            type="number"
+            [placeholder]="'500'"
+            [control]="editProductForm.controls.strength"
+            [id]="'edit-product-strength'"
+            [isDisabled]="!isEditMode()"
+          />
+          <app-select
+            [label]="'Unit'"
+            [options]="unitOptions"
+            [selectedValue]="selectedUnit"
+            placeholder="Select unit"
+            [disabled]="!isEditMode()"
+            (selectionChange)="onUnitChangeInEdit($event)"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex flex-col gap-2">
           <app-inline-date-input
             [label]="'Expiry Date'"
@@ -362,17 +394,31 @@
             [disabled]="!isEditMode()"
           />
         </div>
-      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">Inputted By</label>
-          <p class="text-sm text-gray-900">{{ viewingProduct.inputtedBy }}</p>
+          <app-input
+            [label]="'Brand'"
+            [placeholder]="'GSK'"
+            [control]="editProductForm.controls.brand"
+            [id]="'edit-product-brand'"
+            [isDisabled]="!isEditMode()"
+          />
         </div>
 
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">Branch</label>
+          <app-input
+            [label]="'Stock Threshold'"
+            type="number"
+            [placeholder]="'6'"
+            [control]="editProductForm.controls.stockThreshold"
+            [id]="'edit-product-stock-threshold'"
+            [isDisabled]="!isEditMode()"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2">
           <app-select
+            [label]="'Branch'"
             [options]="branchOptions"
             [selectedValue]="editProductForm.get('branch')?.value ?? null"
             placeholder="Select branch"
@@ -382,7 +428,63 @@
         </div>
       </div>
 
-      <div class="flex flex-col gap-2">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-2">
+            <app-input
+              [label]="'Cost Price'"
+              type="number"
+              [placeholder]="'562'"
+              [control]="editProductForm.controls.costPrice"
+              [id]="'edit-product-cost-price'"
+              [isDisabled]="!isEditMode()"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <app-input
+              [label]="'Selling Price'"
+              type="number"
+              [placeholder]="'67'"
+              [control]="editProductForm.controls.sellingPrice"
+              [id]="'edit-product-selling-price'"
+              [isDisabled]="!isEditMode()"
+            />
+            <app-input
+              [label]="'Discount Value (%)'"
+              type="number"
+              [placeholder]="'20'"
+              [control]="editProductForm.controls.discountValue"
+              [id]="'edit-product-discount'"
+              [isDisabled]="!isEditMode()"
+            />
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-2">
+            <app-input
+              [label]="'Supplier Name'"
+              [placeholder]="'usdi'"
+              [control]="editProductForm.controls.supplierName"
+              [id]="'edit-product-supplier-name'"
+              [isDisabled]="!isEditMode()"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <app-input
+              [label]="'Supplier Contact'"
+              [placeholder]="'23359588326'"
+              [control]="editProductForm.controls.supplierContact"
+              [id]="'edit-product-supplier-contact'"
+              [isDisabled]="!isEditMode()"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
         <label class="text-sm font-medium text-gray-700">Status</label>
         <span
           class="inline-block py-1 px-3 text-xs font-medium rounded-full border text-center w-fit"
@@ -395,6 +497,10 @@
         >
           {{ viewingProduct.status }}
         </span>
+      </div>
+
+      <div class="flex text-gray-500 italic text-sm gap-2">
+        Inputted By {{ viewingProduct.inputtedBy }}
       </div>
     </div>
     }
