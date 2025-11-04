@@ -74,6 +74,16 @@ export class ProductsComponent implements OnInit {
     quantity: new FormControl<number | null>(null),
     expiryDate: new FormControl<string>('', { nonNullable: true }),
     branch: new FormControl<string | null>(null),
+    dosageForm: new FormControl<string | null>(null),
+    strength: new FormControl<number | null>(null),
+    unit: new FormControl<string>('mg', { nonNullable: true }),
+    brand: new FormControl<string>('', { nonNullable: true }),
+    stockThreshold: new FormControl<number | null>(null),
+    costPrice: new FormControl<number | null>(null),
+    sellingPrice: new FormControl<number | null>(null),
+    discountValue: new FormControl<number | null>(null),
+    supplierName: new FormControl<string>('', { nonNullable: true }),
+    supplierContact: new FormControl<string>('', { nonNullable: true }),
   });
 
   filterForm = this.fb.group({
@@ -343,7 +353,22 @@ export class ProductsComponent implements OnInit {
         quantity: product.quantity,
         expiryDate: product.expiryDate,
         branch: product.facility,
+        dosageForm: (product as any).dosageForm || null,
+        strength: (product as any).strength || null,
+        unit: (product as any).unit || 'mg',
+        brand: (product as any).brand || '',
+        stockThreshold: (product as any).stockThreshold || null,
+        costPrice: (product as any).costPrice || null,
+        sellingPrice: (product as any).sellingPrice || null,
+        discountValue: (product as any).discountValue || null,
+        supplierName: (product as any).supplierName || '',
+        supplierContact: (product as any).supplierContact || '',
       });
+      // Set selected values for selects
+      this.selectedShelve = product.stock || null;
+      this.selectedDrugClass = product.category || '';
+      this.selectedDosageForm = (product as any).dosageForm || '';
+      this.selectedUnit = (product as any).unit || 'mg';
       this.isViewProductModalOpen.set(true);
     }
   }
@@ -369,6 +394,16 @@ export class ProductsComponent implements OnInit {
         quantity: this.viewingProduct.quantity,
         expiryDate: this.viewingProduct.expiryDate,
         branch: this.viewingProduct.facility,
+        dosageForm: (this.viewingProduct as any).dosageForm || null,
+        strength: (this.viewingProduct as any).strength || null,
+        unit: (this.viewingProduct as any).unit || 'mg',
+        brand: (this.viewingProduct as any).brand || '',
+        stockThreshold: (this.viewingProduct as any).stockThreshold || null,
+        costPrice: (this.viewingProduct as any).costPrice || null,
+        sellingPrice: (this.viewingProduct as any).sellingPrice || null,
+        discountValue: (this.viewingProduct as any).discountValue || null,
+        supplierName: (this.viewingProduct as any).supplierName || '',
+        supplierContact: (this.viewingProduct as any).supplierContact || '',
       });
     }
     this.isEditMode.set(false);
@@ -388,6 +423,16 @@ export class ProductsComponent implements OnInit {
       product.quantity = formValue.quantity || 0;
       product.expiryDate = formValue.expiryDate || '';
       product.facility = formValue.branch || '';
+      (product as any).dosageForm = formValue.dosageForm || null;
+      (product as any).strength = formValue.strength || null;
+      (product as any).unit = formValue.unit || 'mg';
+      (product as any).brand = formValue.brand || '';
+      (product as any).stockThreshold = formValue.stockThreshold || null;
+      (product as any).costPrice = formValue.costPrice || null;
+      (product as any).sellingPrice = formValue.sellingPrice || null;
+      (product as any).discountValue = formValue.discountValue || null;
+      (product as any).supplierName = formValue.supplierName || '';
+      (product as any).supplierContact = formValue.supplierContact || '';
     }
 
     this.isEditMode.set(false);
@@ -403,6 +448,21 @@ export class ProductsComponent implements OnInit {
 
   onBranchChangeInEdit(value: string | number | null): void {
     this.editProductForm.patchValue({ branch: value as string | null });
+  }
+
+  onDosageFormChangeInEdit(value: string | number | null): void {
+    this.editProductForm.patchValue({ dosageForm: value as string | null });
+    this.selectedDosageForm = value;
+  }
+
+  onUnitChangeInEdit(value: string | number | null): void {
+    this.editProductForm.patchValue({ unit: (value as string) || 'mg' });
+    this.selectedUnit = value;
+  }
+
+  onShelveChangeInEdit(value: string | number | null): void {
+    this.editProductForm.patchValue({ stock: (value as string) || '' });
+    this.selectedShelve = value;
   }
 
   onDeleteProduct(productId: string): void {
