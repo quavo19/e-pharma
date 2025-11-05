@@ -77,12 +77,16 @@ export class SidebarComponent {
           icon: this.icons.Pill,
           route: '/dosage-forms',
         },
+        {
+          label: 'Sales',
+          icon: this.icons.ShoppingCart,
+          route: '/sales',
+        },
       ],
     },
     { label: 'Audit Logs', icon: this.icons.NotebookPen, route: '/audit-logs' },
     { label: 'POS', icon: this.icons.CreditCard, route: '/POS' },
     { label: 'Batches', icon: this.icons.Layers, route: '/batches' },
-    { label: 'Sales', icon: this.icons.ShoppingCart, route: '/sales' },
     { label: 'Branches', icon: this.icons.Store, route: '/branches' },
     {
       label: 'User Management',
@@ -110,7 +114,8 @@ export class SidebarComponent {
           this.currentRoute === '/products' ||
           this.currentRoute === '/drug-classes' ||
           this.currentRoute === '/shelves' ||
-          this.currentRoute === '/dosage-forms'
+          this.currentRoute === '/dosage-forms' ||
+          this.currentRoute === '/sales'
         ) {
           this.isInventoryOpen.set(true);
         }
@@ -125,7 +130,8 @@ export class SidebarComponent {
       this.currentRoute === '/products' ||
       this.currentRoute === '/drug-classes' ||
       this.currentRoute === '/shelves' ||
-      this.currentRoute === '/dosage-forms'
+      this.currentRoute === '/dosage-forms' ||
+      this.currentRoute === '/sales'
     ) {
       this.isInventoryOpen.set(true);
     }
@@ -156,7 +162,8 @@ export class SidebarComponent {
       this.currentRoute === '/products' ||
       this.currentRoute === '/drug-classes' ||
       this.currentRoute === '/shelves' ||
-      this.currentRoute === '/dosage-forms'
+      this.currentRoute === '/dosage-forms' ||
+      this.currentRoute === '/sales'
     );
   }
 
