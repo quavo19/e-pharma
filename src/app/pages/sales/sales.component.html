@@ -1,0 +1,322 @@
+<main class="p-6 relative">
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <p class="text-2xl font-semibold text-gray-800">Sales</p>
+        <p class="text-sm font-light text-gray-600">
+          View and manage all sales records
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-4">
+        <div class="w-80">
+          <app-input
+            [placeholder]="'Search by order number or customer...'"
+            [hasLeftIcon]="true"
+            size="sm"
+            [control]="searchControl"
+            [id]="'sales-search'"
+          >
+            <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
+          </app-input>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        @if (hasActiveFilters) {
+        <button
+          (click)="clearAllFilters()"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.XCircle" [size]="16" />
+          Clear Filters
+        </button>
+        <div class="h-6 w-px bg-gray-300"></div>
+        }
+
+        <button
+          (click)="openFilterModal()"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.SlidersHorizontal" [size]="16" />
+          Filter
+        </button>
+
+        <app-export-select
+          [actions]="exportOptions"
+          class="w-32"
+          [placeholder]="'Export'"
+          size="sm"
+          [icon]="icons.Download"
+          (actionSelected)="onExportTypeChange($event)"
+        />
+      </div>
+    </div>
+
+    <ng-template #totalAmountCellTemplate let-sale let-index="index">
+      <span class="font-medium">{{ formatCurrency(sale.total) }}</span>
+    </ng-template>
+
+    <ng-template #dateCellTemplate let-sale let-index="index">
+      <div class="flex flex-col">
+        <span class="text-sm font-light text-gray-900">{{
+          sale.dateCreated
+        }}</span>
+        <span class="text-xs text-gray-500">{{ sale.timeCreated }}</span>
+      </div>
+    </ng-template>
+
+    <ng-template #customerNameCellTemplate let-sale let-index="index">
+      <span>{{ sale.customerName || "N/A" }}</span>
+    </ng-template>
+
+    <app-data-table
+      [columns]="tableColumns()"
+      [data]="filteredSales"
+      [getActionMenuItems]="getMenuItems"
+    />
+  </section>
+
+  <!-- Filter Modal -->
+  <app-popup
+    [isOpen]="isFilterModalOpen()"
+    heading="Filters"
+    description="Select filters to apply to the sales table"
+    variant="right"
+    panelWidth="w-[28rem]"
+    [primaryAction]="filterModalPrimaryAction"
+    [secondaryAction]="filterModalSecondaryAction"
+    (close)="closeFilterModal()"
+  >
+    <form [formGroup]="filterForm" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Branch</label>
+        <app-select
+          [options]="branchOptions"
+          [selectedValue]="selectedBranch"
+          placeholder="Select branch"
+          [enableSearch]="true"
+          [searchControlName]="'branchSearch'"
+          [searchPlaceholder]="'Search branches...'"
+          (selectionChange)="onBranchFilterChange($event)"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Sales Person</label>
+        <app-select
+          [options]="salesPersonOptions"
+          [selectedValue]="selectedSalesPerson"
+          placeholder="Select sales person"
+          [enableSearch]="true"
+          [searchControlName]="'salesPersonSearch'"
+          [searchPlaceholder]="'Search sales persons...'"
+          (selectionChange)="onSalesPersonFilterChange($event)"
+        />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">Start Date</label>
+          <app-inline-date-input
+            [control]="filterForm.controls.startDate"
+            [id]="'filter-start-date'"
+          />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">End Date</label>
+          <app-inline-date-input
+            [control]="filterForm.controls.endDate"
+            [id]="'filter-end-date'"
+          />
+        </div>
+      </div>
+    </form>
+  </app-popup>
+
+  <!-- View Sale Modal -->
+  <app-popup
+    [isOpen]="isViewSaleModalOpen()"
+    [heading]="viewingSale ? viewingSale.orderNumber : 'Sale Details'"
+    description="View sale order details"
+    variant="right"
+    panelWidth="w-[44rem]"
+    [primaryAction]="viewSaleModalPrimaryAction"
+    [secondaryAction]="viewSaleModalSecondaryAction"
+    (close)="closeViewSaleModal()"
+  >
+    @if (viewingSale) {
+    <div class="flex flex-col gap-6">
+      <!-- Sale Information -->
+      <div class="bg-gray-50 rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+          Order Information
+        </h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-sm text-gray-600">Order Number</p>
+            <p class="text-base font-medium text-gray-800">
+              {{ viewingSale.orderNumber }}
+            </p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Date & Time</p>
+            <p class="text-base font-medium text-gray-800">
+              {{ viewingSale.dateCreated }} {{ viewingSale.timeCreated }}
+            </p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Branch</p>
+            <p class="text-base font-medium text-gray-800">
+              {{ viewingSale.branch }}
+            </p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Sales Person</p>
+            <p class="text-base font-medium text-gray-800">
+              {{ viewingSale.salesPerson }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Information -->
+      @if (viewingSale.customerName || viewingSale.customerPhone ||
+      viewingSale.customerEmail) {
+      <div class="bg-gray-50 rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+          Customer Information
+        </h3>
+        <div class="grid grid-cols-2 gap-4">
+          @if (viewingSale.customerName) {
+          <div>
+            <p class="text-sm text-gray-600">Name</p>
+            <p class="text-base font-medium text-gray-800">
+              {{ viewingSale.customerName }}
+            </p>
+          </div>
+          } @if (viewingSale.customerPhone) {
+          <div>
+            <p class="text-sm text-gray-600">Phone</p>
+            <p class="text-base font-medium text-gray-800">
+              {{ viewingSale.customerPhone }}
+            </p>
+          </div>
+          } @if (viewingSale.customerEmail) {
+          <div>
+            <p class="text-sm text-gray-600">Email</p>
+            <p class="text-base font-medium text-gray-800">
+              {{ viewingSale.customerEmail }}
+            </p>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- Items -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Order Items</h3>
+        <div class="border rounded-lg overflow-hidden">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-4 py-3 text-left text-sm font-semibold text-gray-700"
+                >
+                  Product
+                </th>
+                <th
+                  class="px-4 py-3 text-center text-sm font-semibold text-gray-700"
+                >
+                  Quantity
+                </th>
+                <th
+                  class="px-4 py-3 text-right text-sm font-semibold text-gray-700"
+                >
+                  Unit Price
+                </th>
+                <th
+                  class="px-4 py-3 text-right text-sm font-semibold text-gray-700"
+                >
+                  Discount
+                </th>
+                <th
+                  class="px-4 py-3 text-right text-sm font-semibold text-gray-700"
+                >
+                  Total
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              @for (item of viewingSale.items; track item.productId) {
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm text-gray-800">
+                  {{ item.productName }}
+                </td>
+                <td class="px-4 py-3 text-sm text-center text-gray-600">
+                  {{ item.quantity }}
+                </td>
+                <td class="px-4 py-3 text-sm text-right text-gray-600">
+                  {{ formatCurrency(item.unitPrice) }}
+                </td>
+                <td class="px-4 py-3 text-sm text-right text-gray-600">
+                  {{ formatCurrency(item.discount) }}
+                </td>
+                <td
+                  class="px-4 py-3 text-sm text-right font-medium text-gray-800"
+                >
+                  {{ formatCurrency(item.total) }}
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="bg-gray-50 rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Order Summary</h3>
+        <div class="flex flex-col gap-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Subtotal</span>
+            <span class="text-gray-800">{{
+              formatCurrency(viewingSale.subtotal)
+            }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Discount</span>
+            <span class="text-gray-800">{{
+              formatCurrency(viewingSale.discount)
+            }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Tax</span>
+            <span class="text-gray-800">{{
+              formatCurrency(viewingSale.tax)
+            }}</span>
+          </div>
+          <div
+            class="flex justify-between text-base font-semibold pt-2 border-t border-gray-300"
+          >
+            <span class="text-gray-800">Total</span>
+            <span class="text-gray-800">{{
+              formatCurrency(viewingSale.total)
+            }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      @if (viewingSale.notes) {
+      <div class="bg-gray-50 rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Notes</h3>
+        <p class="text-sm text-gray-600">{{ viewingSale.notes }}</p>
+      </div>
+      }
+    </div>
+    }
+  </app-popup>
+</main>
