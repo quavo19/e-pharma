@@ -71,6 +71,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'sales',
+    loadComponent: () =>
+      import('./pages/sales/sales.component').then((m) => m.SalesComponent),
+  },
+  {
     path: '404',
     loadComponent: () =>
       import('./pages/not-found/not-found.component').then(
