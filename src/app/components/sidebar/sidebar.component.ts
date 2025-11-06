@@ -18,6 +18,7 @@ import {
   FlaskConical,
   Warehouse,
   Pill,
+  Truck,
 } from 'lucide-angular';
 import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -54,6 +55,7 @@ export class SidebarComponent {
     FlaskConical,
     Warehouse,
     Pill,
+    Truck,
   };
   public currentRoute: string = '';
   isUserManagementOpen = signal(false);
@@ -81,6 +83,11 @@ export class SidebarComponent {
           label: 'Sales',
           icon: this.icons.ShoppingCart,
           route: '/sales',
+        },
+        {
+          label: 'Suppliers',
+          icon: this.icons.Truck,
+          route: '/suppliers',
         },
       ],
     },
@@ -115,7 +122,8 @@ export class SidebarComponent {
           this.currentRoute === '/drug-classes' ||
           this.currentRoute === '/shelves' ||
           this.currentRoute === '/dosage-forms' ||
-          this.currentRoute === '/sales'
+          this.currentRoute === '/sales' ||
+          this.currentRoute === '/suppliers'
         ) {
           this.isInventoryOpen.set(true);
         }
@@ -131,7 +139,8 @@ export class SidebarComponent {
       this.currentRoute === '/drug-classes' ||
       this.currentRoute === '/shelves' ||
       this.currentRoute === '/dosage-forms' ||
-      this.currentRoute === '/sales'
+      this.currentRoute === '/sales' ||
+      this.currentRoute === '/suppliers'
     ) {
       this.isInventoryOpen.set(true);
     }
@@ -163,7 +172,8 @@ export class SidebarComponent {
       this.currentRoute === '/drug-classes' ||
       this.currentRoute === '/shelves' ||
       this.currentRoute === '/dosage-forms' ||
-      this.currentRoute === '/sales'
+      this.currentRoute === '/sales' ||
+      this.currentRoute === '/suppliers'
     );
   }
 
