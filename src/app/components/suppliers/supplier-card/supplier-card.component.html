@@ -1,0 +1,97 @@
+<div
+  class="bg-white rounded-2xl border border-gray-100 hover:border-green-300 hover:shadow-xl transition-all duration-300 overflow-hidden group"
+>
+  <div
+    class="bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 px-5 py-4"
+  >
+    <div class="flex items-center gap-4">
+      <div
+        class="w-14 h-14 bg-white rounded-lg shadow-sm flex items-center justify-center overflow-hidden shrink-0"
+      >
+        <img
+          [src]="supplier().logo"
+          [alt]="supplier().name"
+          class="w-full h-full object-cover"
+        />
+      </div>
+
+      <div class="flex-1 min-w-0">
+        <p class="text-base font-light text-gray-900 mb-1.5 truncate">
+          {{ supplier().name }}
+        </p>
+
+        <div class="flex items-center gap-1.5">
+          <lucide-icon
+            [img]="icons.Globe"
+            [size]="12"
+            class="text-gray-400 shrink-0"
+          />
+          <span class="text-xs font-light text-gray-600 truncate">{{
+            supplier().country
+          }}</span>
+        </div>
+
+        <div
+          class="flex items-center gap-3 text-xs font-light text-gray-500 truncate"
+        >
+          {{ supplier().contact }}
+        </div>
+      </div>
+
+      <!-- Heart Icon -->
+      <button
+        (click)="onFavoriteClick(); $event.stopPropagation()"
+        class="p-1.5 rounded-full bg-white/90 hover:bg-white transition-all duration-200 shadow-sm shrink-0 self-start mt-0.5"
+        [ngClass]="{ 'bg-white': supplier().isFavorite }"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          [class.text-red-500]="supplier().isFavorite"
+          [class.text-gray-400]="!supplier().isFavorite"
+          [attr.fill]="supplier().isFavorite ? 'currentColor' : 'none'"
+          [attr.stroke]="
+            supplier().isFavorite ? 'currentColor' : 'currentColor'
+          "
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="p-4 bg-white border-t border-gray-100 flex flex-col">
+    <app-star-rating
+      [rating]="supplier().rating"
+      size="sm"
+      [showRating]="true"
+      [showReviewCount]="true"
+      [reviewCount]="supplier().reviewCount"
+      class="mb-4"
+    />
+
+    <div class="flex items-center gap-2">
+      <button
+        (click)="onViewClick(); $event.stopPropagation()"
+        class="flex-1 px-3 py-2 text-xs font-light text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 flex items-center justify-center gap-1.5"
+      >
+        <lucide-icon [img]="icons.Eye" [size]="14" />
+        View
+      </button>
+      <button
+        (click)="onBuyClick(); $event.stopPropagation()"
+        class="flex-1 px-3 py-2 text-xs font-light text-white bg-green-600 rounded-lg hover:bg-green-700 transition-all duration-200 flex items-center justify-center gap-1.5"
+      >
+        <lucide-icon [img]="icons.ShoppingCart" [size]="14" />
+        Buy From
+      </button>
+    </div>
+  </div>
+</div>
