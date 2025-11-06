@@ -1,0 +1,134 @@
+<main class="p-6 relative">
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between mb-6">
+      <p class="text-2xl font-bold text-gray-800">Suppliers</p>
+    </div>
+
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-4">
+        <div class="w-80">
+          <app-input
+            [placeholder]="'Search by name, country, or region...'"
+            [hasLeftIcon]="true"
+            size="sm"
+            [control]="searchControl"
+            [id]="'supplier-search'"
+          >
+            <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
+          </app-input>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        @if (hasActiveFilters) {
+        <button
+          (click)="clearAllFilters()"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.XCircle" [size]="16" />
+          Clear Filters
+        </button>
+        <div class="h-6 w-px bg-gray-300"></div>
+        }
+
+        <button
+          (click)="openFilterModal()"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.SlidersHorizontal" [size]="16" />
+          Filter
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (supplier of filteredSuppliers(); track supplier.id) {
+      <app-supplier-card
+        [supplier]="supplier"
+        (favoriteToggled)="toggleFavorite($event)"
+        (viewClicked)="openViewModal($event)"
+        (buyClicked)="buyFromSupplier($event)"
+      />
+      } @empty {
+      <div
+        class="col-span-full flex flex-col items-center justify-center py-16 text-gray-500"
+      >
+        <p class="text-lg font-medium mb-2">No suppliers found</p>
+        <p class="text-sm">Try adjusting your search or filters</p>
+      </div>
+      }
+    </div>
+  </section>
+
+  <app-popup
+    [isOpen]="isFilterModalOpen()"
+    heading="Filters"
+    description="Select filters to apply to the suppliers"
+    variant="right"
+    panelWidth="w-[28rem]"
+    [primaryAction]="filterModalPrimaryAction"
+    [secondaryAction]="filterModalSecondaryAction"
+    (close)="closeFilterModal()"
+  >
+    <form [formGroup]="filterForm" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Favorite</label>
+        <app-select
+          [options]="favoriteOptions"
+          [selectedValue]="
+            filterForm.get('favorite')?.value === true
+              ? 'true'
+              : filterForm.get('favorite')?.value === false
+              ? 'false'
+              : null
+          "
+          placeholder="All suppliers"
+          (selectionChange)="onFavoriteFilterChange($event)"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Country</label>
+        <app-select
+          [options]="countryOptions"
+          [selectedValue]="filterForm.get('country')?.value ?? null"
+          placeholder="Select country"
+          [enableSearch]="true"
+          [searchControlName]="'countrySearch'"
+          [searchPlaceholder]="'Search countries...'"
+          (selectionChange)="onCountryFilterChange($event)"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Region</label>
+        <app-select
+          [options]="regionOptions"
+          [selectedValue]="filterForm.get('region')?.value ?? null"
+          placeholder="Select region"
+          [enableSearch]="true"
+          [searchControlName]="'regionSearch'"
+          [searchPlaceholder]="'Search regions...'"
+          (selectionChange)="onRegionFilterChange($event)"
+        />
+      </div>
+    </form>
+  </app-popup>
+
+  <app-popup
+    [isOpen]="isViewModalOpen()"
+    heading="Supplier Details"
+    description="View supplier information and reviews"
+    variant="right"
+    panelWidth="w-[32rem]"
+    [primaryAction]="viewModalPrimaryAction"
+    [secondaryAction]="viewModalSecondaryAction"
+    (close)="closeViewModal()"
+  >
+    @if (viewingSupplier) {
+    <app-supplier-details
+      [supplier]="viewingSupplier"
+      [reviews]="sampleReviews"
+    />
+    }
+  </app-popup>
+</main>
