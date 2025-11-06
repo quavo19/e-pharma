@@ -1,0 +1,50 @@
+<div class="flex items-center gap-2">
+  <div class="flex items-center gap-0.5">
+    @for (index of [0,1,2,3,4]; track index) {
+    <div class="relative" [ngClass]="getSizeClasses()">
+      <!-- Background star (empty) -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        [attr.width]="getStarSize()"
+        [attr.height]="getStarSize()"
+        viewBox="0 0 24 24"
+        class="absolute inset-0 text-gray-300"
+        fill="currentColor"
+      >
+        <path
+          d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+        />
+      </svg>
+      <!-- Filled star (foreground) -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        [attr.width]="getStarSize()"
+        [attr.height]="getStarSize()"
+        viewBox="0 0 24 24"
+        class="absolute inset-0 text-green-600"
+        fill="currentColor"
+        [style.clipPath]="
+          'inset(0 ' +
+          (100 - getStarFill(index) * 100) +
+          '% 0 0)'
+        "
+      >
+        <path
+          d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+        />
+      </svg>
+    </div>
+    }
+  </div>
+  @if (showRating()) {
+  <span class="text-xs font-light text-gray-700">
+    {{ rating() }}
+  </span>
+  }
+  @if (showReviewCount() && reviewCount() > 0) {
+  <span class="text-xs font-light text-gray-500">
+    ({{ reviewCount() }} reviews)
+  </span>
+  }
+</div>
+
