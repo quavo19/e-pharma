@@ -1,0 +1,258 @@
+<main class="p-6 relative">
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <p class="text-2xl font-semibold text-gray-800">Supplier Products</p>
+        <p class="text-sm font-light text-gray-600">
+          Browse and add products from this supplier to your cart
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-4">
+        <div class="w-80">
+          <app-input
+            [placeholder]="'Search by name, ID, or category...'"
+            [hasLeftIcon]="true"
+            size="sm"
+            [control]="searchControl"
+            [id]="'product-search'"
+          >
+            <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
+          </app-input>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        @if (hasActiveFilters) {
+        <button
+          (click)="clearAllFilters()"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.XCircle" [size]="16" />
+          Clear Filters
+        </button>
+        <div class="h-6 w-px bg-gray-300"></div>
+        }
+
+        <button
+          (click)="openFilterModal()"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.SlidersHorizontal" [size]="16" />
+          Filter
+        </button>
+
+        <button
+          (click)="onCartClick()"
+          class="relative flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.ShoppingCart" [size]="16" />
+          Cart @if (cartItemCount() > 0) {
+          <span
+            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-light"
+          >
+            {{ cartItemCount() }}
+          </span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Custom Table -->
+    <div class="overflow-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-green-700 sticky top-0 z-10">
+          <tr class="text-white">
+            <th
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              #
+            </th>
+            <th
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Product Name
+            </th>
+            <th
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Drug Class
+            </th>
+            <th
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Stock Status
+            </th>
+            <th
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Quantity
+            </th>
+            <th
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Expiry Date
+            </th>
+            <th
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Cost Price
+            </th>
+            <th
+              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @if (filteredProducts.length === 0) {
+          <tr>
+            <td colspan="8" class="text-center">
+              <div
+                class="w-full flex-col flex justify-center items-center gap-4 py-8"
+              >
+                <img src="/images/no-data.png" alt="no data" />
+                <p class="text-green-700 font-medium">No Data Found</p>
+              </div>
+            </td>
+          </tr>
+          } @else { @for (product of filteredProducts; track product.id; let i =
+          $index) {
+          <tr
+            class="hover:bg-gray-50 cursor-pointer"
+            (click)="onViewProduct(product.id)"
+          >
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+            >
+              {{ i + 1 }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+            >
+              {{ product.name }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+            >
+              {{ product.category }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+            >
+              {{ product.stock }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+            >
+              {{ product.quantity }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+            >
+              {{ product.expiryDate }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+            >
+              {{ product.costPriceDisplay }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm"
+              (click)="$event.stopPropagation()"
+            >
+              <button
+                (click)="onAddToCartFromTable(product)"
+                [disabled]="isProductInCart(product.id)"
+                class="flex items-center gap-1.5 px-4 py-2 text-xs font-light rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                [class.bg-green-600]="!isProductInCart(product.id)"
+                [class.text-white]="!isProductInCart(product.id)"
+                [class.hover:bg-green-700]="!isProductInCart(product.id)"
+                [class.bg-gray-200]="isProductInCart(product.id)"
+                [class.text-gray-500]="isProductInCart(product.id)"
+              >
+                <lucide-icon [img]="icons.ShoppingCart" [size]="14" />
+                {{ isProductInCart(product.id) ? "In Cart" : "Add to Cart" }}
+              </button>
+            </td>
+          </tr>
+          } }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Filter Modal -->
+  <app-popup
+    [isOpen]="isFilterModalOpen()"
+    heading="Filters"
+    description="Select filters to apply to the products table"
+    variant="right"
+    panelWidth="w-[28rem]"
+    [primaryAction]="filterModalPrimaryAction"
+    [secondaryAction]="filterModalSecondaryAction"
+    (close)="closeFilterModal()"
+  >
+    <form [formGroup]="filterForm" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Drug Class</label>
+        <app-select
+          [options]="categoryOptions"
+          [selectedValue]="filterForm.get('category')?.value ?? null"
+          placeholder="Select drug class"
+          [enableSearch]="true"
+          [searchControlName]="'categorySearch'"
+          [searchPlaceholder]="'Search drug classes...'"
+          (selectionChange)="onCategoryChange($event)"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700"
+          >Expiry Date Sort</label
+        >
+        <app-select
+          [options]="expiryDateSortOptions"
+          [selectedValue]="filterForm.get('expiryDateSort')?.value ?? null"
+          placeholder="Select sort order"
+          (selectionChange)="onExpiryDateSortChange($event)"
+        />
+      </div>
+    </form>
+  </app-popup>
+
+  <!-- View Product Modal -->
+  <app-view-product
+    [isOpen]="isViewProductModalOpen()"
+    [product]="viewingProduct()"
+    [isInCart]="
+      viewingProduct() ? isProductInCart(viewingProduct()!.id) : false
+    "
+    (close)="closeViewProductModal()"
+    (addToCart)="onAddToCart($event)"
+  />
+
+  <!-- Cart Modal -->
+  <app-cart
+    [isOpen]="isCartModalOpen()"
+    [cartItems]="cartItemsArray()"
+    [cartTotal]="cartTotal()"
+    (close)="closeCartModal()"
+    (increaseQuantity)="onIncreaseQuantity($event)"
+    (decreaseQuantity)="onDecreaseQuantity($event)"
+    (removeItem)="onRemoveFromCart($event)"
+    (proceedToPlaceOrder)="onProceedToPlaceOrder()"
+  />
+
+  <!-- Place Order Modal -->
+  <app-place-order
+    [isOpen]="isPlaceOrderModalOpen()"
+    [cartItems]="cartItemsArray()"
+    [cartTotal]="cartTotal()"
+    [branchOptions]="branchOptions"
+    (close)="closePlaceOrderModal()"
+    (placeOrder)="onPlaceOrder($event)"
+  />
+</main>
