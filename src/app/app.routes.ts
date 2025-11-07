@@ -83,6 +83,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'suppliers/:id/products',
+    loadComponent: () =>
+      import('./pages/supplier-products/supplier-products.component').then(
+        (m) => m.SupplierProductsComponent
+      ),
+  },
+  {
     path: '404',
     loadComponent: () =>
       import('./pages/not-found/not-found.component').then(
