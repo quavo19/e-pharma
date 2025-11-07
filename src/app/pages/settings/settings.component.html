@@ -1,0 +1,292 @@
+<main class="p-6 relative">
+  <section class="flex flex-col gap-6">
+    <!-- Header -->
+    <div>
+      <p class="text-2xl font-semibold text-gray-800">Settings</p>
+      <p class="text-sm font-light text-gray-600">
+        Manage your account settings and preferences
+      </p>
+    </div>
+
+    <!-- Tabs -->
+    <app-tabs
+      [tabs]="tabs"
+      [defaultTab]="'profile'"
+      (tabChange)="onTabChange($event)"
+    >
+      <!-- Profile Tab -->
+      @if (activeTab() === 'profile') {
+      <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-green-100 rounded-lg">
+            <lucide-icon [img]="icons.User" [size]="20" class="text-green-800" />
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900">Profile Information</p>
+            <p class="text-sm font-light text-gray-600">
+              Update your personal information
+            </p>
+          </div>
+        </div>
+        @if (!isProfileEditMode()) {
+        <button
+          type="button"
+          (click)="enableProfileEdit()"
+          class="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 bg-gray-200 text-gray-800 hover:bg-gray-300 flex items-center gap-2"
+        >
+          <lucide-icon [img]="icons.Pencil" [size]="16" />
+          Edit
+        </button>
+        }
+      </div>
+
+      <form [formGroup]="profileForm" class="flex flex-col gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <app-input
+              [label]="'Full Name'"
+              [control]="profileForm.controls.name"
+              [id]="'profile-name'"
+              [placeholder]="'Enter your full name'"
+              [isDisabled]="!isProfileEditMode()"
+            />
+          </div>
+          <div>
+            <app-input
+              [label]="'Email'"
+              [type]="'email'"
+              [control]="profileForm.controls.email"
+              [id]="'profile-email'"
+              [placeholder]="'Enter your email'"
+              [isDisabled]="!isProfileEditMode()"
+            />
+          </div>
+          <div>
+            <app-input
+              [label]="'Phone Number'"
+              [control]="profileForm.controls.phone"
+              [id]="'profile-phone'"
+              [placeholder]="'Enter your phone number'"
+              [isDisabled]="!isProfileEditMode()"
+            />
+          </div>
+        </div>
+        @if (isProfileEditMode()) {
+        <div class="flex justify-end gap-3">
+          <button
+            type="button"
+            (click)="cancelProfileEdit()"
+            class="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 bg-gray-200 text-gray-800 hover:bg-gray-300"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="onSaveProfile()"
+            [disabled]="!profileForm.valid"
+            [class]="
+              !profileForm.valid
+                ? 'px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 opacity-50 cursor-not-allowed bg-gray-200 text-gray-500'
+                : 'px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 bg-green-600 text-white hover:bg-green-700'
+            "
+          >
+            Save Changes
+          </button>
+        </div>
+        }
+      </form>
+      </div>
+      }
+
+      <!-- Security Tab -->
+      @if (activeTab() === 'security') {
+      <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2 bg-green-100 rounded-lg">
+          <lucide-icon [img]="icons.Lock" [size]="20" class="text-green-800" />
+        </div>
+        <div>
+          <p class="font-semibold text-gray-900">Change Password</p>
+          <p class="text-sm font-light text-gray-600">
+            Update your password to keep your account secure
+          </p>
+        </div>
+      </div>
+
+      <form [formGroup]="passwordForm" class="flex flex-col gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <app-input
+              [label]="'Current Password'"
+              [type]="'password'"
+              [control]="passwordForm.controls.currentPassword"
+              [id]="'current-password'"
+              [placeholder]="'Enter current password'"
+            />
+          </div>
+          <div></div>
+          <div>
+            <app-input
+              [label]="'New Password'"
+              [type]="'password'"
+              [control]="passwordForm.controls.newPassword"
+              [id]="'new-password'"
+              [placeholder]="'Enter new password'"
+            />
+          </div>
+          <div>
+            <app-input
+              [label]="'Confirm New Password'"
+              [type]="'password'"
+              [control]="passwordForm.controls.confirmPassword"
+              [id]="'confirm-password'"
+              [placeholder]="'Confirm new password'"
+            />
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button
+            type="button"
+            (click)="onChangePassword()"
+            [disabled]="!passwordForm.valid"
+            [class]="
+              !passwordForm.valid
+                ? 'px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 opacity-50 cursor-not-allowed bg-gray-200 text-gray-500'
+                : 'px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 bg-green-600 text-white hover:bg-green-700'
+            "
+          >
+            Change Password
+          </button>
+        </div>
+      </form>
+      </div>
+      }
+
+      <!-- Notifications Tab -->
+      @if (activeTab() === 'notifications') {
+      <div class="bg-white rounded-xl p-6">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2 bg-green-100 rounded-lg">
+          <lucide-icon [img]="icons.Bell" [size]="20" class="text-green-800" />
+        </div>
+        <div>
+          <p class="font-semibold text-gray-900">Notification Preferences</p>
+          <p class="text-sm font-light text-gray-600">
+            Choose what notifications you want to receive
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <div
+          class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-green-100 rounded-lg">
+              <lucide-icon [img]="icons.Mail" [size]="18" class="text-green-800" />
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">Email Notifications</p>
+              <p class="text-sm font-light text-gray-600">
+                Receive notifications via email
+              </p>
+            </div>
+          </div>
+          <app-slide-toggle
+            [variant]="'primary'"
+            [ngModel]="notificationPreferences().emailNotifications"
+            (ngModelChange)="toggleNotification('emailNotifications', $event)"
+          />
+        </div>
+
+        <div
+          class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-green-100 rounded-lg">
+              <lucide-icon [img]="icons.Smartphone" [size]="18" class="text-green-800" />
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">Push Notifications</p>
+              <p class="text-sm font-light text-gray-600">
+                Receive push notifications in browser
+              </p>
+            </div>
+          </div>
+          <app-slide-toggle
+            [variant]="'primary'"
+            [ngModel]="notificationPreferences().pushNotifications"
+            (ngModelChange)="toggleNotification('pushNotifications', $event)"
+          />
+        </div>
+
+        <div
+          class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-green-100 rounded-lg">
+              <lucide-icon [img]="icons.Package" [size]="18" class="text-green-800" />
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">Low Stock Alerts</p>
+              <p class="text-sm font-light text-gray-600">
+                Get notified when inventory is running low
+              </p>
+            </div>
+          </div>
+          <app-slide-toggle
+            [variant]="'primary'"
+            [ngModel]="notificationPreferences().lowStockAlerts"
+            (ngModelChange)="toggleNotification('lowStockAlerts', $event)"
+          />
+        </div>
+
+        <div
+          class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-green-100 rounded-lg">
+              <lucide-icon [img]="icons.AlertTriangle" [size]="18" class="text-green-800" />
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">Expiry Alerts</p>
+              <p class="text-sm font-light text-gray-600">
+                Receive alerts for products nearing expiration
+              </p>
+            </div>
+          </div>
+          <app-slide-toggle
+            [variant]="'primary'"
+            [ngModel]="notificationPreferences().expiryAlerts"
+            (ngModelChange)="toggleNotification('expiryAlerts', $event)"
+          />
+        </div>
+
+        <div
+          class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-green-100 rounded-lg">
+              <lucide-icon [img]="icons.ShoppingCart" [size]="18" class="text-green-800" />
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">Order Updates</p>
+              <p class="text-sm font-light text-gray-600">
+                Get notified about order status changes
+              </p>
+            </div>
+          </div>
+          <app-slide-toggle
+            [variant]="'primary'"
+            [ngModel]="notificationPreferences().orderUpdates"
+            (ngModelChange)="toggleNotification('orderUpdates', $event)"
+          />
+        </div>
+      </div>
+      </div>
+      }
+    </app-tabs>
+  </section>
+</main>
+
