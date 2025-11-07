@@ -7,6 +7,7 @@ export interface PopupAction {
   variant: 'primary' | 'secondary' | 'danger';
   action: () => void;
   icon?: any;
+  disabled?: boolean;
 }
 
 @Component({
@@ -39,7 +40,7 @@ export class PopupComponent {
 
   onPrimaryAction(): void {
     const action = this.primaryAction();
-    if (action) {
+    if (action && !action.disabled) {
       action.action();
     }
   }
@@ -57,13 +58,20 @@ export class PopupComponent {
 
     const baseClasses =
       'flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200';
-    const variantClasses = {
-      primary: 'bg-green-600 text-white hover:bg-green-700',
-      secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
-      danger: 'bg-red-600 text-white hover:bg-red-700',
-    };
+    const disabledClasses = action.disabled
+      ? 'opacity-50 cursor-not-allowed bg-gray-200 text-gray-500'
+      : '';
+    const variantClasses = action.disabled
+      ? {}
+      : {
+          primary: 'bg-green-600 text-white hover:bg-green-700',
+          secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
+          danger: 'bg-red-600 text-white hover:bg-red-700',
+        };
 
-    return `${baseClasses} ${variantClasses[action.variant]}`;
+    return `${baseClasses} ${
+      disabledClasses || variantClasses[action.variant] || ''
+    }`;
   }
 
   getSecondaryButtonClasses(): string {
