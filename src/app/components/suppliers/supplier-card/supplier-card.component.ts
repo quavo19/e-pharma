@@ -1,6 +1,12 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Globe, Eye, ShoppingCart } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  Globe,
+  Eye,
+  ShoppingCart,
+  Store,
+} from 'lucide-angular';
 import { StarRatingComponent } from '../star-rating/star-rating.component';
 import { Supplier } from '../../../pages/suppliers/suppliers.component';
 
@@ -20,6 +26,7 @@ export class SupplierCardComponent {
     Globe,
     Eye,
     ShoppingCart,
+    Store,
   };
 
   onFavoriteClick(): void {
@@ -34,4 +41,3 @@ export class SupplierCardComponent {
     this.buyClicked.emit(this.supplier());
   }
 }
-
