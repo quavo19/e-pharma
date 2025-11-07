@@ -1,13 +1,70 @@
-<nav class="w-58 h-full text-white flex flex-col gap-4">
-  <div
-    class="bg-green-800 h-full w-full py-6 px-4 flex flex-col overflow-hidden"
+<nav
+  [class]="
+    isCollapsed()
+      ? 'w-20 h-full text-white flex flex-col gap-4 transition-all duration-300 relative'
+      : 'w-58 h-full text-white flex flex-col gap-4 transition-all duration-300 relative'
+  "
+>
+  <!-- Toggle Collapse Button - Sticks out at top -->
+  <button
+    (click)="toggleCollapse()"
+    class="absolute -right-4 top-6 z-50 flex items-center justify-center w-10 h-10 bg-green-800 rounded-full border-2 border-white shadow-lg hover:bg-tertiary text-white transition-all duration-300 hover:scale-110"
+    [title]="isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
   >
-    <h3 class="font-bold text-center pt-6 text-white shrink-0">Logo</h3>
+    <lucide-icon
+      [img]="isCollapsed() ? icons.PanelLeftOpen : icons.PanelLeftClose"
+      [size]="18"
+      class="transition-all duration-300"
+    />
+  </button>
+
+  <div
+    class="bg-green-800 h-full w-full py-6 flex flex-col overflow-hidden transition-all duration-300"
+    [class.px-2]="isCollapsed()"
+    [class.px-4]="!isCollapsed()"
+  >
+    <!-- Logo -->
+    <div class="flex items-center justify-center shrink-0">
+      <div
+        class="bg-green-100 rounded-full flex items-center justify-center"
+        [class]="
+          isCollapsed()
+            ? 'w-10 h-10 transition-all duration-300'
+            : 'w-14 h-14 transition-all duration-300'
+        "
+      >
+        <img
+          src="/images/ehlogo.svg"
+          alt="Logo"
+          [class]="
+            isCollapsed()
+              ? 'w-10 h-10 object-contain transition-all duration-300'
+              : 'w-14 h-14 object-contain transition-all duration-300'
+          "
+        />
+      </div>
+    </div>
+
+    <!-- Navigation Items -->
     <div
       class="flex flex-col gap-3 mt-6 flex-1 overflow-y-auto min-h-0 scrollbar-hide"
     >
       @for (item of navigationItems; track item.label) { @if (item.children &&
-      item.children.length > 0) {
+      item.children.length > 0) { @if (isCollapsed()) {
+      <!-- Collapsed: Show icon-only link to first child -->
+      <a
+        [routerLink]="item.children[0].route"
+        [class]="
+          isParentItemActive(item)
+            ? 'flex items-center justify-center w-full py-3 px-2 rounded-lg bg-tertiary text-white transition-all duration-200'
+            : 'flex items-center justify-center w-full py-3 px-2 rounded-xl bg-transparent text-white/70 hover:bg-tertiary hover:text-white transition-all duration-200'
+        "
+        [title]="item.label"
+      >
+        <lucide-icon [img]="item.icon" [size]="20" />
+      </a>
+      } @else {
+      <!-- Expanded: Show full menu with children -->
       <div class="flex flex-col">
         <button
           (click)="
@@ -61,27 +118,42 @@
         </div>
         }
       </div>
-      } @else {
+      } } @else {
       <a
         [routerLink]="item.route"
         [class]="
           isActiveRoute(item.route || '')
-            ? 'flex items-center gap-3 w-full py-3 px-4 rounded-lg bg-tertiary text-white transition-all duration-200'
-            : 'flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-transparent text-white/70 hover:bg-tertiary hover:text-white transition-all duration-200'
+            ? 'flex items-center gap-3 w-full py-3 rounded-lg bg-tertiary text-white transition-all duration-200'
+            : 'flex items-center gap-3 w-full py-3 rounded-xl bg-transparent text-white/70 hover:bg-tertiary hover:text-white transition-all duration-200'
         "
+        [class.justify-center]="isCollapsed()"
+        [class.px-4]="!isCollapsed()"
+        [class.px-2]="isCollapsed()"
+        [title]="isCollapsed() ? item.label : ''"
       >
         <lucide-icon [img]="item.icon" [size]="20" />
+        @if (!isCollapsed()) {
         <span class="font-light text-sm">{{ item.label }}</span>
+        }
       </a>
       } }
     </div>
+
+    <!-- Logout Button -->
     <div class="mt-auto pt-4 shrink-0">
       <button
         (click)="logout()"
-        class="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-lg bg-tertiary text-white hover:bg-secondary transition-all duration-200 transform hover:scale-105"
+        [class]="
+          isCollapsed()
+            ? 'flex items-center justify-center w-full py-3 px-2 rounded-lg bg-tertiary text-white hover:bg-secondary transition-all duration-200 transform hover:scale-105'
+            : 'flex items-center justify-center gap-3 w-full py-3 px-4 rounded-lg bg-tertiary text-white hover:bg-secondary transition-all duration-200 transform hover:scale-105'
+        "
+        [title]="isCollapsed() ? 'Logout' : ''"
       >
         <lucide-icon [img]="icons.LogOut" [size]="20" />
+        @if (!isCollapsed()) {
         <span class="font-medium text-sm">Logout</span>
+        }
       </button>
     </div>
   </div>
