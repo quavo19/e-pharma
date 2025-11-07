@@ -1,0 +1,82 @@
+<app-popup
+  [isOpen]="isOpen()"
+  heading="Shopping Cart"
+  description="Review and manage your cart items"
+  variant="right"
+  panelWidth="w-[32rem]"
+  [primaryAction]="cartModalPrimaryAction"
+  [secondaryAction]="cartModalSecondaryAction"
+  (close)="onClose()"
+>
+  @if (!hasItems) {
+  <div class="flex flex-col items-center justify-center py-12 text-gray-500">
+    <lucide-icon
+      [img]="icons.ShoppingCart"
+      [size]="48"
+      class="mb-4 opacity-50"
+    />
+    <p class="text-lg font-medium mb-2">Your cart is empty</p>
+    <p class="text-sm">Add products to your cart to continue</p>
+  </div>
+  } @else {
+  <div class="flex flex-col gap-4">
+    <div
+      class="flex flex-col gap-3 max-h-[calc(100vh-300px)] overflow-y-auto"
+    >
+      @for (item of cartItems(); track item.productId) {
+      <div
+        class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
+      >
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-gray-900 mb-1">
+            {{ item.product.name }}
+          </p>
+          <p class="text-xs text-gray-500 mb-2">
+            {{ item.product.category }}
+          </p>
+          <p class="text-sm font-semibold text-gray-900">
+            {{ (item.product.costPrice * item.quantity).toFixed(2) }}
+          </p>
+        </div>
+        <div class="flex flex-col items-end gap-2">
+          <button
+            (click)="onRemoveItem(item.productId)"
+            class="p-1 text-gray-400 hover:text-red-600 transition-colors"
+            title="Remove item"
+          >
+            <lucide-icon [img]="icons.Trash2" [size]="16" />
+          </button>
+          <div class="flex items-center gap-2">
+            <button
+              (click)="onDecreaseQuantity(item.productId)"
+              [disabled]="item.quantity <= 1"
+              class="w-7 h-7 flex items-center justify-center rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <lucide-icon [img]="icons.Minus" [size]="14" />
+            </button>
+            <span class="w-8 text-center text-sm font-medium text-gray-900">
+              {{ item.quantity }}
+            </span>
+            <button
+              (click)="onIncreaseQuantity(item.productId)"
+              class="w-7 h-7 flex items-center justify-center rounded border border-gray-300 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <lucide-icon [img]="icons.Plus" [size]="14" />
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    <div class="border-t border-gray-200 pt-4 mt-4">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-gray-700">Total:</span>
+        <span class="text-lg font-semibold text-gray-900">
+          {{ cartTotal().toFixed(2) }}
+        </span>
+      </div>
+    </div>
+  </div>
+  }
+</app-popup>
+
