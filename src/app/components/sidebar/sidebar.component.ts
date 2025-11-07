@@ -21,6 +21,7 @@ import {
   Warehouse,
   Pill,
   Truck,
+  Settings,
 } from 'lucide-angular';
 import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -60,6 +61,7 @@ export class SidebarComponent {
     Warehouse,
     Pill,
     Truck,
+    Settings,
   };
   public currentRoute: string = '';
   isUserManagementOpen = signal(false);
@@ -123,7 +125,7 @@ export class SidebarComponent {
         { label: 'Roles', icon: this.icons.Shield, route: '/roles' },
       ],
     },
-    { label: 'Refunds', icon: this.icons.RotateCcw, route: '/settings' },
+    { label: 'Settings', icon: this.icons.Settings, route: '/settings' },
     { label: 'Reports', icon: this.icons.BarChart3, route: '/logout' },
   ];
 
