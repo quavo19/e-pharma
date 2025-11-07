@@ -6,17 +6,7 @@
   </div>
 
   <div class="flex items-center gap-4">
-    <button
-      (click)="onNotificationClick()"
-      class="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-green-200 rounded-lg transition-colors duration-200"
-    >
-      <lucide-icon [img]="icons.Bell" [size]="20" />
-      <span
-        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-light"
-      >
-        3
-      </span>
-    </button>
+    <app-notifications></app-notifications>
 
     <div class="h-6 w-px bg-gray-300"></div>
 
