@@ -90,6 +90,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'settings',
+    loadComponent: () =>
+      import('./pages/settings/settings.component').then(
+        (m) => m.SettingsComponent
+      ),
+  },
+  {
     path: '404',
     loadComponent: () =>
       import('./pages/not-found/not-found.component').then(
