@@ -12,6 +12,8 @@ import {
   RotateCcw,
   BarChart3,
   ChevronDown,
+  PanelLeftClose,
+  PanelLeftOpen,
   Shield,
   ShoppingCart,
   Store,
@@ -49,6 +51,8 @@ export class SidebarComponent {
     RotateCcw,
     BarChart3,
     ChevronDown,
+    PanelLeftClose,
+    PanelLeftOpen,
     Shield,
     ShoppingCart,
     Store,
@@ -60,6 +64,22 @@ export class SidebarComponent {
   public currentRoute: string = '';
   isUserManagementOpen = signal(false);
   isInventoryOpen = signal(false);
+  private readonly SIDEBAR_COLLAPSED_KEY = 'sidebarCollapsed';
+  
+  // Initialize collapsed state from localStorage
+  isCollapsed = signal(false);
+  
+  private loadCollapsedState(): boolean {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return false;
+    }
+    try {
+      const saved = localStorage.getItem(this.SIDEBAR_COLLAPSED_KEY);
+      return saved === 'true';
+    } catch {
+      return false;
+    }
+  }
 
   public readonly navigationItems: NavigationItem[] = [
     { label: 'Dashboard', icon: this.icons.Home, route: '/' },
@@ -108,6 +128,9 @@ export class SidebarComponent {
   ];
 
   constructor(private router: Router) {
+    // Load collapsed state from localStorage
+    this.isCollapsed.set(this.loadCollapsedState());
+    
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
@@ -123,7 +146,8 @@ export class SidebarComponent {
           this.currentRoute === '/shelves' ||
           this.currentRoute === '/dosage-forms' ||
           this.currentRoute === '/sales' ||
-          this.currentRoute === '/suppliers'
+          this.currentRoute === '/suppliers' ||
+          this.currentRoute.startsWith('/suppliers/')
         ) {
           this.isInventoryOpen.set(true);
         }
@@ -140,7 +164,8 @@ export class SidebarComponent {
       this.currentRoute === '/shelves' ||
       this.currentRoute === '/dosage-forms' ||
       this.currentRoute === '/sales' ||
-      this.currentRoute === '/suppliers'
+      this.currentRoute === '/suppliers' ||
+      this.currentRoute.startsWith('/suppliers/')
     ) {
       this.isInventoryOpen.set(true);
     }
@@ -152,6 +177,13 @@ export class SidebarComponent {
       return current === '/';
     }
     return current.startsWith(route);
+  }
+
+  isParentItemActive(item: NavigationItem): boolean {
+    if (!item.children || item.children.length === 0) {
+      return this.isActiveRoute(item.route || '');
+    }
+    return item.children.some((child) => this.isActiveRoute(child.route || ''));
   }
 
   toggleUserManagement(): void {
@@ -173,7 +205,8 @@ export class SidebarComponent {
       this.currentRoute === '/shelves' ||
       this.currentRoute === '/dosage-forms' ||
       this.currentRoute === '/sales' ||
-      this.currentRoute === '/suppliers'
+      this.currentRoute === '/suppliers' ||
+      this.currentRoute.startsWith('/suppliers/')
     );
   }
 
@@ -186,4 +219,27 @@ export class SidebarComponent {
   logout(): void {
     this.router.navigate(['/login']);
   }
+
+  private saveCollapsedState(collapsed: boolean): void {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return;
+    }
+    try {
+      localStorage.setItem(this.SIDEBAR_COLLAPSED_KEY, String(collapsed));
+    } catch {
+      // Ignore localStorage errors
+    }
+  }
+
+  toggleCollapse(): void {
+    const newState = !this.isCollapsed();
+    this.isCollapsed.set(newState);
+    this.saveCollapsedState(newState);
+    // Close sub-menus when collapsing
+    if (newState) {
+      this.isUserManagementOpen.set(false);
+      this.isInventoryOpen.set(false);
+    }
+  }
+
 }
