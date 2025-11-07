@@ -1,0 +1,172 @@
+<app-popup
+  [isOpen]="isOpen()"
+  [heading]="product() ? product()!.name : 'Product Details'"
+  description="View product details and add to cart"
+  variant="right"
+  panelWidth="w-[44rem]"
+  [primaryAction]="viewProductModalPrimaryAction"
+  [secondaryAction]="viewProductModalSecondaryAction"
+  (close)="onClose()"
+>
+  @if (product()) {
+  <form [formGroup]="viewProductForm" class="flex flex-col gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <app-input
+        [label]="'Product Name'"
+        [placeholder]="''"
+        [control]="viewProductForm.controls.name"
+        [id]="'view-product-name'"
+        [isDisabled]="true"
+      />
+
+      <app-input
+        [label]="'Drug Class'"
+        [placeholder]="''"
+        [control]="viewProductForm.controls.category"
+        [id]="'view-product-category'"
+        [isDisabled]="true"
+      />
+
+      <app-input
+        [label]="'Stock Status'"
+        [placeholder]="''"
+        [control]="viewProductForm.controls.stock"
+        [id]="'view-product-stock'"
+        [isDisabled]="true"
+      />
+
+      <app-input
+        [label]="'Dosage Form'"
+        [placeholder]="''"
+        [control]="viewProductForm.controls.dosageForm"
+        [id]="'view-product-dosage-form'"
+        [isDisabled]="true"
+      />
+
+      <app-input
+        [label]="'Quantity'"
+        type="number"
+        [placeholder]="''"
+        [control]="viewProductForm.controls.quantity"
+        [id]="'view-product-quantity'"
+        [isDisabled]="true"
+      />
+
+      <div class="grid grid-cols-2 gap-4">
+        <app-input
+          [label]="'Strength'"
+          type="number"
+          [placeholder]="''"
+          [control]="viewProductForm.controls.strength"
+          [id]="'view-product-strength'"
+          [isDisabled]="true"
+        />
+        <app-input
+          [label]="'Unit'"
+          [placeholder]="''"
+          [control]="viewProductForm.controls.unit"
+          [id]="'view-product-unit'"
+          [isDisabled]="true"
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <app-input
+        [label]="'Expiry Date'"
+        [placeholder]="''"
+        [control]="viewProductForm.controls.expiryDate"
+        [id]="'view-product-expiry'"
+        [isDisabled]="true"
+      />
+
+      <app-input
+        [label]="'Brand'"
+        [placeholder]="''"
+        [control]="viewProductForm.controls.brand"
+        [id]="'view-product-brand'"
+        [isDisabled]="true"
+      />
+
+      <app-input
+        [label]="'Stock Threshold'"
+        type="number"
+        [placeholder]="''"
+        [control]="viewProductForm.controls.stockThreshold"
+        [id]="'view-product-stock-threshold'"
+        [isDisabled]="true"
+      />
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Status</label>
+        <span
+          class="inline-block py-1 px-3 text-xs font-medium rounded-full border text-center w-fit"
+          [class.bg-green-100]="product()!.status === 'Active'"
+          [class.text-green-800]="product()!.status === 'Active'"
+          [class.bg-red-100]="product()!.status === 'Inactive'"
+          [class.text-red-800]="product()!.status === 'Inactive'"
+          [class.border-green-500]="product()!.status === 'Active'"
+          [class.border-red-500]="product()!.status === 'Inactive'"
+        >
+          {{ product()!.status }}
+        </span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="flex flex-col gap-4">
+        <app-input
+          [label]="'Cost Price'"
+          type="number"
+          [placeholder]="''"
+          [control]="viewProductForm.controls.costPrice"
+          [id]="'view-product-cost-price'"
+          [isDisabled]="true"
+        />
+
+        <div class="grid grid-cols-2 gap-4">
+          <app-input
+            [label]="'Selling Price'"
+            type="number"
+            [placeholder]="''"
+            [control]="viewProductForm.controls.sellingPrice"
+            [id]="'view-product-selling-price'"
+            [isDisabled]="true"
+          />
+          <app-input
+            [label]="'Discount Value (%)'"
+            type="number"
+            [placeholder]="''"
+            [control]="viewProductForm.controls.discountValue"
+            [id]="'view-product-discount'"
+            [isDisabled]="true"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <app-input
+          [label]="'Supplier Name'"
+          [placeholder]="''"
+          [control]="viewProductForm.controls.supplierName"
+          [id]="'view-product-supplier-name'"
+          [isDisabled]="true"
+        />
+
+        <app-input
+          [label]="'Supplier Contact'"
+          [placeholder]="''"
+          [control]="viewProductForm.controls.supplierContact"
+          [id]="'view-product-supplier-contact'"
+          [isDisabled]="true"
+        />
+      </div>
+    </div>
+
+    <div class="flex text-gray-500 italic text-sm gap-2">
+      Inputted By {{ product()!.inputtedBy }}
+    </div>
+  </form>
+  }
+</app-popup>
+
