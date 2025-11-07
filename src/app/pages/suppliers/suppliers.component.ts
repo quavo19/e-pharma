@@ -379,8 +379,7 @@ export class SuppliersComponent implements OnInit {
   }
 
   buyFromSupplier(supplier: Supplier): void {
-    // TODO: Implement buy functionality
-    console.log('Buy from:', supplier.name);
+    this.router.navigate(['/suppliers', supplier.id, 'products']);
   }
 
   get viewModalPrimaryAction() {
