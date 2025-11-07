@@ -1,0 +1,95 @@
+<div class="relative notifications-container">
+  <button
+    (click)="toggleDropdown()"
+    class="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-green-200 rounded-lg transition-colors duration-200"
+  >
+    <lucide-icon [img]="icons.Bell" [size]="20" />
+    @if (getUnreadCount() > 0) {
+    <span
+      class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-light"
+    >
+      {{ getUnreadCount() }}
+    </span>
+    }
+  </button>
+
+  @if (isOpen()) {
+  <div
+    class="absolute right-0 top-full mt-2 w-96 bg-white rounded-2xl shadow-xl border border-gray-200 z-50 max-h-[600px] flex flex-col"
+  >
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200">
+      <p class="font-semibold text-gray-900">Notifications</p>
+      <div class="flex items-center gap-2">
+        @if (getUnreadCount() > 0) {
+        <button
+          (click)="markAllAsRead()"
+          class="p-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+          title="Mark all as read"
+        >
+          <lucide-icon [img]="icons.CheckCheck" [size]="16" />
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="overflow-y-auto flex-1">
+      @if (getNotifications().length === 0) {
+      <div class="p-8 text-center text-gray-500">
+        <p class="text-sm">No notifications</p>
+      </div>
+      } @else {
+      <div class="divide-y divide-gray-100">
+        @for (notification of getNotifications(); track notification.id) {
+        <div
+          [class]="
+            notification.read
+              ? 'p-4 hover:bg-gray-50 transition-colors cursor-pointer'
+              : 'p-4 bg-green-50/50 hover:bg-green-50 transition-colors cursor-pointer border-l-4 border-green-500'
+          "
+          (click)="markAsRead(notification, $event)"
+        >
+          <div class="flex gap-3">
+            <!-- Image -->
+            @if (notification.image) {
+            <div class="shrink-0">
+              <img
+                [src]="notification.image"
+                [alt]="notification.title"
+                class="w-12 h-12 rounded-lg object-cover"
+              />
+            </div>
+            }
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <p
+                [class]="
+                  notification.read
+                    ? 'font-medium text-sm text-gray-900 mb-1'
+                    : 'font-semibold text-sm text-gray-900 mb-1'
+                "
+              >
+                {{ notification.title }}
+              </p>
+              <p
+                class="text-xs text-gray-600 line-clamp-2 mb-2"
+                [title]="notification.description"
+              >
+                {{ notification.description }}
+              </p>
+              <span class="text-xs text-gray-400">
+                {{ formatTime(notification.timestamp) }}
+              </span>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+  }
+</div>
+
