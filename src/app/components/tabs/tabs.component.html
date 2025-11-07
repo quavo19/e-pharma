@@ -1,0 +1,24 @@
+<div class="flex flex-col">
+  <!-- Tab Headers -->
+  <div class="flex gap-2 border-b border-gray-200 mb-6">
+    @for (tab of tabs(); track tab.id) {
+    <button
+      type="button"
+      (click)="selectTab(tab.id)"
+      [class]="
+        isActive(tab.id)
+          ? 'px-6 py-3 text-sm font-medium text-green-800 border-b-2 border-green-800 transition-colors'
+          : 'px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 transition-colors'
+      "
+    >
+      {{ tab.label }}
+    </button>
+    }
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <ng-content />
+  </div>
+</div>
+
