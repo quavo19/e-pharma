@@ -55,6 +55,7 @@
       <button
         (click)="onPrimaryAction()"
         [class]="getPrimaryButtonClasses()"
+        [disabled]="primaryAction()?.disabled"
         class="flex items-center justify-center gap-2"
       >
         @if (primaryAction()?.icon) {
@@ -111,6 +112,7 @@
       <button
         (click)="onPrimaryAction()"
         [class]="getPrimaryButtonClasses()"
+        [disabled]="primaryAction()?.disabled"
         class="flex items-center justify-center gap-2"
       >
         @if (primaryAction()?.icon) {
