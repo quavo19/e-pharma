@@ -8,6 +8,7 @@ import {
   XCircle,
   SlidersHorizontal,
   ShoppingCart,
+  ArrowLeft,
 } from 'lucide-angular';
 import { InputComponent } from '../../components/input/input.component';
 import {
@@ -16,6 +17,7 @@ import {
 } from '../../components/select/select.component';
 import { PopupComponent } from '../../components/popup/popup.component';
 import { FormBuilder } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Supplier } from '../suppliers/suppliers.component';
 import {
   SAMPLE_PRODUCTS,
@@ -35,6 +37,7 @@ import { ViewProductComponent } from './view-product/view-product.component';
     FormsModule,
     ReactiveFormsModule,
     LucideAngularModule,
+    RouterLink,
     InputComponent,
     SelectComponent,
     PopupComponent,
@@ -58,7 +61,7 @@ export class SupplierProductsComponent implements OnInit {
   isPlaceOrderModalOpen = signal(false);
   viewingProduct = signal<SupplierProduct | null>(null);
   supplierId: string | null = null;
-  supplier: Supplier | null = null;
+  supplier = signal<Supplier | null>(null);
 
   products = SAMPLE_PRODUCTS;
   expiryDateSortOptions = EXPIRY_DATE_SORT_OPTIONS;
@@ -76,6 +79,7 @@ export class SupplierProductsComponent implements OnInit {
     XCircle,
     SlidersHorizontal,
     ShoppingCart,
+    ArrowLeft,
   };
 
   // Computed values from cart service
@@ -86,6 +90,78 @@ export class SupplierProductsComponent implements OnInit {
   ngOnInit(): void {
     this.supplierId = this.route.snapshot.paramMap.get('id');
     this.cartService.loadCart(this.supplierId);
+
+    // Load supplier data (in a real app, this would come from an API/service)
+    // For now, we'll use sample supplier data based on common IDs
+    if (this.supplierId) {
+      const sampleSuppliers: Record<string, Supplier> = {
+        SUP001: {
+          id: 'SUP001',
+          name: 'Johnson & Johnson',
+          logo: 'https://blocks.astratic.com/img/general-img-landscape.png',
+          country: 'USA',
+          region: 'Greater Accra',
+          isFavorite: false,
+          contact: '+233 24 111 2222',
+          email: 'contact@jnj.com',
+          rating: 4.5,
+          reviewCount: 128,
+        },
+        SUP002: {
+          id: 'SUP002',
+          name: 'Tobinco Pharmaceuticals',
+          logo: 'https://blocks.astratic.com/img/general-img-landscape.png',
+          country: 'Ghana',
+          region: 'Greater Accra',
+          isFavorite: true,
+          contact: '+233 24 222 3333',
+          email: 'info@tobinco.com',
+          rating: 4.8,
+          reviewCount: 245,
+        },
+        SUP003: {
+          id: 'SUP003',
+          name: 'Pfizer',
+          logo: 'https://blocks.astratic.com/img/general-img-landscape.png',
+          country: 'USA',
+          region: 'Ashanti',
+          isFavorite: false,
+          contact: '+233 24 333 4444',
+          email: 'ghana@pfizer.com',
+          rating: 4.2,
+          reviewCount: 89,
+        },
+        SUP004: {
+          id: 'SUP004',
+          name: 'GlaxoSmithKline',
+          logo: 'https://blocks.astratic.com/img/general-img-landscape.png',
+          country: 'UK',
+          region: 'Greater Accra',
+          isFavorite: true,
+          contact: '+233 24 444 5555',
+          email: 'contact@gsk.com',
+          rating: 4.7,
+          reviewCount: 312,
+        },
+      };
+
+      const foundSupplier = sampleSuppliers[this.supplierId];
+      if (foundSupplier) {
+        this.supplier.set(foundSupplier);
+      } else {
+        // Fallback for unknown supplier IDs
+        this.supplier.set({
+          id: this.supplierId,
+          name: 'Supplier',
+          logo: '/images/no-data.png',
+          country: 'Ghana',
+          region: 'Greater Accra',
+          isFavorite: false,
+          rating: 4.5,
+          reviewCount: 120,
+        });
+      }
+    }
 
     // Extract unique categories from products
     const categories = [...new Set(this.products.map((p) => p.category))];
