@@ -84,10 +84,10 @@ export class InputComponent {
     const size = this.size();
     if (this.textarea()) {
       // Textarea size classes (height for textarea)
-      if (size === 'sm') return 'min-h-20 text-sm px-3 py-2';
-      if (size === 'md') return 'min-h-24 text-base px-3 py-2';
-      if (size === 'xl') return 'min-h-32 text-base px-3 py-2';
-      return 'min-h-28 text-base px-3 py-2'; // lg
+      if (size === 'sm') return 'min-h-20 text-sm px-3 py-2 resize-none';
+      if (size === 'md') return 'min-h-24 text-base px-3 py-2 resize-none';
+      if (size === 'xl') return 'min-h-32 text-base px-3 py-2 resize-none';
+      return 'min-h-28 text-base px-3 py-2 resize-none'; // lg
     } else {
       // Input size classes
       if (size === 'sm') return 'h-10 text-sm px-3';
@@ -107,16 +107,18 @@ export class InputComponent {
   }
 
   public combinedClasses(): string {
-    const base = `border block w-full rounded-xl outline-none placeholder:text-typo-primary ${this.sizeClasses()}`;
+    const base = `block w-full rounded-xl outline-none placeholder:text-typo-primary ${this.sizeClasses()}`;
     const variant = this.variantClasses();
-    const errorClass = this.errorMessage()
-      ? 'border-red-400'
+    const borderClass = this.isDisabled()
+      ? 'border-0'
+      : this.errorMessage()
+      ? 'border border-red-400'
       : this.variant() === 'select'
-      ? 'border-gray-300'
-      : 'border-light';
+      ? 'border border-gray-300'
+      : 'border border-light';
     const disabledClass = this.isDisabled()
       ? 'bg-gray-100 cursor-not-allowed opacity-50'
       : '';
-    return `${base} ${variant} ${errorClass} ${disabledClass}`.trim();
+    return `${base} ${variant} ${borderClass} ${disabledClass}`.trim();
   }
 }
