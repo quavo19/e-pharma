@@ -56,13 +56,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/roles/roles.component').then((m) => m.RolesComponent),
   },
-  {
-    path: 'audit-logs',
-    loadComponent: () =>
-      import('./pages/audit-logs/audit-logs.component').then(
-        (m) => m.AuditLogsComponent
-      ),
-  },
+
   {
     path: 'branches',
     loadComponent: () =>
@@ -83,10 +77,22 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'suppliers/:id/products',
+    path: 'suppliers/:id/stock',
     loadComponent: () =>
       import('./pages/supplier-products/supplier-products.component').then(
         (m) => m.SupplierProductsComponent
+      ),
+  },
+  {
+    path: 'stock',
+    loadComponent: () =>
+      import('./pages/stock/stock.component').then((m) => m.StockComponent),
+  },
+  {
+    path: 'purchases',
+    loadComponent: () =>
+      import('./pages/purchases/purchases.component').then(
+        (m) => m.PurchasesComponent
       ),
   },
   {
