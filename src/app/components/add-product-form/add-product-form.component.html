@@ -1,0 +1,184 @@
+<form
+  [formGroup]="addProductForm"
+  (ngSubmit)="onSubmit()"
+  class="flex flex-col gap-4"
+>
+  <button type="submit" #submitButton class="hidden"></button>
+  <div class="grid grid-cols-2 gap-4">
+    <!-- Left Column -->
+    <div class="flex flex-col gap-4">
+      <app-input
+        [label]="'Name'"
+        [placeholder]="'Enter product name'"
+        [control]="addProductForm.controls.name"
+        [id]="'product-name'"
+        variant="select"
+      />
+      <div>
+        <label class="block text-primary text-base mb-1">Shelve</label>
+        <app-select
+          [options]="shelveOptions"
+          [selectedValue]="selectedShelve"
+          placeholder="Select shelve"
+          [enableSearch]="true"
+          [searchControlName]="'shelveSearch'"
+          [searchPlaceholder]="'Search shelves...'"
+          (selectionChange)="onShelveChange($event)"
+        />
+      </div>
+      <div>
+        <label class="block text-primary text-base mb-1">Drug Class</label>
+        <app-select
+          [options]="drugClassOptions"
+          [selectedValue]="selectedDrugClass"
+          placeholder="Select class"
+          (selectionChange)="onDrugClassChange($event)"
+        />
+      </div>
+      <div>
+        <label class="block text-primary text-base mb-1">Dosage Form</label>
+        <app-select
+          [options]="dosageFormOptions"
+          [selectedValue]="selectedDosageForm"
+          placeholder="Select dosage form"
+          (selectionChange)="onDosageFormChange($event)"
+        />
+      </div>
+      <app-input
+        [label]="'Quantity'"
+        type="number"
+        [placeholder]="'56'"
+        [control]="addProductForm.controls.quantity"
+        [id]="'product-quantity'"
+        variant="select"
+      />
+      <div class="grid grid-cols-2 gap-4">
+        <app-input
+          [label]="'Strength'"
+          type="number"
+          [placeholder]="'500'"
+          [control]="addProductForm.controls.strength"
+          [id]="'product-strength'"
+          variant="select"
+        />
+        <div>
+          <label class="block text-primary text-base mb-1">Unit</label>
+          <app-select
+            [options]="unitOptions"
+            [selectedValue]="selectedUnit"
+            placeholder="Select unit"
+            (selectionChange)="onUnitChange($event)"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-primary text-base mb-1">Supplier</label>
+        <app-select
+          [options]="supplierOptions"
+          [selectedValue]="selectedSupplierName"
+          [placeholder]="'Select supplier'"
+          [enableSearch]="true"
+          [disabled]="!!supplierName"
+          (selectionChange)="onSupplierNameChange($event)"
+        />
+      </div>
+      <div class="flex gap-4">
+        <div class="flex-[0.55]">
+          <app-select
+            [label]="'Discount Type'"
+            [options]="discountTypeOptions"
+            [selectedValue]="
+              addProductForm.get('discountType')?.value ?? 'percentage'
+            "
+            [id]="'product-discount-type'"
+            [placeholder]="'Select discount type'"
+            (selectionChange)="onDiscountTypeChange($event)"
+          />
+        </div>
+        <div class="flex-[0.45]">
+          <app-input
+            [label]="
+              addProductForm.get('discountType')?.value === 'flat'
+                ? 'Discount (GHS)'
+                : 'Discount (%)'
+            "
+            [type]="'number'"
+            [control]="addProductForm.controls.discount"
+            [id]="'product-discount'"
+            [placeholder]="
+              addProductForm.get('discountType')?.value === 'flat'
+                ? 'Enter discount amount'
+                : 'Enter discount percentage'
+            "
+            variant="select"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="flex flex-col gap-4">
+      <app-inline-date-input
+        [label]="'Expiry Date'"
+        [control]="addProductForm.controls.expiryDate"
+        [id]="'product-expiry'"
+      />
+      <app-input
+        [label]="'Brand'"
+        [placeholder]="'GSK'"
+        [control]="addProductForm.controls.brand"
+        [id]="'product-brand'"
+        variant="select"
+      />
+      <app-input
+        [label]="'Stock Threshold'"
+        type="number"
+        [placeholder]="'6'"
+        [control]="addProductForm.controls.stockThreshold"
+        [id]="'product-stock-threshold'"
+        variant="select"
+      />
+      <app-input
+        [label]="'Cost Price'"
+        type="number"
+        [placeholder]="'562'"
+        [control]="addProductForm.controls.costPrice"
+        [id]="'product-cost-price'"
+        variant="select"
+      />
+      <app-input
+        [label]="'Selling Price'"
+        type="number"
+        [placeholder]="'67'"
+        [control]="addProductForm.controls.cashPrice"
+        [id]="'product-cash-price'"
+        variant="select"
+      />
+      <app-input
+        [label]="'Credit Price'"
+        type="number"
+        [placeholder]="'70'"
+        [control]="addProductForm.controls.creditPrice"
+        [id]="'product-credit-price'"
+        variant="select"
+      />
+      <app-input
+        [label]="'Wholesale Price'"
+        type="number"
+        [placeholder]="'65'"
+        [control]="addProductForm.controls.wholesalePrice"
+        [id]="'product-wholesale-price'"
+        variant="select"
+      />
+      <app-input
+        [label]="'Trek Price'"
+        type="number"
+        [placeholder]="'60'"
+        [control]="addProductForm.controls.trekPrice"
+        [id]="'product-trek-price'"
+        variant="select"
+      />
+    </div>
+  </div>
+</form>
