@@ -4,7 +4,7 @@
       <div>
         <p class="text-2xl font-semibold text-gray-800">Suppliers</p>
         <p class="text-sm font-light text-gray-600">
-          Buy from other pharmacies and drug suppliers
+          Manage your suppliers and view their stock
         </p>
       </div>
     </div>
@@ -42,28 +42,28 @@
           <lucide-icon [img]="icons.SlidersHorizontal" [size]="16" />
           Filter
         </button>
+        <div class="h-6 w-px bg-gray-300"></div>
+
+        <button
+          (click)="openAddModal()"
+          class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
+        >
+          Add New
+          <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
+        </button>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      @for (supplier of filteredSuppliers(); track supplier.id) {
-      <app-supplier-card
-        [supplier]="supplier"
-        (favoriteToggled)="toggleFavorite($event)"
-        (viewClicked)="openViewModal($event)"
-        (buyClicked)="buyFromSupplier($event)"
-      />
-      } @empty {
-      <div
-        class="col-span-full flex flex-col items-center justify-center py-16 text-gray-500"
-      >
-        <p class="text-lg font-medium mb-2">No suppliers found</p>
-        <p class="text-sm">Try adjusting your search or filters</p>
-      </div>
-      }
-    </div>
+    <!-- Suppliers Table -->
+    <app-data-table
+      [columns]="tableColumns()"
+      [data]="getFormattedSuppliers()"
+      [getActionMenuItems]="getMenuItems"
+      [onRowClick]="onRowClick"
+    />
   </section>
 
+  <!-- Filter Modal -->
   <app-popup
     [isOpen]="isFilterModalOpen()"
     heading="Filters"
@@ -119,10 +119,159 @@
     </form>
   </app-popup>
 
+  <!-- Add Supplier Modal -->
+  <app-popup
+    [isOpen]="isAddModalOpen()"
+    heading="Add Supplier"
+    description="Add a new supplier to your list"
+    variant="right"
+    panelWidth="w-[32rem]"
+    [primaryAction]="addModalPrimaryAction"
+    [secondaryAction]="addModalSecondaryAction"
+    (close)="closeAddModal()"
+  >
+    <form [formGroup]="supplierForm" class="flex flex-col gap-4">
+      <div>
+        <app-input
+          [label]="'Supplier Name'"
+          [control]="supplierForm.controls.name"
+          [id]="'supplier-name'"
+          [placeholder]="'Enter supplier name'"
+        />
+      </div>
+      <div>
+        <app-select
+          [label]="'Region'"
+          [options]="regionOptions"
+          [selectedValue]="supplierForm.get('region')?.value ?? null"
+          [id]="'supplier-region'"
+          [placeholder]="'Select region'"
+          [enableSearch]="true"
+          [searchControlName]="'regionSearch'"
+          (selectionChange)="onRegionFormChange($event)"
+        />
+      </div>
+      <div>
+        <app-select
+          [label]="'Country'"
+          [options]="countryOptions"
+          [selectedValue]="supplierForm.get('country')?.value ?? null"
+          [id]="'supplier-country'"
+          [placeholder]="'Select country'"
+          [enableSearch]="true"
+          [searchControlName]="'countrySearch'"
+          (selectionChange)="onCountryFormChange($event)"
+        />
+      </div>
+      <div>
+        <app-input
+          [label]="'Email'"
+          [type]="'email'"
+          [control]="supplierForm.controls.email"
+          [id]="'supplier-email'"
+          [placeholder]="'Enter email address'"
+        />
+      </div>
+      <div>
+        <app-input
+          [label]="'Phone'"
+          [control]="supplierForm.controls.phone"
+          [id]="'supplier-phone'"
+          [placeholder]="'Enter phone number'"
+        />
+      </div>
+    </form>
+  </app-popup>
+
+  <!-- Edit Supplier Modal -->
+  <app-popup
+    [isOpen]="isEditModalOpen()"
+    heading="Edit Supplier"
+    description="Update supplier information"
+    variant="right"
+    panelWidth="w-[32rem]"
+    [primaryAction]="editModalPrimaryAction"
+    [secondaryAction]="editModalSecondaryAction"
+    (close)="closeEditModal()"
+  >
+    <form [formGroup]="supplierForm" class="flex flex-col gap-4">
+      <div>
+        <app-input
+          [label]="'Supplier Name'"
+          [control]="supplierForm.controls.name"
+          [id]="'edit-supplier-name'"
+          [placeholder]="'Enter supplier name'"
+        />
+      </div>
+      <div>
+        <app-select
+          [label]="'Region'"
+          [options]="regionOptions"
+          [selectedValue]="supplierForm.get('region')?.value ?? null"
+          [id]="'edit-supplier-region'"
+          [placeholder]="'Select region'"
+          [enableSearch]="true"
+          [searchControlName]="'regionSearch'"
+          (selectionChange)="onRegionFormChange($event)"
+        />
+      </div>
+      <div>
+        <app-select
+          [label]="'Country'"
+          [options]="countryOptions"
+          [selectedValue]="supplierForm.get('country')?.value ?? null"
+          [id]="'edit-supplier-country'"
+          [placeholder]="'Select country'"
+          [enableSearch]="true"
+          [searchControlName]="'countrySearch'"
+          (selectionChange)="onCountryFormChange($event)"
+        />
+      </div>
+      <div>
+        <app-input
+          [label]="'Email'"
+          [type]="'email'"
+          [control]="supplierForm.controls.email"
+          [id]="'edit-supplier-email'"
+          [placeholder]="'Enter email address'"
+        />
+      </div>
+      <div>
+        <app-input
+          [label]="'Phone'"
+          [control]="supplierForm.controls.phone"
+          [id]="'edit-supplier-phone'"
+          [placeholder]="'Enter phone number'"
+        />
+      </div>
+    </form>
+  </app-popup>
+
+  <!-- Delete Confirmation Modal -->
+  <app-confirmation-modal
+    [isOpen]="isDeleteModalOpen()"
+    [heading]="'Delete Supplier'"
+    [description]="
+      deletingSupplier
+        ? 'Are you sure you want to delete ' +
+          deletingSupplier.name +
+          '? This action cannot be undone.'
+        : ''
+    "
+    [primaryAction]="deleteModalPrimaryAction"
+    [secondaryAction]="deleteModalSecondaryAction"
+    (close)="closeDeleteModal()"
+  />
+
+  <!-- View Supplier Details Modal -->
   <app-popup
     [isOpen]="isViewModalOpen()"
-    heading="Supplier Details"
-    description="View supplier information and reviews"
+    [heading]="isViewEditMode() ? 'Edit Supplier' : 'Supplier Details'"
+    [description]="
+      isViewEditMode()
+        ? 'Update supplier information'
+        : 'View supplier information'
+    "
     variant="right"
     panelWidth="w-[32rem]"
     [primaryAction]="viewModalPrimaryAction"
@@ -130,10 +279,62 @@
     (close)="closeViewModal()"
   >
     @if (viewingSupplier) {
-    <app-supplier-details
-      [supplier]="viewingSupplier"
-      [reviews]="sampleReviews"
-    />
+    <form [formGroup]="supplierForm" class="flex flex-col gap-4">
+      <div>
+        <app-input
+          [label]="'Supplier Name'"
+          [control]="supplierForm.controls.name"
+          [id]="'view-supplier-name'"
+          [placeholder]="'Enter supplier name'"
+          [isDisabled]="!isViewEditMode()"
+        />
+      </div>
+      <div>
+        <app-select
+          [label]="'Region'"
+          [options]="regionOptions"
+          [selectedValue]="supplierForm.get('region')?.value ?? null"
+          [id]="'view-supplier-region'"
+          [placeholder]="'Select region'"
+          [enableSearch]="true"
+          [searchControlName]="'regionSearch'"
+          [disabled]="!isViewEditMode()"
+          (selectionChange)="onRegionFormChange($event)"
+        />
+      </div>
+      <div>
+        <app-select
+          [label]="'Country'"
+          [options]="countryOptions"
+          [selectedValue]="supplierForm.get('country')?.value ?? null"
+          [id]="'view-supplier-country'"
+          [placeholder]="'Select country'"
+          [enableSearch]="true"
+          [searchControlName]="'countrySearch'"
+          [disabled]="!isViewEditMode()"
+          (selectionChange)="onCountryFormChange($event)"
+        />
+      </div>
+      <div>
+        <app-input
+          [label]="'Email'"
+          [type]="'email'"
+          [control]="supplierForm.controls.email"
+          [id]="'view-supplier-email'"
+          [placeholder]="'Enter email address'"
+          [isDisabled]="!isViewEditMode()"
+        />
+      </div>
+      <div>
+        <app-input
+          [label]="'Phone'"
+          [control]="supplierForm.controls.phone"
+          [id]="'view-supplier-phone'"
+          [placeholder]="'Enter phone number'"
+          [isDisabled]="!isViewEditMode()"
+        />
+      </div>
+    </form>
     }
   </app-popup>
 </main>

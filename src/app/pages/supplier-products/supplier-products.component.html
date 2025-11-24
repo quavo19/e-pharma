@@ -13,7 +13,7 @@
           {{ supplier()?.name || "Supplier" }}
         </p>
         <p class="text-sm font-light text-gray-600">
-          Browse and add products from this supplier to your cart
+          Browse stock from this supplier
         </p>
       </div>
     </div>
@@ -22,11 +22,11 @@
       <div class="flex items-center gap-4">
         <div class="w-80">
           <app-input
-            [placeholder]="'Search by name, ID, or category...'"
+            [placeholder]="'Search by name, ID, or supplier...'"
             [hasLeftIcon]="true"
             size="sm"
             [control]="searchControl"
-            [id]="'product-search'"
+            [id]="'stock-search'"
           >
             <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
           </app-input>
@@ -51,19 +51,13 @@
           <lucide-icon [img]="icons.SlidersHorizontal" [size]="16" />
           Filter
         </button>
-
+        <div class="h-6 w-px bg-gray-300"></div>
         <button
-          (click)="onCartClick()"
-          class="relative flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+          (click)="onAddProduct()"
+          class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
         >
-          <lucide-icon [img]="icons.ShoppingCart" [size]="16" />
-          Cart @if (cartItemCount() > 0) {
-          <span
-            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-light"
-          >
-            {{ cartItemCount() }}
-          </span>
-          }
+          Add New
+          <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
         </button>
       </div>
     </div>
@@ -74,51 +68,56 @@
         <thead class="bg-green-700 sticky top-0 z-10">
           <tr class="text-white">
             <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
             >
               #
             </th>
             <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
             >
-              Product Name
+              Name
             </th>
             <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
-            >
-              Drug Class
-            </th>
-            <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
-            >
-              Stock Status
-            </th>
-            <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
             >
               Quantity
             </th>
             <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
-            >
-              Expiry Date
-            </th>
-            <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
             >
               Cost Price
             </th>
             <th
-              class="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Wholesale Price
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Trek Price
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Discount
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              Expiry Date
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
             >
               Actions
             </th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          @if (filteredProducts.length === 0) {
+          @if (filteredStock().length === 0) {
           <tr>
-            <td colspan="8" class="text-center">
+            <td colspan="9" class="text-center">
               <div
                 class="w-full flex-col flex justify-center items-center gap-4 py-8"
               >
@@ -127,64 +126,75 @@
               </div>
             </td>
           </tr>
-          } @else { @for (product of filteredProducts; track product.id; let i =
+          } @else { @for (item of filteredStock(); track item.id; let i =
           $index) {
-          <tr
-            class="hover:bg-gray-50 cursor-pointer"
-            (click)="onViewProduct(product.id)"
-          >
+          <tr class="hover:bg-gray-50">
             <td
               class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
             >
               {{ i + 1 }}
             </td>
-            <td
-              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
-            >
-              {{ product.name }}
+            <td class="px-6 py-4">
+              <div
+                class="text-sm text-gray-900 line-clamp-2"
+                [title]="
+                  getStockField(item, 'name') ||
+                  getStockField(item, 'productName') ||
+                  item.productName
+                "
+              >
+                {{
+                  getStockField(item, "name") ||
+                    getStockField(item, "productName") ||
+                    item.productName
+                }}
+              </div>
             </td>
             <td
               class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
             >
-              {{ product.category }}
+              {{ getStockField(item, "quantity") || item.quantity || 0 }}
             </td>
             <td
               class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
             >
-              {{ product.stock }}
+              GHS {{ getStockField(item, "costPrice") || 0 | number : "1.2-2" }}
             </td>
             <td
               class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
             >
-              {{ product.quantity }}
+              GHS
+              {{
+                getStockField(item, "wholesalePrice") || 0 | number : "1.2-2"
+              }}
             </td>
             <td
               class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
             >
-              {{ product.expiryDate }}
+              GHS {{ getStockField(item, "trekPrice") || 0 | number : "1.2-2" }}
             </td>
             <td
               class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
             >
-              {{ product.costPriceDisplay }}
+              @if (getStockField(item, 'discountType') === "flat") { GHS
+              {{ getStockField(item, "discount") || item.discount || 0 }}
+              } @else {
+              {{ getStockField(item, "discount") || item.discount || 0 }}% }
             </td>
             <td
-              class="px-6 py-4 whitespace-nowrap text-sm"
+              class="px-6 py-4 whitespace-nowrap text-sm font-light text-gray-900"
+            >
+              {{ getStockField(item, "expiryDate") || "-" }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-medium"
               (click)="$event.stopPropagation()"
             >
-              <button
-                (click)="onAddToCartFromTable(product)"
-                [disabled]="isProductInCart(product.id)"
-                class="flex items-center gap-1.5 px-4 py-2 text-xs font-light rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                [class.bg-green-600]="!isProductInCart(product.id)"
-                [class.text-white]="!isProductInCart(product.id)"
-                [class.hover:bg-green-700]="!isProductInCart(product.id)"
-                [class.bg-gray-200]="isProductInCart(product.id)"
-                [class.text-gray-500]="isProductInCart(product.id)"
-              >
-                <lucide-icon [img]="icons.ShoppingCart" [size]="14" />
-                {{ isProductInCart(product.id) ? "In Cart" : "Add to Cart" }}
-              </button>
+              <app-action-menu
+                [items]="getMenuItems(item)"
+                [rowIndex]="i"
+                [totalItems]="filteredStock().length"
+              />
             </td>
           </tr>
           } }
@@ -197,7 +207,7 @@
   <app-popup
     [isOpen]="isFilterModalOpen()"
     heading="Filters"
-    description="Select filters to apply to the products table"
+    description="Select filters to apply to the stock"
     variant="right"
     panelWidth="w-[28rem]"
     [primaryAction]="filterModalPrimaryAction"
@@ -205,63 +215,189 @@
     (close)="closeFilterModal()"
   >
     <form [formGroup]="filterForm" class="flex flex-col gap-6">
-      <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700">Drug Class</label>
-        <app-select
-          [options]="categoryOptions"
-          [selectedValue]="filterForm.get('category')?.value ?? null"
-          placeholder="Select drug class"
-          [enableSearch]="true"
-          [searchControlName]="'categorySearch'"
-          [searchPlaceholder]="'Search drug classes...'"
-          (selectionChange)="onCategoryChange($event)"
-        />
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700"
-          >Expiry Date Sort</label
-        >
-        <app-select
-          [options]="expiryDateSortOptions"
-          [selectedValue]="filterForm.get('expiryDateSort')?.value ?? null"
-          placeholder="Select sort order"
-          (selectionChange)="onExpiryDateSortChange($event)"
-        />
-      </div>
+      <!-- Filters can be added here in the future -->
     </form>
   </app-popup>
 
-  <!-- View Product Modal -->
-  <app-view-product
+  <!-- View Stock Modal -->
+  <app-popup
     [isOpen]="isViewProductModalOpen()"
-    [product]="viewingProduct()"
-    [isInCart]="
-      viewingProduct() ? isProductInCart(viewingProduct()!.id) : false
-    "
+    heading="Stock Details"
+    description="View stock information"
+    variant="right"
+    panelWidth="w-[32rem]"
+    [secondaryAction]="viewModalSecondaryAction"
     (close)="closeViewProductModal()"
-    (addToCart)="onAddToCart($event)"
+  >
+    @if (viewingStock()) {
+    <form [formGroup]="viewStockForm" class="flex flex-col gap-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <app-input
+            [label]="'Name'"
+            [control]="viewStockForm.controls.name"
+            [id]="'view-product-name'"
+            [isDisabled]="true"
+          />
+        </div>
+        <div>
+          <app-input
+            [label]="'Drug Class'"
+            [control]="viewStockForm.controls.drugClass"
+            [id]="'view-product-drug-class'"
+            [isDisabled]="true"
+          />
+        </div>
+        <div>
+          <app-input
+            [label]="'Quantity'"
+            [type]="'number'"
+            [control]="viewStockForm.controls.quantity"
+            [id]="'view-product-quantity'"
+            [isDisabled]="true"
+          />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <app-input
+            [label]="'Strength'"
+            [type]="'number'"
+            [control]="viewStockForm.controls.strength"
+            [id]="'view-product-strength'"
+            [isDisabled]="true"
+          />
+          <app-input
+            [label]="'Unit'"
+            [control]="viewStockForm.controls.unit"
+            [id]="'view-product-unit'"
+            [isDisabled]="true"
+          />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <app-input
+            [label]="'Expiry Date'"
+            [control]="viewStockForm.controls.expiryDate"
+            [id]="'view-product-expiry'"
+            [isDisabled]="true"
+          />
+        </div>
+        <div>
+          <app-input
+            [label]="'Brand'"
+            [control]="viewStockForm.controls.brand"
+            [id]="'view-product-brand'"
+            [isDisabled]="true"
+          />
+        </div>
+        <div>
+          <app-input
+            [label]="'Stock Threshold'"
+            [type]="'number'"
+            [control]="viewStockForm.controls.stockThreshold"
+            [id]="'view-product-stock-threshold'"
+            [isDisabled]="true"
+          />
+        </div>
+        <div>
+          <app-input
+            [label]="'Cost Price'"
+            [type]="'number'"
+            [control]="viewStockForm.controls.costPrice"
+            [id]="'view-product-cost-price'"
+            [isDisabled]="true"
+          />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <app-input
+          [label]="'Selling Price'"
+          [type]="'number'"
+          [control]="viewStockForm.controls.cashPrice"
+          [id]="'view-product-cash-price'"
+          [isDisabled]="true"
+        />
+        <app-input
+          [label]="'Credit Price'"
+          [type]="'number'"
+          [control]="viewStockForm.controls.creditPrice"
+          [id]="'view-product-credit-price'"
+          [isDisabled]="true"
+        />
+        <app-input
+          [label]="'Wholesale Price'"
+          [type]="'number'"
+          [control]="viewStockForm.controls.wholesalePrice"
+          [id]="'view-product-wholesale-price'"
+          [isDisabled]="true"
+        />
+        <app-input
+          [label]="'Trek Price'"
+          [type]="'number'"
+          [control]="viewStockForm.controls.trekPrice"
+          [id]="'view-product-trek-price'"
+          [isDisabled]="true"
+        />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <app-input
+            [label]="
+              viewStockForm.get('discountType')?.value === 'flat'
+                ? 'Discount (GHS)'
+                : 'Discount (%)'
+            "
+            [type]="'number'"
+            [control]="viewStockForm.controls.discount"
+            [id]="'view-product-discount'"
+            [isDisabled]="true"
+          />
+        </div>
+        <div>
+          <app-input
+            [label]="'Supplier Name'"
+            [control]="viewStockForm.controls.supplierName"
+            [id]="'view-product-supplier'"
+            [isDisabled]="true"
+          />
+        </div>
+      </div>
+    </form>
+    }
+  </app-popup>
+
+  <!-- Delete Confirmation Modal -->
+  <app-confirmation-modal
+    [isOpen]="isDeleteModalOpen()"
+    [heading]="'Delete Stock'"
+    [description]="
+      deletingStock
+        ? 'Are you sure you want to delete stock ' +
+          deletingStock.id +
+          '? This action cannot be undone.'
+        : ''
+    "
+    [primaryAction]="deleteModalPrimaryAction"
+    [secondaryAction]="deleteModalSecondaryAction"
+    (close)="closeDeleteModal()"
   />
 
-  <!-- Cart Modal -->
-  <app-cart
-    [isOpen]="isCartModalOpen()"
-    [cartItems]="cartItemsArray()"
-    [cartTotal]="cartTotal()"
-    (close)="closeCartModal()"
-    (increaseQuantity)="onIncreaseQuantity($event)"
-    (decreaseQuantity)="onDecreaseQuantity($event)"
-    (removeItem)="onRemoveFromCart($event)"
-    (proceedToPlaceOrder)="onProceedToPlaceOrder()"
-  />
-
-  <!-- Place Order Modal -->
-  <app-place-order
-    [isOpen]="isPlaceOrderModalOpen()"
-    [cartItems]="cartItemsArray()"
-    [cartTotal]="cartTotal()"
-    [branchOptions]="branchOptions"
-    (close)="closePlaceOrderModal()"
-    (placeOrder)="onPlaceOrder($event)"
-  />
+  <!-- Add Product Modal -->
+  <app-popup
+    [isOpen]="isAddProductModalOpen()"
+    [heading]="'Add Stock'"
+    [description]="'Add a new stock to this supplier'"
+    [variant]="'right'"
+    [panelWidth]="'w-[44rem]'"
+    [primaryAction]="addProductModalPrimaryAction"
+    [secondaryAction]="addProductModalSecondaryAction"
+    (close)="closeAddProductModal()"
+  >
+    <app-add-product-form
+      [supplierId]="supplierId"
+      [supplierName]="supplier()?.name ?? null"
+      (formSubmit)="onProductFormSubmit($event)"
+      (formCancel)="closeAddProductModal()"
+    />
+  </app-popup>
 </main>
