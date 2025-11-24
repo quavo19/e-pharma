@@ -84,17 +84,10 @@
     </ng-template>
 
     <ng-template #statusCellTemplate let-user let-index="index">
-      <span
-        class="inline-block py-2 text-xs font-medium rounded-full border text-center min-w-[80px]"
-        [class.bg-green-100]="user.status === 'Active'"
-        [class.text-green-800]="user.status === 'Active'"
-        [class.bg-red-100]="user.status === 'Inactive'"
-        [class.text-red-800]="user.status === 'Inactive'"
-        [class.border-green-500]="user.status === 'Active'"
-        [class.border-red-500]="user.status === 'Inactive'"
-      >
-        {{ user.status }}
-      </span>
+      <app-status-badge
+        [status]="user.status"
+        [variant]="getStatusVariant(user.status)"
+      />
     </ng-template>
 
     <app-data-table
@@ -348,17 +341,10 @@
 
       <div class="flex flex-col gap-2">
         <label class="text-sm font-medium text-gray-700">Status</label>
-        <span
-          class="inline-block py-1 px-3 text-xs font-medium rounded-full border text-center w-fit"
-          [class.bg-green-100]="viewingUser.status === 'Active'"
-          [class.text-green-800]="viewingUser.status === 'Active'"
-          [class.bg-red-100]="viewingUser.status === 'Inactive'"
-          [class.text-red-800]="viewingUser.status === 'Inactive'"
-          [class.border-green-500]="viewingUser.status === 'Active'"
-          [class.border-red-500]="viewingUser.status === 'Inactive'"
-        >
-          {{ viewingUser.status }}
-        </span>
+        <app-status-badge
+          [status]="viewingUser.status"
+          [variant]="getStatusVariant(viewingUser.status)"
+        />
       </div>
 
       <div class="flex text-gray-500 italic text-sm gap-2">

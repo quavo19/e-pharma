@@ -40,6 +40,7 @@ import {
 import { PopupComponent } from '../../components/popup/popup.component';
 import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 
 export interface User {
   id: string;
@@ -67,6 +68,7 @@ export interface User {
     DataTableComponent,
     PopupComponent,
     ConfirmationModalComponent,
+    StatusBadgeComponent,
   ],
   templateUrl: './users.component.html',
 })
@@ -618,6 +620,17 @@ export class UsersComponent implements OnInit, AfterViewInit {
       return user.avatar;
     }
     return '';
+  }
+
+  getStatusVariant(status: 'Active' | 'Inactive'): 'success' | 'error' | 'warning' {
+    switch (status) {
+      case 'Active':
+        return 'success';
+      case 'Inactive':
+        return 'error';
+      default:
+        return 'success';
+    }
   }
 
   get hasActiveFilters(): boolean {
