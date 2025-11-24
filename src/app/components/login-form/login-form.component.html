@@ -8,21 +8,55 @@
       <span class="w-16 h-0.5 bg-gray-400 rounded-full"></span>
     </div>
   </div>
-  <app-input id="phone-field" type="tel" label="Phone Number" [control]="phoneControl" placeholder="059000000"
-    [hasLeftIcon]="true">
-    <app-button title="Phone" variant="tertiary" [className]="'p-0!'" slot="left-icon">
+  <app-input
+    id="phone-field"
+    type="tel"
+    label="Phone Number"
+    [control]="phoneControl"
+    placeholder="059000000"
+    [hasLeftIcon]="true"
+    [required]="true"
+  >
+    <app-button
+      title="Phone"
+      variant="tertiary"
+      [className]="'p-0!'"
+      slot="left-icon"
+    >
       <lucide-icon [img]="icons.Phone" [size]="18" color="#69533f" />
     </app-button>
   </app-input>
 
-  <app-input id="password-field" label="Password" [type]="isPasswordVisible() ? 'text' : 'password'"
-    [hasLeftIcon]="true" [hasRightIcon]="true" [control]="passwordControl" placeholder="**********************">
-    <app-button title="Lock" variant="tertiary" [className]="'p-0!'" slot="left-icon">
+  <app-input
+    id="password-field"
+    label="Password"
+    [required]="true"
+    [type]="isPasswordVisible() ? 'text' : 'password'"
+    [hasLeftIcon]="true"
+    [hasRightIcon]="true"
+    [control]="passwordControl"
+    placeholder="**********************"
+  >
+    <app-button
+      title="Lock"
+      variant="tertiary"
+      [className]="'p-0!'"
+      slot="left-icon"
+    >
       <lucide-icon [img]="icons.Lock" [size]="18" color="#69533f" />
     </app-button>
-    <app-button [title]="isPasswordVisible() ? 'Hide Password' : 'View Password'" variant="tertiary"
-      [className]="'p-0!'" (clickEvent)="handlePasswordVisibility()" slot="right-icon">
-      <lucide-icon [img]="isPasswordVisible() ? icons.Eye : icons.EyeClosed" [size]="18" color="#69533f" />
+    <app-button
+      [title]="isPasswordVisible() ? 'Hide Password' : 'View Password'"
+      variant="tertiary"
+      [className]="'p-0!'"
+      (clickEvent)="handlePasswordVisibility()"
+      slot="right-icon"
+    >
+      <lucide-icon
+        [img]="isPasswordVisible() ? icons.Eye : icons.EyeClosed"
+        [size]="18"
+        color="#69533f"
+      />
     </app-button>
   </app-input>
   <div class="flex gap-2 justify-between">
@@ -30,10 +64,19 @@
       <app-custom-checkbox [control]="rememberMeControl" />
       <p class="text-sm text-gray-500 mt-1!">Remember me</p>
     </div>
-    <a href="#" class="text-sm text-primary-color font-bold hover:text-secondary-color cursor-pointer">Forgot
-      password?</a>
+    <a
+      href="#"
+      class="text-sm text-primary-color font-bold hover:text-secondary-color cursor-pointer"
+      >Forgot password?</a
+    >
   </div>
 
-  <app-button title="form-b" (click)="submit()" onkeydown="submit()" [variant]="'primary'"
-    [className]="'w-full mt-6'">Login</app-button>
+  <app-button
+    title="form-b"
+    (click)="submit()"
+    onkeydown="submit()"
+    [variant]="'primary'"
+    [className]="'w-full mt-6'"
+    >Login</app-button
+  >
 </main>

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { InputComponent } from '../input/input.component';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonComponent } from '../button/button.component';
@@ -10,6 +10,7 @@ import {
   Lock,
 } from 'lucide-angular';
 import { CheckboxComponent } from '../custom-checkbox/custom-checkbox.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login-form',
@@ -23,6 +24,8 @@ import { CheckboxComponent } from '../custom-checkbox/custom-checkbox.component'
   templateUrl: './login-form.component.html',
 })
 export class LoginFormComponent {
+  private router = inject(Router);
+  
   protected readonly icons = { Eye, EyeClosed, Phone, Lock };
   protected readonly isPasswordVisible = signal(false);
 
@@ -35,8 +38,14 @@ export class LoginFormComponent {
   }
 
   submit() {
-    console.log('Email:', this.phoneControl.value);
-    console.log('Password:', this.passwordControl.value);
-    console.log('Remember me:', this.rememberMeControl.value);
+    // Check if form is valid
+    if (this.phoneControl.valid && this.passwordControl.valid) {
+      console.log('Phone:', this.phoneControl.value);
+      console.log('Password:', this.passwordControl.value);
+      console.log('Remember me:', this.rememberMeControl.value);
+      
+      // Navigate to dashboard
+      this.router.navigate(['/']);
+    }
   }
 }
