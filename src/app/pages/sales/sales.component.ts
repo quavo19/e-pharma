@@ -41,6 +41,7 @@ import {
 } from '../../components/data-table/data-table.component';
 import { InlineDateInputComponent } from '../../components/inline-date-input/inline-date-input.component';
 import { FormBuilder } from '@angular/forms';
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 
 export interface SaleItem {
   productId: string;
@@ -68,6 +69,8 @@ export interface Sale {
   dateCreated: string;
   timeCreated: string;
   notes?: string;
+  status: 'Success' | 'Failed' | 'Pending';
+  paymentType: 'Cash' | 'MoMo';
 }
 
 @Component({
@@ -83,6 +86,7 @@ export interface Sale {
     PopupComponent,
     DataTableComponent,
     InlineDateInputComponent,
+    StatusBadgeComponent,
   ],
   templateUrl: './sales.component.html',
 })
@@ -103,6 +107,9 @@ export class SalesComponent implements OnInit, AfterViewInit {
   @ViewChild('dateCellTemplate') dateCellTemplate?: TemplateRef<any>;
   @ViewChild('customerNameCellTemplate')
   customerNameCellTemplate?: TemplateRef<any>;
+  @ViewChild('statusCellTemplate') statusCellTemplate?: TemplateRef<any>;
+  @ViewChild('paymentTypeCellTemplate')
+  paymentTypeCellTemplate?: TemplateRef<any>;
 
   filterForm = this.fb.group({
     branch: new FormControl<string | null>(null),
@@ -157,6 +164,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
       dateCreated: '2024-01-15',
       timeCreated: '10:30 AM',
       notes: 'Customer requested receipt',
+      status: 'Success',
+      paymentType: 'Cash',
     },
     {
       id: 'SAL002',
@@ -182,6 +191,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
       total: 66.48,
       dateCreated: '2024-01-15',
       timeCreated: '02:15 PM',
+      status: 'Success',
+      paymentType: 'MoMo',
     },
     {
       id: 'SAL003',
@@ -216,6 +227,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
       total: 116.34,
       dateCreated: '2024-01-16',
       timeCreated: '09:45 AM',
+      status: 'Pending',
+      paymentType: 'Cash',
     },
     {
       id: 'SAL004',
@@ -241,6 +254,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
       total: 83.1,
       dateCreated: '2024-01-16',
       timeCreated: '11:20 AM',
+      status: 'Success',
+      paymentType: 'MoMo',
     },
     {
       id: 'SAL005',
@@ -274,6 +289,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
       total: 93.07,
       dateCreated: '2024-01-16',
       timeCreated: '03:45 PM',
+      status: 'Failed',
+      paymentType: 'Cash',
     },
   ];
 
@@ -324,8 +341,14 @@ export class SalesComponent implements OnInit, AfterViewInit {
         label: 'Branch',
       },
       {
-        key: 'salesPerson',
-        label: 'Sales Person',
+        key: 'paymentType',
+        label: 'Payment Type',
+        cellTemplate: this.paymentTypeCellTemplate,
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        cellTemplate: this.statusCellTemplate,
       },
       {
         key: 'total',
@@ -535,6 +558,10 @@ export class SalesComponent implements OnInit, AfterViewInit {
             <div class="info-row">
               <span class="info-label">Sales Person:</span>
               <span>${sale.salesPerson}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Payment Type:</span>
+              <span>${sale.paymentType}</span>
             </div>
             ${
               sale.customerName
@@ -753,6 +780,21 @@ export class SalesComponent implements OnInit, AfterViewInit {
 
   formatCurrency(value: number): string {
     return `GHS ${value.toFixed(2)}`;
+  }
+
+  getStatusVariant(
+    status: 'Success' | 'Failed' | 'Pending'
+  ): 'success' | 'error' | 'warning' {
+    switch (status) {
+      case 'Success':
+        return 'success';
+      case 'Failed':
+        return 'error';
+      case 'Pending':
+        return 'warning';
+      default:
+        return 'success';
+    }
   }
 
   exportOptions: SelectOption[] = [

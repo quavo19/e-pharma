@@ -71,6 +71,17 @@
       <span>{{ sale.customerName || "N/A" }}</span>
     </ng-template>
 
+    <ng-template #statusCellTemplate let-sale let-index="index">
+      <app-status-badge
+        [status]="sale.status"
+        [variant]="getStatusVariant(sale.status)"
+      />
+    </ng-template>
+
+    <ng-template #paymentTypeCellTemplate let-sale let-index="index">
+      <span class="text-sm font-light text-gray-900">{{ sale.paymentType }}</span>
+    </ng-template>
+
     <app-data-table
       [columns]="tableColumns()"
       [data]="filteredSales"
@@ -177,6 +188,18 @@
             <p class="text-base font-medium text-gray-800">
               {{ viewingSale.salesPerson }}
             </p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Payment Type</p>
+            <span
+              class="inline-block py-1.5 px-3 text-xs font-medium rounded-full mt-1"
+              [class.bg-blue-100]="viewingSale.paymentType === 'MoMo'"
+              [class.text-blue-800]="viewingSale.paymentType === 'MoMo'"
+              [class.bg-gray-100]="viewingSale.paymentType === 'Cash'"
+              [class.text-gray-800]="viewingSale.paymentType === 'Cash'"
+            >
+              {{ viewingSale.paymentType }}
+            </span>
           </div>
         </div>
       </div>
