@@ -18,8 +18,11 @@
   >
     @for (item of items(); track item.label) {
     <button
+      [disabled]="item.disabled"
       [class]="
-        item.variant === 'danger'
+        item.disabled
+          ? 'w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-400 cursor-not-allowed opacity-50 text-left'
+          : item.variant === 'danger'
           ? 'w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer text-left'
           : 'w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-green-50 cursor-pointer text-left'
       "
