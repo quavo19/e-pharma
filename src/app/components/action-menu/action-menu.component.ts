@@ -16,6 +16,7 @@ export interface ActionMenuItem {
   action: () => void;
   variant?: 'default' | 'danger';
   icon?: any;
+  disabled?: boolean;
 }
 
 @Component({
@@ -90,6 +91,9 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   onItemClick(item: ActionMenuItem, event: MouseEvent): void {
     event.stopPropagation();
+    if (item.disabled) {
+      return;
+    }
     this.isOpen.set(false);
     this.dropdownPosition.set(null);
     ActionMenuComponent.openMenuInstance = null;
