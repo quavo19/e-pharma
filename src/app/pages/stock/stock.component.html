@@ -1,0 +1,336 @@
+<main class="p-6 relative">
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <p class="text-2xl font-semibold text-gray-800">Stock</p>
+        <p class="text-sm font-light text-gray-600">
+          Manage stock purchases from suppliers
+        </p>
+      </div>
+      <button
+        (click)="openAddModal()"
+        class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
+      >
+        Add New
+        <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
+      </button>
+    </div>
+
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-4">
+        <div class="w-80">
+          <app-input
+            [placeholder]="'Search by name, supplier, or ID...'"
+            [hasLeftIcon]="true"
+            size="sm"
+            [control]="searchControl"
+            [id]="'stock-search'"
+          >
+            <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
+          </app-input>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        @if (hasActiveFilters) {
+        <button
+          (click)="clearAllFilters()"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.XCircle" [size]="16" />
+          Clear Filters
+        </button>
+        <div class="h-6 w-px bg-gray-300"></div>
+        }
+
+        <button
+          (click)="openFilterModal()"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.SlidersHorizontal" [size]="16" />
+          Filter
+        </button>
+      </div>
+    </div>
+
+    <!-- Products Template for truncation -->
+    <ng-template #productsTemplate let-item let-index="index">
+      <div
+        class="text-sm text-gray-900 line-clamp-2"
+        [title]="item.productName"
+      >
+        {{ item.productName }}
+      </div>
+    </ng-template>
+
+    <!-- Stock Table -->
+    <app-data-table
+      [columns]="tableColumns()"
+      [data]="getFormattedStock()"
+      [getActionMenuItems]="getMenuItems"
+    />
+  </section>
+
+  <!-- Filter Modal -->
+  <app-popup
+    [isOpen]="isFilterModalOpen()"
+    heading="Filters"
+    description="Select filters to apply to the stock"
+    variant="right"
+    panelWidth="w-[28rem]"
+    [primaryAction]="filterModalPrimaryAction"
+    [secondaryAction]="filterModalSecondaryAction"
+    (close)="closeFilterModal()"
+  >
+    <form [formGroup]="filterForm" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Supplier</label>
+        <app-select
+          [options]="supplierOptions"
+          [selectedValue]="filterForm.get('supplier')?.value ?? null"
+          placeholder="Select supplier"
+          [enableSearch]="true"
+          [searchControlName]="'supplierSearch'"
+          [searchPlaceholder]="'Search suppliers...'"
+          (selectionChange)="onSupplierFilterChange($event)"
+        />
+      </div>
+    </form>
+  </app-popup>
+
+  <!-- Add Stock Modal -->
+  <app-popup
+    [isOpen]="isAddModalOpen()"
+    heading="Add Stock"
+    description="Record a new stock purchase from a supplier"
+    variant="right"
+    panelWidth="w-[32rem]"
+    [primaryAction]="addModalPrimaryAction"
+    [secondaryAction]="addModalSecondaryAction"
+    (close)="closeAddModal()"
+  >
+    <form [formGroup]="stockForm" class="flex flex-col gap-4">
+      <div>
+        <app-input
+          [label]="'Product'"
+          [control]="stockForm.controls.productName"
+          [id]="'stock-product'"
+          [placeholder]="'Enter product name'"
+        />
+      </div>
+      <div>
+        <app-select
+          [label]="'Supplier'"
+          [options]="supplierOptions"
+          [selectedValue]="stockForm.get('supplierId')?.value ?? null"
+          [id]="'stock-supplier'"
+          [placeholder]="'Select supplier'"
+          [enableSearch]="true"
+          [searchControlName]="'supplierSearch'"
+          (selectionChange)="onSupplierFormChange($event)"
+        />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <app-input
+            [label]="'Quantity'"
+            [type]="'number'"
+            [control]="stockForm.controls.quantity"
+            [id]="'stock-quantity'"
+            [placeholder]="'Enter quantity'"
+          />
+        </div>
+        <div>
+          <app-input
+            [label]="'Weight (kg)'"
+            [type]="'number'"
+            [control]="stockForm.controls.weight"
+            [id]="'stock-weight'"
+            [placeholder]="'Enter weight'"
+          />
+        </div>
+      </div>
+      <div>
+        <app-input
+          [label]="'Amount (GHS)'"
+          [type]="'number'"
+          [control]="stockForm.controls.amount"
+          [id]="'stock-amount'"
+          [placeholder]="'Enter amount'"
+        />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <app-select
+            [label]="'Discount Type'"
+            [options]="discountTypeOptions"
+            [selectedValue]="
+              stockForm.get('discountType')?.value ?? 'percentage'
+            "
+            [id]="'stock-discount-type'"
+            [placeholder]="'Select discount type'"
+            (selectionChange)="onDiscountTypeChange($event)"
+          />
+        </div>
+        <div>
+          <app-input
+            [label]="
+              stockForm.get('discountType')?.value === 'flat'
+                ? 'Discount (GHS)'
+                : 'Discount (%)'
+            "
+            [type]="'number'"
+            [control]="stockForm.controls.discount"
+            [id]="'stock-discount'"
+            [placeholder]="
+              stockForm.get('discountType')?.value === 'flat'
+                ? 'Enter discount amount'
+                : 'Enter discount percentage'
+            "
+          />
+        </div>
+      </div>
+      <div>
+        <app-input
+          [label]="'Note'"
+          [control]="stockForm.controls.note"
+          [id]="'stock-note'"
+          [textarea]="true"
+          [placeholder]="'Add any additional notes...'"
+          [size]="'sm'"
+        />
+      </div>
+    </form>
+  </app-popup>
+
+  <!-- View Stock Modal -->
+  <app-popup
+    [isOpen]="isViewModalOpen()"
+    heading="Stock Details"
+    description="View stock purchase information"
+    variant="right"
+    panelWidth="w-[32rem]"
+    [secondaryAction]="viewModalSecondaryAction"
+    (close)="closeViewModal()"
+  >
+    @if (viewingStock) {
+    <form [formGroup]="viewStockForm" class="flex flex-col gap-4">
+      <div>
+        <app-input
+          [label]="'ID'"
+          [control]="viewStockForm.controls.id"
+          [id]="'view-stock-id'"
+          [isDisabled]="true"
+        />
+      </div>
+      <div>
+        <app-input
+          [label]="'Product'"
+          [control]="viewStockForm.controls.productName"
+          [id]="'view-stock-product'"
+          [isDisabled]="true"
+        />
+      </div>
+      <div>
+        <app-select
+          [label]="'Supplier'"
+          [options]="supplierOptions"
+          [selectedValue]="viewStockForm.get('supplierId')?.value ?? null"
+          [id]="'view-stock-supplier'"
+          [disabled]="true"
+        />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <app-input
+            [label]="'Quantity'"
+            [type]="'number'"
+            [control]="viewStockForm.controls.quantity"
+            [id]="'view-stock-quantity'"
+            [isDisabled]="true"
+          />
+        </div>
+        <div>
+          <app-input
+            [label]="'Weight (kg)'"
+            [type]="'number'"
+            [control]="viewStockForm.controls.weight"
+            [id]="'view-stock-weight'"
+            [isDisabled]="true"
+          />
+        </div>
+      </div>
+      <div>
+        <app-input
+          [label]="'Amount (GHS)'"
+          [type]="'number'"
+          [control]="viewStockForm.controls.amount"
+          [id]="'view-stock-amount'"
+          [isDisabled]="true"
+        />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <app-select
+            [label]="'Discount Type'"
+            [options]="discountTypeOptions"
+            [selectedValue]="
+              viewStockForm.get('discountType')?.value ?? 'percentage'
+            "
+            [id]="'view-stock-discount-type'"
+            [disabled]="true"
+          />
+        </div>
+        <div>
+          <app-input
+            [label]="
+              viewStockForm.get('discountType')?.value === 'flat'
+                ? 'Discount (GHS)'
+                : 'Discount (%)'
+            "
+            [type]="'number'"
+            [control]="viewStockForm.controls.discount"
+            [id]="'view-stock-discount'"
+            [isDisabled]="true"
+          />
+        </div>
+      </div>
+      @if (viewStockForm.get('note')?.value) {
+      <div>
+        <app-input
+          [label]="'Note'"
+          [control]="viewStockForm.controls.note"
+          [id]="'view-stock-note'"
+          [textarea]="true"
+          [isDisabled]="true"
+          [size]="'sm'"
+        />
+      </div>
+      }
+      <div>
+        <app-input
+          [label]="'Date Created'"
+          [control]="viewStockForm.controls.dateCreated"
+          [id]="'view-stock-date'"
+          [isDisabled]="true"
+        />
+      </div>
+    </form>
+    }
+  </app-popup>
+
+  <!-- Delete Confirmation Modal -->
+  <app-confirmation-modal
+    [isOpen]="isDeleteModalOpen()"
+    [heading]="'Delete Stock'"
+    [description]="
+      deletingStock
+        ? 'Are you sure you want to delete stock ' +
+          deletingStock.id +
+          '? This action cannot be undone.'
+        : ''
+    "
+    [primaryAction]="deleteModalPrimaryAction"
+    [secondaryAction]="deleteModalSecondaryAction"
+    (close)="closeDeleteModal()"
+  />
+</main>
