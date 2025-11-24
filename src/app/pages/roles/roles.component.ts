@@ -68,7 +68,6 @@ export interface Permission {
     ReactiveFormsModule,
     LucideAngularModule,
     InputComponent,
-    ExportSelectComponent,
     DataTableComponent,
     PopupComponent,
     CheckboxComponent,

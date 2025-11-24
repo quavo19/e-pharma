@@ -6,6 +6,7 @@ import {
   FormControl,
   ReactiveFormsModule,
   FormGroup,
+  Validators,
 } from '@angular/forms';
 import {
   LucideAngularModule,
@@ -20,6 +21,9 @@ import {
   Star,
   Eye,
   ShoppingCart,
+  Plus,
+  Edit,
+  Trash2,
 } from 'lucide-angular';
 import { InputComponent } from '../../components/input/input.component';
 import {
@@ -29,9 +33,11 @@ import {
 import { PopupComponent } from '../../components/popup/popup.component';
 import { FormBuilder } from '@angular/forms';
 import { GHANA_REGIONS } from '../../constants/regions';
-import { SupplierCardComponent } from '../../components/suppliers/supplier-card/supplier-card.component';
-import { SupplierDetailsComponent } from '../../components/suppliers/supplier-details/supplier-details.component';
-import { Review } from '../../components/suppliers/supplier-review/supplier-review.component';
+import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
+import {
+  ActionMenuItem,
+} from '../../components/action-menu/action-menu.component';
+import { DataTableComponent, TableColumn } from '../../components/data-table/data-table.component';
 
 export interface Supplier {
   id: string;
@@ -56,8 +62,8 @@ export interface Supplier {
     InputComponent,
     SelectComponent,
     PopupComponent,
-    SupplierCardComponent,
-    SupplierDetailsComponent,
+    ConfirmationModalComponent,
+    DataTableComponent,
   ],
   templateUrl: './suppliers.component.html',
 })
@@ -69,7 +75,13 @@ export class SuppliersComponent implements OnInit {
   searchControl = new FormControl('');
   isFilterModalOpen = signal(false);
   isViewModalOpen = signal(false);
+  isAddModalOpen = signal(false);
+  isEditModalOpen = signal(false);
+  isDeleteModalOpen = signal(false);
+  isViewEditMode = signal(false);
   viewingSupplier: Supplier | null = null;
+  editingSupplier: Supplier | null = null;
+  deletingSupplier: Supplier | null = null;
   favoriteFilter = signal<boolean | null>(null);
   countryFilter = signal<string | null>(null);
   regionFilter = signal<string | null>(null);
@@ -78,6 +90,16 @@ export class SuppliersComponent implements OnInit {
     favorite: new FormControl<boolean | null>(null),
     country: new FormControl<string | null>(null),
     region: new FormControl<string | null>(null),
+    regionSearch: new FormControl<string>(''),
+    countrySearch: new FormControl<string>(''),
+  });
+
+  supplierForm = this.fb.group({
+    name: new FormControl('', [Validators.required]),
+    region: new FormControl<string>('', [Validators.required]),
+    country: new FormControl<string>('', [Validators.required]),
+    email: new FormControl('', [Validators.required, Validators.email]),
+    phone: new FormControl('', [Validators.required]),
     regionSearch: new FormControl<string>(''),
     countrySearch: new FormControl<string>(''),
   });
@@ -94,10 +116,13 @@ export class SuppliersComponent implements OnInit {
     Star,
     Eye,
     ShoppingCart,
+    Plus,
+    Edit,
+    Trash2,
   };
 
-  // Sample suppliers data
-  suppliers: Supplier[] = [
+  // Sample suppliers data - using signal for reactivity
+  suppliers = signal<Supplier[]>([
     {
       id: 'SUP001',
       name: 'Johnson & Johnson',
@@ -146,7 +171,7 @@ export class SuppliersComponent implements OnInit {
       rating: 4.7,
       reviewCount: 312,
     },
-  ];
+  ]);
 
   // Country options
   countryOptions: SelectOption[] = [
@@ -170,7 +195,7 @@ export class SuppliersComponent implements OnInit {
 
   // Computed filtered suppliers
   filteredSuppliers = computed(() => {
-    let result = [...this.suppliers];
+    let result = [...this.suppliers()];
 
     // Apply search filter
     const searchTerm = this.searchControl.value?.toLowerCase() || '';
@@ -236,36 +261,6 @@ export class SuppliersComponent implements OnInit {
     }
   }
 
-  // Sample reviews data
-  sampleReviews: Review[] = [
-    {
-      pharmacyName: 'City Pharmacy',
-      pharmacyImage:
-        'https://blocks.astratic.com/img/general-img-landscape.png',
-      rating: 5,
-      comment:
-        'Excellent supplier with reliable delivery and quality products. Highly recommended for pharmaceutical needs.',
-      date: '2 weeks ago',
-    },
-    {
-      pharmacyName: 'MediCare Plus',
-      pharmacyImage:
-        'https://blocks.astratic.com/img/general-img-landscape.png',
-      rating: 4,
-      comment:
-        'Good pricing and customer service. Sometimes delivery can be delayed but overall satisfied with the partnership.',
-      date: '1 month ago',
-    },
-    {
-      pharmacyName: 'HealthFirst Pharmacy',
-      pharmacyImage:
-        'https://blocks.astratic.com/img/general-img-landscape.png',
-      rating: 5,
-      comment:
-        'Top-notch quality and professional service. They understand our needs and always deliver on time. Best supplier we have worked with.',
-      date: '2 months ago',
-    },
-  ];
 
   openFilterModal(): void {
     this.isFilterModalOpen.set(true);
@@ -370,34 +365,304 @@ export class SuppliersComponent implements OnInit {
 
   openViewModal(supplier: Supplier): void {
     this.viewingSupplier = supplier;
+    this.isViewEditMode.set(false);
+    // Reset form with supplier data
+    this.supplierForm.patchValue({
+      name: supplier.name,
+      region: supplier.region,
+      country: supplier.country,
+      email: supplier.email || '',
+      phone: supplier.contact || '',
+    });
     this.isViewModalOpen.set(true);
   }
 
   closeViewModal(): void {
     this.isViewModalOpen.set(false);
+    this.isViewEditMode.set(false);
     this.viewingSupplier = null;
+    this.supplierForm.reset();
+  }
+
+  enableViewEditMode(): void {
+    this.isViewEditMode.set(true);
+  }
+
+  cancelViewEdit(): void {
+    if (this.viewingSupplier) {
+      this.supplierForm.patchValue({
+        name: this.viewingSupplier.name,
+        region: this.viewingSupplier.region,
+        country: this.viewingSupplier.country,
+        email: this.viewingSupplier.email || '',
+        phone: this.viewingSupplier.contact || '',
+      });
+    }
+    this.isViewEditMode.set(false);
+  }
+
+  saveViewEdit(): void {
+    if (this.supplierForm.valid && this.viewingSupplier) {
+      const formValue = this.supplierForm.value;
+      this.suppliers.update((current) =>
+        current.map((supplier) =>
+          supplier.id === this.viewingSupplier!.id
+            ? {
+                ...supplier,
+                name: formValue.name || '',
+                region: formValue.region || '',
+                country: formValue.country || '',
+                email: formValue.email || '',
+                contact: formValue.phone || '',
+              }
+            : supplier
+        )
+      );
+      // Update viewing supplier to reflect changes
+      this.viewingSupplier = {
+        ...this.viewingSupplier,
+        name: formValue.name || '',
+        region: formValue.region || '',
+        country: formValue.country || '',
+        email: formValue.email || '',
+        contact: formValue.phone || '',
+      };
+      this.isViewEditMode.set(false);
+    }
   }
 
   buyFromSupplier(supplier: Supplier): void {
-    this.router.navigate(['/suppliers', supplier.id, 'products']);
+    this.router.navigate(['/suppliers', supplier.id, 'stock']);
   }
 
   get viewModalPrimaryAction() {
+    if (this.isViewEditMode()) {
+      return {
+        label: 'Save Changes',
+        variant: 'primary' as const,
+        action: () => this.saveViewEdit(),
+        disabled: !this.supplierForm.valid,
+      };
+    }
+    return null;
+  }
+
+  get viewModalSecondaryAction() {
+    if (this.isViewEditMode()) {
+      return {
+        label: 'Cancel',
+        variant: 'secondary' as const,
+        action: () => this.cancelViewEdit(),
+      };
+    }
     return {
-      label: 'Buy From',
-      variant: 'primary' as const,
-      action: () => {
-        if (this.viewingSupplier) {
-          this.buyFromSupplier(this.viewingSupplier);
-        }
-      },
-      icon: this.icons.ShoppingCart,
+      label: 'Edit',
+      variant: 'secondary' as const,
+      action: () => this.enableViewEditMode(),
     };
   }
 
-  viewModalSecondaryAction = {
-    label: 'Close',
+  // Add Supplier Methods
+  openAddModal(): void {
+    this.supplierForm.reset();
+    this.isAddModalOpen.set(true);
+  }
+
+  closeAddModal(): void {
+    this.isAddModalOpen.set(false);
+    this.supplierForm.reset();
+  }
+
+  onAddSupplier(): void {
+    if (this.supplierForm.valid) {
+      const formValue = this.supplierForm.value;
+      const newSupplier: Supplier = {
+        id: `SUP${String(this.suppliers().length + 1).padStart(3, '0')}`,
+        name: formValue.name || '',
+        region: formValue.region || '',
+        country: formValue.country || '',
+        email: formValue.email || '',
+        contact: formValue.phone || '',
+        logo: 'https://blocks.astratic.com/img/general-img-landscape.png',
+        isFavorite: false,
+        rating: 0,
+        reviewCount: 0,
+      };
+      this.suppliers.update((current) => [...current, newSupplier]);
+      this.closeAddModal();
+    }
+  }
+
+  get addModalPrimaryAction() {
+    return {
+      label: 'Add Supplier',
+      variant: 'primary' as const,
+      action: () => this.onAddSupplier(),
+      disabled: !this.supplierForm.valid,
+    };
+  }
+
+  addModalSecondaryAction = {
+    label: 'Cancel',
     variant: 'secondary' as const,
-    action: () => this.closeViewModal(),
+    action: () => this.closeAddModal(),
+  };
+
+  // Edit Supplier Methods
+  openEditModal(supplier: Supplier): void {
+    this.editingSupplier = supplier;
+    this.supplierForm.patchValue({
+      name: supplier.name,
+      region: supplier.region,
+      country: supplier.country,
+      email: supplier.email || '',
+      phone: supplier.contact || '',
+    });
+    this.isEditModalOpen.set(true);
+  }
+
+  closeEditModal(): void {
+    this.isEditModalOpen.set(false);
+    this.editingSupplier = null;
+    this.supplierForm.reset();
+  }
+
+  onEditSupplier(): void {
+    if (this.supplierForm.valid && this.editingSupplier) {
+      const formValue = this.supplierForm.value;
+      this.suppliers.update((current) =>
+        current.map((supplier) =>
+          supplier.id === this.editingSupplier!.id
+            ? {
+                ...supplier,
+                name: formValue.name || '',
+                region: formValue.region || '',
+                country: formValue.country || '',
+                email: formValue.email || '',
+                contact: formValue.phone || '',
+              }
+            : supplier
+        )
+      );
+      this.closeEditModal();
+    }
+  }
+
+  get editModalPrimaryAction() {
+    return {
+      label: 'Save Changes',
+      variant: 'primary' as const,
+      action: () => this.onEditSupplier(),
+      disabled: !this.supplierForm.valid,
+    };
+  }
+
+  editModalSecondaryAction = {
+    label: 'Cancel',
+    variant: 'secondary' as const,
+    action: () => this.closeEditModal(),
+  };
+
+  // Delete Supplier Methods
+  openDeleteModal(supplier: Supplier): void {
+    this.deletingSupplier = supplier;
+    this.isDeleteModalOpen.set(true);
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen.set(false);
+    this.deletingSupplier = null;
+  }
+
+  onDeleteSupplier(): void {
+    if (this.deletingSupplier) {
+      this.suppliers.update((current) =>
+        current.filter((supplier) => supplier.id !== this.deletingSupplier!.id)
+      );
+      this.closeDeleteModal();
+    }
+  }
+
+  get deleteModalPrimaryAction() {
+    return {
+      label: 'Delete',
+      variant: 'danger' as const,
+      action: () => this.onDeleteSupplier(),
+    };
+  }
+
+  deleteModalSecondaryAction = {
+    label: 'Cancel',
+    variant: 'secondary' as const,
+    action: () => this.closeDeleteModal(),
+  };
+
+  // Form change handlers for select components
+  onRegionFormChange(value: string | number | null): void {
+    this.supplierForm.patchValue({ region: value as string });
+  }
+
+  onCountryFormChange(value: string | number | null): void {
+    this.supplierForm.patchValue({ country: value as string });
+  }
+
+  // Table columns configuration
+  tableColumns = signal<TableColumn<Supplier>[]>([
+    {
+      key: 'name',
+      label: 'Name',
+    },
+    {
+      key: 'region',
+      label: 'Region',
+    },
+    {
+      key: 'country',
+      label: 'Country',
+    },
+    {
+      key: 'email',
+      label: 'Email',
+    },
+    {
+      key: 'contact',
+      label: 'Phone',
+    },
+  ]);
+
+  // Format data for display
+  getFormattedSuppliers = (): any[] => {
+    return this.filteredSuppliers().map((supplier) => ({
+      ...supplier,
+      email: supplier.email || 'N/A',
+      contact: supplier.contact || 'N/A',
+    }));
+  };
+
+  // Action menu items for each supplier
+  getMenuItems = (supplier: Supplier, index: number): ActionMenuItem[] => {
+    return [
+      {
+        label: 'View',
+        action: () => this.openViewModal(supplier),
+        icon: this.icons.Eye,
+      },
+      {
+        label: 'Edit',
+        action: () => this.openEditModal(supplier),
+        icon: this.icons.Edit,
+      },
+      {
+        label: 'Delete',
+        action: () => this.openDeleteModal(supplier),
+        variant: 'danger',
+        icon: this.icons.Trash2,
+      },
+    ];
+  };
+
+  // Row click handler - navigate to supplier stock page
+  onRowClick = (supplier: Supplier, index: number): void => {
+    this.buyFromSupplier(supplier);
   };
 }
