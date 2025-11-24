@@ -67,10 +67,10 @@ export class SidebarComponent {
   isUserManagementOpen = signal(false);
   isInventoryOpen = signal(false);
   private readonly SIDEBAR_COLLAPSED_KEY = 'sidebarCollapsed';
-  
+
   // Initialize collapsed state from localStorage
   isCollapsed = signal(false);
-  
+
   private loadCollapsedState(): boolean {
     if (typeof window === 'undefined' || !window.localStorage) {
       return false;
@@ -102,20 +102,18 @@ export class SidebarComponent {
           route: '/dosage-forms',
         },
         {
-          label: 'Sales',
+          label: 'Sales Report',
           icon: this.icons.ShoppingCart,
           route: '/sales',
         },
         {
-          label: 'Suppliers',
+          label: 'Suppliers/Stock',
           icon: this.icons.Truck,
           route: '/suppliers',
         },
       ],
     },
-    { label: 'Audit Logs', icon: this.icons.NotebookPen, route: '/audit-logs' },
-    { label: 'POS', icon: this.icons.CreditCard, route: '/POS' },
-    { label: 'Batches', icon: this.icons.Layers, route: '/batches' },
+
     { label: 'Branches', icon: this.icons.Store, route: '/branches' },
     {
       label: 'User Management',
@@ -125,14 +123,13 @@ export class SidebarComponent {
         { label: 'Roles', icon: this.icons.Shield, route: '/roles' },
       ],
     },
-    { label: 'Settings', icon: this.icons.Settings, route: '/settings' },
-    { label: 'Reports', icon: this.icons.BarChart3, route: '/logout' },
+    { label: 'Sales', icon: this.icons.ShoppingCart, route: '/purchases' },
   ];
 
   constructor(private router: Router) {
     // Load collapsed state from localStorage
     this.isCollapsed.set(this.loadCollapsedState());
-    
+
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
@@ -243,5 +240,4 @@ export class SidebarComponent {
       this.isInventoryOpen.set(false);
     }
   }
-
 }
