@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
@@ -36,6 +36,8 @@ import {
 import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
 import { InlineDateInputComponent } from '../../components/inline-date-input/inline-date-input.component';
 import { FormBuilder } from '@angular/forms';
+import { SAMPLE_STOCK } from '../../constants/stock.constants';
+import { AddProductFormComponent } from '../../components/add-product-form/add-product-form.component';
 
 @Component({
   selector: 'app-products',
@@ -51,10 +53,14 @@ import { FormBuilder } from '@angular/forms';
     DataTableComponent,
     ConfirmationModalComponent,
     InlineDateInputComponent,
+    AddProductFormComponent,
   ],
   templateUrl: './products.component.html',
 })
 export class ProductsComponent implements OnInit {
+  @ViewChild(AddProductFormComponent)
+  addProductFormComponent?: AddProductFormComponent;
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -110,7 +116,6 @@ export class ProductsComponent implements OnInit {
       validators: [Validators.min(0)],
     }),
     unit: new FormControl<string>('mg', { nonNullable: true }),
-    createdBy: new FormControl<string>(''),
     expiryDate: new FormControl<string>(''),
     brand: new FormControl<string>(''),
     dosageForm: new FormControl<string>(''),
@@ -120,14 +125,25 @@ export class ProductsComponent implements OnInit {
     costPrice: new FormControl<number | null>(null, {
       validators: [Validators.min(0)],
     }),
-    sellingPrice: new FormControl<number | null>(null, {
+    cashPrice: new FormControl<number | null>(null, {
       validators: [Validators.min(0)],
     }),
-    discountValue: new FormControl<number | null>(null, {
-      validators: [Validators.min(0), Validators.max(100)],
+    creditPrice: new FormControl<number | null>(null, {
+      validators: [Validators.min(0)],
     }),
-    supplierName: new FormControl<string>(''),
-    supplierContact: new FormControl<string>(''),
+    wholesalePrice: new FormControl<number | null>(null, {
+      validators: [Validators.min(0)],
+    }),
+    trekPrice: new FormControl<number | null>(null, {
+      validators: [Validators.min(0)],
+    }),
+    discountType: new FormControl<'flat' | 'percentage'>('percentage', {
+      validators: [Validators.required],
+    }),
+    discount: new FormControl<number | null>(null, {
+      validators: [Validators.min(0)],
+    }),
+    supplierName: new FormControl<string | null>(null),
   });
 
   // Select options for dropdowns
@@ -153,6 +169,12 @@ export class ProductsComponent implements OnInit {
     { id: 'ml', name: 'ml' },
   ];
 
+  // Discount type options
+  discountTypeOptions: SelectOption[] = [
+    { id: 'percentage', name: 'Percentage (%)' },
+    { id: 'flat', name: 'Flat (GHS)' },
+  ];
+
   // Shelve options
   shelveOptions: SelectOption[] = [
     { id: 'AMA', name: 'AMA' },
@@ -163,11 +185,20 @@ export class ProductsComponent implements OnInit {
     { id: 'FMF', name: 'FMF' },
   ];
 
+  // Supplier options
+  supplierOptions: SelectOption[] = [
+    { id: 'Johnson & Johnson', name: 'Johnson & Johnson' },
+    { id: 'Tobinco Pharmaceuticals', name: 'Tobinco Pharmaceuticals' },
+    { id: 'Pfizer', name: 'Pfizer' },
+    { id: 'GlaxoSmithKline', name: 'GlaxoSmithKline' },
+  ];
+
   // Local state for selects
   selectedDrugClass: string | number | null = '';
   selectedDosageForm: string | number | null = '';
   selectedUnit: string | number | null = 'mg';
   selectedShelve: string | number | null = null;
+  selectedSupplierName: string | number | null = null;
 
   public readonly icons = {
     Search,
@@ -245,6 +276,8 @@ export class ProductsComponent implements OnInit {
 
   categoryOptions: SelectOption[] = [];
 
+  productNameOptions: SelectOption[] = [];
+
   branchOptions: SelectOption[] = [
     { id: 'main', name: 'Main Facility' },
     { id: 'east', name: 'East Wing' },
@@ -258,6 +291,15 @@ export class ProductsComponent implements OnInit {
     this.categoryOptions = categories.map((cat) => ({
       id: cat,
       name: cat,
+    }));
+
+    // Create product name options from stock items (unique product names)
+    const stockProductNames = [
+      ...new Set(SAMPLE_STOCK.map((s) => s.productName)),
+    ];
+    this.productNameOptions = stockProductNames.map((name) => ({
+      id: name,
+      name: name,
     }));
   }
 
@@ -309,19 +351,10 @@ export class ProductsComponent implements OnInit {
     this.isAddOpen = true;
   }
 
-  onSubmitAddDrug(): void {
-    if (this.addDrugForm.invalid) {
-      this.addDrugForm.markAllAsTouched();
-      return;
-    }
-    const value = this.addDrugForm.getRawValue();
-    console.log('Add Drug payload:', value);
+  onProductFormSubmit(value: any): void {
+    console.log('Add Product payload:', value);
     this.isAddOpen = false;
-    this.addDrugForm.reset({ unit: 'mg' });
-    this.selectedShelve = null;
-    this.selectedDrugClass = '';
-    this.selectedDosageForm = '';
-    this.selectedUnit = 'mg';
+    // Handle the form submission (e.g., add to products list, call API, etc.)
   }
 
   onExport(): void {
@@ -369,6 +402,7 @@ export class ProductsComponent implements OnInit {
       this.selectedDrugClass = product.category || '';
       this.selectedDosageForm = (product as any).dosageForm || '';
       this.selectedUnit = (product as any).unit || 'mg';
+      this.selectedSupplierName = (product as any).supplierName || null;
       this.isViewProductModalOpen.set(true);
     }
   }
@@ -440,6 +474,11 @@ export class ProductsComponent implements OnInit {
     if (this.viewingProduct) {
       this.viewingProduct = { ...this.viewingProduct, ...product };
     }
+  }
+
+  onProductNameChange(value: string | number | null): void {
+    const nameValue = (value ?? '').toString();
+    this.editProductForm.patchValue({ name: nameValue });
   }
 
   onCategoryChangeInEdit(value: string | number | null): void {
@@ -648,7 +687,9 @@ export class ProductsComponent implements OnInit {
   addDrugPrimaryAction = {
     label: 'Save',
     variant: 'primary' as const,
-    action: () => this.onSubmitAddDrug(),
+    action: () => {
+      this.addProductFormComponent?.submitForm();
+    },
   };
 
   addDrugSecondaryAction = {
@@ -678,8 +719,22 @@ export class ProductsComponent implements OnInit {
   }
 
   onShelveChange(value: string | number | null): void {
+    console.log('Shelve changed to:', value);
     this.selectedShelve = value;
     this.addDrugForm.patchValue({ shelve: (value as string) || null });
+  }
+
+  onDiscountTypeChange(value: string | number | null): void {
+    this.addDrugForm.patchValue({
+      discountType: value as 'flat' | 'percentage',
+    });
+  }
+
+  onSupplierNameChange(value: string | number | null): void {
+    this.selectedSupplierName = value;
+    const supplierValue = (value ?? '').toString();
+    this.addDrugForm.patchValue({ supplierName: value as string | null });
+    this.editProductForm.patchValue({ supplierName: supplierValue });
   }
 
   getMenuItems = (product: { id: string }): ActionMenuItem[] => {
@@ -712,7 +767,7 @@ export class ProductsComponent implements OnInit {
       },
       {
         key: 'category',
-        label: 'Drug Class',
+        label: 'Product Class',
       },
       {
         key: 'stock',
