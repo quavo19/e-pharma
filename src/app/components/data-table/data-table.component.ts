@@ -32,6 +32,7 @@ export class DataTableComponent<T = any> {
   data = input.required<T[]>();
   getActionMenuItems = input<(item: T, index: number) => ActionMenuItem[]>();
   trackBy = input<(index: number, item: T) => any>((index, item) => index);
+  onRowClick = input<(item: T, index: number) => void>();
 
   getNestedValue(obj: any, path: string): any {
     return path.split('.').reduce((current, prop) => current?.[prop], obj);
