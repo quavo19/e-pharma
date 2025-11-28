@@ -1,5 +1,5 @@
-<main class="p-6 relative">
-  <section class="flex flex-col gap-2">
+<main class="p-4 md:p-6 relative">
+  <section class="flex flex-col gap-2 mx-auto">
     <app-popup
       [isOpen]="isAddOpen"
       [heading]="'Add Product'"
@@ -15,25 +15,17 @@
         (formCancel)="closeAdd()"
       />
     </app-popup>
-    <div class="flex items-center justify-between mb-3">
-      <div>
-        <p class="text-2xl font-semibold text-gray-800">Products</p>
-        <p class="text-sm font-light text-gray-600">
-          Manage and view all products in your inventory
-        </p>
-      </div>
-      <button
-        (click)="onAddProduct()"
-        class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
-      >
-        Add New
-        <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
-      </button>
+    <!-- Heading Section -->
+    <div class="mb-4 md:mb-6">
+      <p class="text-xl md:text-2xl font-semibold text-gray-800">Products</p>
+      <p class="text-sm font-light text-gray-600">
+        Manage and view all products in your inventory
+      </p>
     </div>
-
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-4">
-        <div class="w-80">
+    <div class="flex flex-col-reverse md:flex-row gap-4 mb-4">
+      <!-- Search Section -->
+      <div class="">
+        <div class="w-full md:w-80">
           <app-input
             [placeholder]="'Search by name, ID, or category...'"
             [hasLeftIcon]="true"
@@ -45,321 +37,99 @@
           </app-input>
         </div>
       </div>
-      <div class="flex items-center gap-3">
+      <div
+        class="flex flex-wrap gap-3 w-full md:justify-end justify-start flex-row items-center"
+      >
         @if (hasActiveFilters) {
         <button
           (click)="clearAllFilters()"
-          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+          class="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
         >
           <lucide-icon [img]="icons.XCircle" [size]="16" />
-          Clear Filters
+          <span class="hidden sm:inline">Clear Filters</span>
         </button>
-        <div class="h-6 w-px bg-gray-300"></div>
+        <div class="h-6 w-px bg-gray-300 hidden sm:block"></div>
         }
 
         <button
           (click)="openFilterModal()"
-          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+          class="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
         >
           <lucide-icon [img]="icons.SlidersHorizontal" [size]="16" />
-          Filter
+          <span class="hidden sm:inline">Filter</span>
         </button>
 
         <app-export-select
           [actions]="exportOptions"
-          class="w-32"
+          class="md:w-32"
           [placeholder]="'Export'"
           size="sm"
           [icon]="icons.Download"
           (actionSelected)="onExportTypeChange($event)"
         />
+
+        <button
+          (click)="onAddProduct()"
+          class="flex items-center text-sm border border-green-800 font-light gap-2 px-3 py-2 md:px-4 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
+        >
+          <span class="hidden sm:inline">Add New</span>
+          <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
+        </button>
       </div>
     </div>
-
-    <app-data-table
-      [columns]="tableColumns"
-      [data]="filteredProducts"
-      [getActionMenuItems]="getMenuItems"
-    />
+    <!-- Action Buttons Row -->
   </section>
 
-  <!-- Filter Modal -->
-  <app-popup
-    [isOpen]="isFilterModalOpen()"
-    heading="Filters"
-    description="Select filters to apply to the products table"
-    variant="right"
-    panelWidth="w-[28rem]"
-    [primaryAction]="filterModalPrimaryAction"
-    [secondaryAction]="filterModalSecondaryAction"
-    (close)="closeFilterModal()"
-  >
-    <form [formGroup]="filterForm" class="flex flex-col gap-6">
-      <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700">Product Class</label>
-        <app-select
-          [options]="categoryOptions"
-          [selectedValue]="filterForm.get('category')?.value ?? null"
-          placeholder="Select product class"
-          [enableSearch]="true"
-          [searchControlName]="'categorySearch'"
-          [searchPlaceholder]="'Search product classes...'"
-          (selectionChange)="onCategoryChange($event)"
-        />
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700"
-          >Expiry Date Sort</label
-        >
-        <app-select
-          [options]="expiryDateSortOptions"
-          [selectedValue]="filterForm.get('expiryDateSort')?.value ?? null"
-          placeholder="Select sort order"
-          (selectionChange)="onExpiryDateSortChange($event)"
-        />
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700">Branch</label>
-        <app-select
-          [options]="branchOptions"
-          [selectedValue]="filterForm.get('branch')?.value ?? null"
-          placeholder="Select branch"
-          [enableSearch]="true"
-          [searchControlName]="'branchSearch'"
-          [searchPlaceholder]="'Search branches...'"
-          (selectionChange)="onBranchChange($event)"
-        />
-      </div>
-    </form>
-  </app-popup>
-
-  <!-- Delete Confirmation Modal -->
-  <app-confirmation-modal
-    [isOpen]="isDeleteModalOpen()"
-    heading="Delete Product"
-    [description]="deleteModalDescription"
-    [primaryAction]="deleteModalPrimaryAction"
-    [secondaryAction]="deleteModalSecondaryAction"
-    (close)="closeDeleteModal()"
-  />
-
-  <!-- View Product Modal -->
-  <app-popup
-    [isOpen]="isViewProductModalOpen()"
-    [heading]="viewingProduct ? viewingProduct.name : 'Product Details'"
-    [description]="
-      isEditMode() ? 'Edit product information' : 'View product details'
-    "
-    variant="right"
-    panelWidth="w-[44rem]"
-    [primaryAction]="viewProductModalPrimaryAction"
-    [secondaryAction]="viewProductModalSecondaryAction"
-    (close)="closeViewProductModal()"
-  >
-    @if (viewingProduct) {
-    <div class="flex flex-col gap-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex flex-col gap-2">
-          <app-select
-            [label]="'Product Name'"
-            [options]="productNameOptions"
-            [selectedValue]="editProductForm.get('name')?.value ?? null"
-            [id]="'edit-product-name'"
-            [placeholder]="'Select product name'"
-            [disabled]="!isEditMode()"
-            (selectionChange)="onProductNameChange($event)"
-          />
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <app-select
-            [label]="'Drug Class'"
-            [options]="categoryOptions"
-            [selectedValue]="editProductForm.get('category')?.value ?? null"
-            placeholder="Select product class"
-            [disabled]="!isEditMode()"
-            (selectionChange)="onCategoryChangeInEdit($event)"
-          />
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <app-select
-            [label]="'Shelve'"
-            [options]="shelveOptions"
-            [selectedValue]="selectedShelve"
-            placeholder="Select shelve"
-            [enableSearch]="true"
-            [searchControlName]="'shelveSearch'"
-            [searchPlaceholder]="'Search shelves...'"
-            [disabled]="!isEditMode()"
-            (selectionChange)="onShelveChangeInEdit($event)"
-          />
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <app-select
-            [label]="'Dosage Form'"
-            [options]="dosageFormOptions"
-            [selectedValue]="selectedDosageForm"
-            placeholder="Select dosage form"
-            [disabled]="!isEditMode()"
-            (selectionChange)="onDosageFormChangeInEdit($event)"
-          />
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <app-input
-            type="number"
-            [label]="'Quantity'"
-            [placeholder]="'Enter quantity'"
-            [control]="editProductForm.controls.quantity"
-            [id]="'edit-product-quantity'"
-            [isDisabled]="!isEditMode()"
-          />
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <app-input
-            [label]="'Strength'"
-            type="number"
-            [placeholder]="'500'"
-            [control]="editProductForm.controls.strength"
-            [id]="'edit-product-strength'"
-            [isDisabled]="!isEditMode()"
-          />
-          <app-select
-            [label]="'Unit'"
-            [options]="unitOptions"
-            [selectedValue]="selectedUnit"
-            placeholder="Select unit"
-            [disabled]="!isEditMode()"
-            (selectionChange)="onUnitChangeInEdit($event)"
-          />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex flex-col gap-2">
-          <app-inline-date-input
-            [label]="'Expiry Date'"
-            [control]="editProductForm.controls.expiryDate"
-            [id]="'edit-product-expiry'"
-            [disabled]="!isEditMode()"
-          />
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <app-input
-            [label]="'Brand'"
-            [placeholder]="'GSK'"
-            [control]="editProductForm.controls.brand"
-            [id]="'edit-product-brand'"
-            [isDisabled]="!isEditMode()"
-          />
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <app-input
-            [label]="'Stock Threshold'"
-            type="number"
-            [placeholder]="'6'"
-            [control]="editProductForm.controls.stockThreshold"
-            [id]="'edit-product-stock-threshold'"
-            [isDisabled]="!isEditMode()"
-          />
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <app-select
-            [label]="'Branch'"
-            [options]="branchOptions"
-            [selectedValue]="editProductForm.get('branch')?.value ?? null"
-            placeholder="Select branch"
-            [disabled]="!isEditMode()"
-            (selectionChange)="onBranchChangeInEdit($event)"
-          />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex flex-col gap-4">
-          <div class="flex flex-col gap-2">
-            <app-input
-              [label]="'Cost Price'"
-              type="number"
-              [placeholder]="'562'"
-              [control]="editProductForm.controls.costPrice"
-              [id]="'edit-product-cost-price'"
-              [isDisabled]="!isEditMode()"
-            />
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <app-input
-              [label]="'Selling Price'"
-              type="number"
-              [placeholder]="'67'"
-              [control]="editProductForm.controls.sellingPrice"
-              [id]="'edit-product-selling-price'"
-              [isDisabled]="!isEditMode()"
-            />
-            <app-input
-              [label]="'Discount Value (%)'"
-              type="number"
-              [placeholder]="'20'"
-              [control]="editProductForm.controls.discountValue"
-              [id]="'edit-product-discount'"
-              [isDisabled]="!isEditMode()"
-            />
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-4">
-          <div class="flex flex-col gap-2">
-            <app-select
-              [label]="'Supplier Name'"
-              [options]="supplierOptions"
-              [selectedValue]="selectedSupplierName"
-              [placeholder]="'Select supplier'"
-              [enableSearch]="true"
-              [disabled]="!isEditMode()"
-              (selectionChange)="onSupplierNameChange($event)"
-            />
-          </div>
-
-          <div class="flex flex-col gap-2">
-            <app-input
-              [label]="'Supplier Contact'"
-              [placeholder]="'23359588326'"
-              [control]="editProductForm.controls.supplierContact"
-              [id]="'edit-product-supplier-contact'"
-              [isDisabled]="!isEditMode()"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-gray-700">Status</label>
-        <span
-          class="inline-block py-1 px-3 text-xs font-medium rounded-full border text-center w-fit"
-          [class.bg-green-100]="viewingProduct.status === 'Active'"
-          [class.text-green-800]="viewingProduct.status === 'Active'"
-          [class.bg-red-100]="viewingProduct.status === 'Inactive'"
-          [class.text-red-800]="viewingProduct.status === 'Inactive'"
-          [class.border-green-500]="viewingProduct.status === 'Active'"
-          [class.border-red-500]="viewingProduct.status === 'Inactive'"
-        >
-          {{ viewingProduct.status }}
-        </span>
-      </div>
-
-      <div class="flex text-gray-500 italic text-sm gap-2">
-        Inputted By {{ viewingProduct.inputtedBy }}
-      </div>
+  <!-- Table Container - Full Available Width -->
+  <div class="overflow-x-auto table-container-full">
+    <div class="px-4 md:px-6">
+      <app-data-table
+        [columns]="tableColumns"
+        [data]="filteredProducts"
+        [getActionMenuItems]="getMenuItems"
+      />
     </div>
-    }
-  </app-popup>
+  </div>
+
+  <!-- Modals Component -->
+  <app-products-modals
+    [isFilterModalOpen]="isFilterModalOpen()"
+    [filterForm]="filterForm"
+    [categoryOptions]="categoryOptions"
+    [expiryDateSortOptions]="expiryDateSortOptions"
+    [branchOptions]="branchOptions"
+    [isDeleteModalOpen]="isDeleteModalOpen()"
+    [deleteModalDescription]="deleteModalDescription"
+    [isViewProductModalOpen]="isViewProductModalOpen()"
+    [viewingProduct]="viewingProduct"
+    [isEditMode]="isEditMode()"
+    [editProductForm]="editProductForm"
+    [productNameOptions]="productNameOptions"
+    [shelveOptions]="shelveOptions"
+    [dosageFormOptions]="dosageFormOptions"
+    [unitOptions]="unitOptions"
+    [supplierOptions]="supplierOptions"
+    [selectedShelve]="selectedShelve"
+    [selectedDosageForm]="selectedDosageForm"
+    [selectedUnit]="selectedUnit"
+    [selectedSupplierName]="selectedSupplierName"
+    (filterModalClose)="closeFilterModal()"
+    (onCategoryChange)="onCategoryChange($event)"
+    (onExpiryDateSortChange)="onExpiryDateSortChange($event)"
+    (onBranchChange)="onBranchChange($event)"
+    (applyFilters)="applyFilters()"
+    (deleteModalClose)="closeDeleteModal()"
+    (confirmDelete)="confirmDelete()"
+    (viewProductModalClose)="closeViewProductModal()"
+    (onProductNameChange)="onProductNameChange($event)"
+    (onCategoryChangeInEdit)="onCategoryChangeInEdit($event)"
+    (onShelveChangeInEdit)="onShelveChangeInEdit($event)"
+    (onDosageFormChangeInEdit)="onDosageFormChangeInEdit($event)"
+    (onUnitChangeInEdit)="onUnitChangeInEdit($event)"
+    (onBranchChangeInEdit)="onBranchChangeInEdit($event)"
+    (onSupplierNameChange)="onSupplierNameChange($event)"
+    (saveProductChanges)="saveProductChanges()"
+    (enterEditMode)="enterEditMode()"
+    (cancelEdit)="cancelEdit()"
+  />
 </main>

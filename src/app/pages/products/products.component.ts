@@ -19,10 +19,7 @@ import {
   Trash2,
 } from 'lucide-angular';
 import { InputComponent } from '../../components/input/input.component';
-import {
-  SelectComponent,
-  SelectOption,
-} from '../../components/select/select.component';
+import { SelectOption } from '../../components/select/select.component';
 import { ExportSelectComponent } from '../../components/export-select/export-select.component';
 import { PopupComponent } from '../../components/popup/popup.component';
 import {
@@ -33,11 +30,10 @@ import {
   DataTableComponent,
   TableColumn,
 } from '../../components/data-table/data-table.component';
-import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
-import { InlineDateInputComponent } from '../../components/inline-date-input/inline-date-input.component';
 import { FormBuilder } from '@angular/forms';
 import { SAMPLE_STOCK } from '../../constants/stock.constants';
 import { AddProductFormComponent } from '../../components/add-product-form/add-product-form.component';
+import { ProductsModalsComponent } from '../../components/products-modals/products-modals.component';
 
 @Component({
   selector: 'app-products',
@@ -47,13 +43,11 @@ import { AddProductFormComponent } from '../../components/add-product-form/add-p
     ReactiveFormsModule,
     LucideAngularModule,
     InputComponent,
-    SelectComponent,
     ExportSelectComponent,
     PopupComponent,
     DataTableComponent,
-    ConfirmationModalComponent,
-    InlineDateInputComponent,
     AddProductFormComponent,
+    ProductsModalsComponent,
   ],
   templateUrl: './products.component.html',
 })
@@ -611,75 +605,11 @@ export class ProductsComponent implements OnInit {
     this.filterForm.reset();
   }
 
-  get filterModalPrimaryAction() {
-    return {
-      label: 'Apply Filters',
-      variant: 'primary' as const,
-      action: () => this.applyFilters(),
-    };
-  }
-
-  get filterModalSecondaryAction() {
-    return {
-      label: 'Cancel',
-      variant: 'secondary' as const,
-      action: () => this.closeFilterModal(),
-    };
-  }
-
-  get deleteModalPrimaryAction() {
-    return {
-      label: 'Delete',
-      variant: 'danger' as const,
-      action: () => this.confirmDelete(),
-    };
-  }
-
-  get deleteModalSecondaryAction() {
-    return {
-      label: 'Cancel',
-      variant: 'secondary' as const,
-      action: () => this.closeDeleteModal(),
-    };
-  }
-
   get deleteModalDescription(): string {
     if (this.productToDelete) {
       return `Are you sure you want to delete the product "${this.productToDelete.name}"? This action cannot be undone.`;
     }
     return '';
-  }
-
-  get viewProductModalPrimaryAction() {
-    if (this.isEditMode()) {
-      return {
-        label: 'Save',
-        variant: 'primary' as const,
-        action: () => this.saveProductChanges(),
-      };
-    } else {
-      return {
-        label: 'Edit',
-        variant: 'primary' as const,
-        action: () => this.enterEditMode(),
-      };
-    }
-  }
-
-  get viewProductModalSecondaryAction() {
-    if (this.isEditMode()) {
-      return {
-        label: 'Cancel',
-        variant: 'secondary' as const,
-        action: () => this.cancelEdit(),
-      };
-    } else {
-      return {
-        label: 'Close',
-        variant: 'secondary' as const,
-        action: () => this.closeViewProductModal(),
-      };
-    }
   }
 
   isAddOpen = false;
