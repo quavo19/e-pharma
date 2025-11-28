@@ -1,27 +1,25 @@
 <main class="p-6 relative">
   <section class="flex flex-col gap-2">
-    <div class="flex items-center justify-between mb-3">
-      <div>
-        <p class="text-2xl font-semibold text-gray-800">Roles</p>
-        <p class="text-sm font-light text-gray-600">
-          Manage roles and their permissions
-        </p>
-      </div>
+    <div class="mb-3">
+      <p class="text-2xl font-semibold text-gray-800">Roles</p>
+      <p class="text-sm font-light text-gray-600">
+        Manage roles and their permissions
+      </p>
     </div>
 
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-4">
-        <div class="w-80">
-          <app-input [placeholder]="'Search by name or description...'" [hasLeftIcon]="true" size="sm"
-            [control]="searchControl" [id]="'role-search'">
-            <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
-          </app-input>
-        </div>
+    <div class="flex items-center justify-between gap-4 mb-4">
+      <!-- Search Section -->
+      <div class="w-full md:w-80">
+        <app-input [placeholder]="'Search by name or description...'" [hasLeftIcon]="true" size="sm"
+          [control]="searchControl" [id]="'role-search'">
+          <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
+        </app-input>
       </div>
+      <!-- Add Section -->
       <div class="flex items-center gap-3">
         <button (click)="onAddRole()"
-          class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer">
-          Add New Role
+          class="flex items-center text-sm font-light gap-2 px-3 md:px-4 md:py-2 py-3 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer">
+          <span class="hidden sm:inline">Add New Role</span>
           <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
         </button>
       </div>
@@ -35,9 +33,14 @@
         {{ role.status }}
       </span>
     </ng-template>
-
-    <app-data-table [columns]="tableColumns()" [data]="filteredRoles" [getActionMenuItems]="getMenuItems" />
   </section>
+
+  <!-- Table Container - Full Available Width -->
+  <div class="overflow-x-auto table-container-full">
+    <div class="px-4 md:px-6">
+      <app-data-table [columns]="tableColumns()" [data]="filteredRoles" [getActionMenuItems]="getMenuItems" />
+    </div>
+  </div>
 
   <app-popup [isOpen]="isRoleModalOpen()" [heading]="editingRole ? 'Edit Role' : 'Create New Role'" [description]="
       editingRole
