@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, effect } from '@angular/core';
 import {
   LucideAngularModule,
   Home,
@@ -128,7 +128,28 @@ export class SidebarComponent {
 
   constructor(private router: Router) {
     // Load collapsed state from localStorage
-    this.isCollapsed.set(this.loadCollapsedState());
+    const initialCollapsed = this.loadCollapsedState();
+    this.isCollapsed.set(initialCollapsed);
+
+    // Set initial CSS variable
+    if (typeof document !== 'undefined') {
+      const sidebarWidth = initialCollapsed ? '5rem' : '14.5rem'; // w-20 = 5rem, w-58 = 14.5rem
+      document.documentElement.style.setProperty(
+        '--sidebar-width',
+        sidebarWidth
+      );
+    }
+
+    // Update CSS variable when sidebar state changes
+    effect(() => {
+      if (typeof document !== 'undefined') {
+        const sidebarWidth = this.isCollapsed() ? '5rem' : '14.5rem'; // w-20 = 5rem, w-58 = 14.5rem
+        document.documentElement.style.setProperty(
+          '--sidebar-width',
+          sidebarWidth
+        );
+      }
+    });
 
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
