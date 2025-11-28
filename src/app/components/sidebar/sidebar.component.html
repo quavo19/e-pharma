@@ -1,14 +1,18 @@
 <nav
   [class]="
     isCollapsed()
-      ? 'w-20 h-full text-white flex flex-col gap-4 transition-all duration-300 relative'
-      : 'w-58 h-full text-white flex flex-col gap-4 transition-all duration-300 relative'
+      ? 'w-0 md:w-20 h-full text-white flex flex-col gap-4 transition-all duration-300 overflow-hidden md:overflow-visible fixed md:relative left-0 top-0 z-50'
+      : 'w-58 h-full text-white flex flex-col gap-4 transition-all duration-300 absolute left-0 top-0 md:relative z-50'
   "
 >
   <!-- Toggle Collapse Button - Sticks out at top -->
   <button
     (click)="toggleCollapse()"
-    class="absolute -right-4 top-6 z-50 flex items-center justify-center w-10 h-10 bg-green-800 rounded-full border-2 border-white shadow-lg hover:bg-tertiary text-white transition-all duration-300 hover:scale-110"
+    [class]="
+      isCollapsed()
+        ? 'fixed md:left-12 left-2 md:absolute md:-right-4 md:top-6 top-2 z-50 flex items-center justify-center w-10 h-10 bg-green-800 rounded-full border-2 border-white shadow-lg hover:bg-tertiary text-white transition-all duration-300 hover:scale-110'
+        : 'absolute -right-4 top-6 z-50 flex items-center justify-center w-10 h-10 bg-green-800 rounded-full border-2 border-white shadow-lg hover:bg-tertiary text-white transition-all duration-300 hover:scale-110'
+    "
     [title]="isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
   >
     <lucide-icon
