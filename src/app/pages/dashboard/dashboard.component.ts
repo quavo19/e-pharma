@@ -18,7 +18,8 @@ import {
   SelectComponent,
   SelectOption,
 } from '../../components/select/select.component';
-import { LucideAngularModule, Calendar, Store, Clock } from 'lucide-angular';
+import { LucideAngularModule, Calendar, Store, Clock, SlidersHorizontal } from 'lucide-angular';
+import { PopupComponent, PopupAction } from '../../components/popup/popup.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,6 +33,7 @@ import { LucideAngularModule, Calendar, Store, Clock } from 'lucide-angular';
     MonthlyChartComponent,
     DatepickerComponent,
     SelectComponent,
+    PopupComponent,
   ],
   templateUrl: './dashboard.component.html',
 })
@@ -40,9 +42,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   selectedFilter: string | number | null = 'all';
   branchName: string = 'All Branches';
 
-  showPopup = signal(false);
+  isFilterModalOpen = signal(false);
+  
+  // Temporary filter values for the modal
+  tempSelectedDate: Date | DateRange | null = new Date();
+  tempSelectedFilter: string | number | null = 'all';
+  tempSelectedShift: string | number | null = 'all';
 
-  public readonly icons = { Calendar, Store };
+  public readonly icons = { Calendar, Store, SlidersHorizontal };
   public readonly shiftIcons = { Clock };
 
   branches: SelectOption[] = [
@@ -103,6 +110,76 @@ export class DashboardComponent implements OnInit, OnDestroy {
     console.log('Selected shift:', value);
   }
 
+  // Filter modal methods
+  openFilterModal(): void {
+    // Load current values into temp variables
+    this.tempSelectedDate = this.selectedDate;
+    this.tempSelectedFilter = this.selectedFilter;
+    this.tempSelectedShift = this.selectedShift;
+    this.isFilterModalOpen.set(true);
+  }
+
+  closeFilterModal(): void {
+    this.isFilterModalOpen.set(false);
+  }
+
+  applyFilters(): void {
+    // Apply temp values to actual values
+    this.selectedDate = this.tempSelectedDate;
+    this.selectedFilter = this.tempSelectedFilter;
+    this.selectedShift = this.tempSelectedShift;
+    this.branchName = this.getFilterName(this.tempSelectedFilter);
+    this.shiftName = this.getShiftName(this.tempSelectedShift);
+    this.updateUrl();
+    this.closeFilterModal();
+  }
+
+  onTempDateChange(date: Date | DateRange | null): void {
+    this.tempSelectedDate = date;
+  }
+
+  onTempFilterChange(value: string | number | null): void {
+    this.tempSelectedFilter = value;
+  }
+
+  onTempShiftChange(value: string | number | null): void {
+    this.tempSelectedShift = value;
+  }
+
+  get hasActiveFilters(): boolean {
+    return (
+      (this.selectedFilter && this.selectedFilter !== 'all') ||
+      (this.selectedShift && this.selectedShift !== 'all') ||
+      (this.selectedDate !== null)
+    );
+  }
+
+  get filterModalPrimaryAction(): PopupAction {
+    return {
+      label: 'Apply Filters',
+      variant: 'primary',
+      icon: this.icons.SlidersHorizontal,
+      action: () => this.applyFilters(),
+    };
+  }
+
+  get filterModalSecondaryAction(): PopupAction {
+    return {
+      label: 'Cancel',
+      variant: 'secondary',
+      action: () => this.closeFilterModal(),
+    };
+  }
+
+  clearAllFilters(): void {
+    this.selectedDate = new Date();
+    this.selectedFilter = 'all';
+    this.selectedShift = 'all';
+    this.branchName = 'All Branches';
+    this.shiftName = 'All Shifts';
+    this.updateUrl();
+  }
+
   getFilterName(value: string | number | null): string {
     if (!value) return '';
     const option = this.branches.find((opt) => opt.id === value);
@@ -137,21 +214,4 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  openPopup(): void {
-    this.showPopup.set(true);
-  }
-
-  closePopup(): void {
-    this.showPopup.set(false);
-  }
-
-  onConfirm(): void {
-    console.log('Confirmed action');
-    this.closePopup();
-  }
-
-  onCancel(): void {
-    console.log('Cancelled action');
-    this.closePopup();
-  }
 }
