@@ -1,130 +1,80 @@
-<main class="p-6 relative">
-  <section class="flex flex-col gap-2">
-    <div class="flex items-center justify-between mb-3">
-      <div>
-        <p class="text-2xl font-semibold text-gray-800">Dosage Forms</p>
-        <p class="text-sm font-light text-gray-600">
-          Manage medication dosage forms
-        </p>
-      </div>
-      <button
-        (click)="onAddDosageForm()"
-        class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
-      >
-        Add New
-        <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
-      </button>
+<main class="p-4 md:p-6 relative">
+  <section class="flex flex-col gap-2 mx-auto">
+    <!-- Heading Section -->
+    <div class="mb-4 md:mb-6">
+      <p class="text-xl md:text-2xl font-semibold text-gray-800">Dosage Forms</p>
+      <p class="text-sm font-light text-gray-600">
+        Manage medication dosage forms
+      </p>
     </div>
 
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-4">
-        <div class="w-80">
-          <app-input
-            [placeholder]="'Search by name or description...'"
-            [hasLeftIcon]="true"
-            size="sm"
-            [control]="searchControl"
-            [id]="'dosage-form-search'"
-          >
-            <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
-          </app-input>
-        </div>
+    <!-- Search and Add New Button Row -->
+    <div class="flex flex-row items-center justify-between gap-4 mb-4">
+      <div class="w-full md:w-80">
+        <app-input [placeholder]="'Search by name or description...'" [hasLeftIcon]="true" size="sm"
+          [control]="searchControl" [id]="'dosage-form-search'">
+          <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
+        </app-input>
       </div>
+      <button (click)="onAddDosageForm()"
+        class="flex items-center text-sm font-light gap-2 px-3 md:px-4 md:py-2 py-3 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer">
+        <span class="hidden sm:inline">Add New</span>
+        <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
+      </button>
     </div>
 
     <ng-template #nameCellTemplate let-dosageForm let-index="index">
       <span class="text-sm font-medium text-gray-900">{{
         dosageForm.name
-      }}</span>
+        }}</span>
     </ng-template>
-
-    <app-data-table
-      [columns]="tableColumns()"
-      [data]="filteredDosageForms"
-      [getActionMenuItems]="getMenuItems"
-    />
   </section>
 
-  <app-popup
-    [isOpen]="isAddModalOpen()"
-    heading="Add New Dosage Form"
-    description="Create a new dosage form"
-    variant="right"
-    panelWidth="w-[28rem]"
-    [primaryAction]="addModalPrimaryAction"
-    [secondaryAction]="addModalSecondaryAction"
-    (close)="closeAddModal()"
-  >
+  <!-- Table Container - Full Available Width -->
+  <div class="overflow-x-auto table-container-full">
+    <div class="px-4 md:px-6">
+      <app-data-table [columns]="tableColumns()" [data]="filteredDosageForms" [getActionMenuItems]="getMenuItems" />
+    </div>
+  </div>
+
+  <app-popup [isOpen]="isAddModalOpen()" heading="Add New Dosage Form" description="Create a new dosage form"
+    variant="right" panelWidth="w-[28rem]" [primaryAction]="addModalPrimaryAction"
+    [secondaryAction]="addModalSecondaryAction" (close)="closeAddModal()">
     <form [formGroup]="dosageFormForm" class="flex flex-col gap-6">
       <div class="flex flex-col gap-2">
-        <app-input
-          label="Name"
-          [placeholder]="'Enter dosage form name'"
-          [control]="dosageFormForm.controls.name"
-          [id]="'dosage-form-name'"
-          [required]="true"
-        />
+        <app-input label="Name" [placeholder]="'Enter dosage form name'" [control]="dosageFormForm.controls.name"
+          [id]="'dosage-form-name'" [required]="true" />
       </div>
 
       <div class="flex flex-col gap-2">
         <label class="text-sm font-medium text-gray-700">Description</label>
-        <app-input
-          [placeholder]="'Enter description (optional)'"
-          [control]="dosageFormForm.controls.description"
-          [id]="'dosage-form-description'"
-          [textarea]="true"
-          size="md"
-        />
+        <app-input [placeholder]="'Enter description (optional)'" [control]="dosageFormForm.controls.description"
+          [id]="'dosage-form-description'" [textarea]="true" size="md" />
       </div>
     </form>
   </app-popup>
 
-  <app-confirmation-modal
-    [isOpen]="isDeleteModalOpen()"
-    heading="Delete Dosage Form"
-    [description]="deleteModalDescription"
-    [primaryAction]="deleteModalPrimaryAction"
-    [secondaryAction]="deleteModalSecondaryAction"
-    (close)="closeDeleteModal()"
-  />
+  <app-confirmation-modal [isOpen]="isDeleteModalOpen()" heading="Delete Dosage Form"
+    [description]="deleteModalDescription" [primaryAction]="deleteModalPrimaryAction"
+    [secondaryAction]="deleteModalSecondaryAction" (close)="closeDeleteModal()" />
 
-  <app-popup
-    [isOpen]="isViewModalOpen()"
-    [heading]="
+  <app-popup [isOpen]="isViewModalOpen()" [heading]="
       viewingDosageForm ? viewingDosageForm.name : 'Dosage Form Details'
-    "
-    [description]="
+    " [description]="
       isEditMode() ? 'Edit dosage form information' : 'View dosage form details'
-    "
-    variant="right"
-    panelWidth="w-[28rem]"
-    [primaryAction]="viewModalPrimaryAction"
-    [secondaryAction]="viewModalSecondaryAction"
-    (close)="closeViewModal()"
-  >
+    " variant="right" panelWidth="w-[28rem]" [primaryAction]="viewModalPrimaryAction"
+    [secondaryAction]="viewModalSecondaryAction" (close)="closeViewModal()">
     @if (viewingDosageForm) {
     <form [formGroup]="dosageFormForm" class="flex flex-col gap-6">
       <div class="flex flex-col gap-2">
-        <app-input
-          label="Name"
-          [placeholder]="'Enter dosage form name'"
-          [control]="dosageFormForm.controls.name"
-          [id]="'edit-dosage-form-name'"
-          [required]="true"
-          [isDisabled]="!isEditMode()"
-        />
+        <app-input label="Name" [placeholder]="'Enter dosage form name'" [control]="dosageFormForm.controls.name"
+          [id]="'edit-dosage-form-name'" [required]="true" [isDisabled]="!isEditMode()" />
       </div>
 
       <div class="flex flex-col gap-2">
         <label class="text-sm font-medium text-gray-700">Description</label>
-        <app-input
-          [placeholder]="'Enter description (optional)'"
-          [control]="dosageFormForm.controls.description"
-          [id]="'edit-dosage-form-description'"
-          [textarea]="true"
-          size="md"
-          [isDisabled]="!isEditMode()"
-        />
+        <app-input [placeholder]="'Enter description (optional)'" [control]="dosageFormForm.controls.description"
+          [id]="'edit-dosage-form-description'" [textarea]="true" size="md" [isDisabled]="!isEditMode()" />
       </div>
 
       <div class="flex text-gray-500 italic text-sm gap-2">
