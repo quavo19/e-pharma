@@ -4,7 +4,7 @@
   class="flex flex-col gap-4"
 >
   <button type="submit" #submitButton class="hidden"></button>
-  <div class="grid grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <!-- Left Column -->
     <div class="flex flex-col gap-4">
       <app-input
@@ -52,7 +52,7 @@
         [id]="'product-quantity'"
         variant="select"
       />
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <app-input
           [label]="'Strength'"
           type="number"
@@ -83,8 +83,8 @@
           (selectionChange)="onSupplierNameChange($event)"
         />
       </div>
-      <div class="flex gap-4">
-        <div class="flex-[0.55]">
+      <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex-1 sm:flex-[0.55]">
           <app-select
             [label]="'Discount Type'"
             [options]="discountTypeOptions"
@@ -96,7 +96,7 @@
             (selectionChange)="onDiscountTypeChange($event)"
           />
         </div>
-        <div class="flex-[0.45]">
+        <div class="flex-1 sm:flex-[0.45]">
           <app-input
             [label]="
               addProductForm.get('discountType')?.value === 'flat'
