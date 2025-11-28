@@ -39,7 +39,10 @@ import {
   DataTableComponent,
   TableColumn,
 } from '../../components/data-table/data-table.component';
-import { InlineDateInputComponent } from '../../components/inline-date-input/inline-date-input.component';
+import {
+  DatepickerComponent,
+  DateRange,
+} from '../../components/datepicker/datepicker.component';
 import { FormBuilder } from '@angular/forms';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 
@@ -85,7 +88,7 @@ export interface Sale {
     ExportSelectComponent,
     PopupComponent,
     DataTableComponent,
-    InlineDateInputComponent,
+    DatepickerComponent,
     StatusBadgeComponent,
   ],
   templateUrl: './sales.component.html',
@@ -114,8 +117,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
   filterForm = this.fb.group({
     branch: new FormControl<string | null>(null),
     branchSearch: new FormControl<string>(''),
-    startDate: new FormControl<string>(''),
-    endDate: new FormControl<string>(''),
+    dateRange: new FormControl<DateRange | null>(null),
     salesPerson: new FormControl<string | null>(null),
     salesPersonSearch: new FormControl<string>(''),
   });
@@ -641,10 +643,18 @@ export class SalesComponent implements OnInit, AfterViewInit {
 
   openFilterModal(): void {
     const queryParams = this.route.snapshot.queryParams;
+    let dateRange: DateRange | null = null;
+    if (queryParams['startDate'] || queryParams['endDate']) {
+      dateRange = {
+        start: queryParams['startDate']
+          ? new Date(queryParams['startDate'])
+          : null,
+        end: queryParams['endDate'] ? new Date(queryParams['endDate']) : null,
+      };
+    }
     this.filterForm.patchValue({
       branch: queryParams['branch'] || null,
-      startDate: queryParams['startDate'] || '',
-      endDate: queryParams['endDate'] || '',
+      dateRange: dateRange,
       salesPerson: queryParams['salesPerson'] || null,
       branchSearch: '',
       salesPersonSearch: '',
@@ -684,14 +694,17 @@ export class SalesComponent implements OnInit, AfterViewInit {
       delete queryParams['salesPerson'];
     }
 
-    if (formValue.startDate) {
-      queryParams['startDate'] = formValue.startDate;
+    // Handle date range
+    if (formValue.dateRange?.start) {
+      queryParams['startDate'] = this.formatDateForQuery(
+        formValue.dateRange.start
+      );
     } else {
       delete queryParams['startDate'];
     }
 
-    if (formValue.endDate) {
-      queryParams['endDate'] = formValue.endDate;
+    if (formValue.dateRange?.end) {
+      queryParams['endDate'] = this.formatDateForQuery(formValue.dateRange.end);
     } else {
       delete queryParams['endDate'];
     }
@@ -702,6 +715,13 @@ export class SalesComponent implements OnInit, AfterViewInit {
     });
 
     this.closeFilterModal();
+  }
+
+  private formatDateForQuery(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   get hasActiveFilters(): boolean {
