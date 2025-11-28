@@ -9,59 +9,63 @@
       </div>
     </div>
 
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-4">
-        <div class="w-80">
-          <app-input
-            [placeholder]="'Search by name, country, or region...'"
-            [hasLeftIcon]="true"
-            size="sm"
-            [control]="searchControl"
-            [id]="'supplier-search'"
-          >
-            <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
-          </app-input>
-        </div>
+    <div class="flex flex-col-reverse md:flex-row items-center justify-between gap-4 mb-4">
+      <!-- Search Section -->
+      <div class="w-full md:w-80">
+        <app-input
+          [placeholder]="'Search by name, country, or region...'"
+          [hasLeftIcon]="true"
+          size="sm"
+          [control]="searchControl"
+          [id]="'supplier-search'"
+        >
+          <lucide-icon [img]="icons.Search" [size]="16" slot="left-icon" />
+        </app-input>
       </div>
-      <div class="flex items-center gap-3">
+      <!-- Filter and Add Section -->
+      <div class="flex flex-wrap gap-3 w-full md:justify-end justify-start flex-row items-center">
         @if (hasActiveFilters) {
         <button
           (click)="clearAllFilters()"
-          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+          class="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
         >
           <lucide-icon [img]="icons.XCircle" [size]="16" />
-          Clear Filters
+          <span class="hidden sm:inline">Clear Filters</span>
         </button>
-        <div class="h-6 w-px bg-gray-300"></div>
+        <div class="h-6 w-px bg-gray-300 hidden sm:block"></div>
         }
 
         <button
           (click)="openFilterModal()"
-          class="flex items-center gap-2 px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+          class="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-light text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
         >
           <lucide-icon [img]="icons.SlidersHorizontal" [size]="16" />
-          Filter
+          <span class="hidden sm:inline">Filter</span>
         </button>
-        <div class="h-6 w-px bg-gray-300"></div>
+        <div class="h-6 w-px bg-gray-300 hidden sm:block"></div>
 
         <button
           (click)="openAddModal()"
-          class="flex items-center text-sm font-light gap-2 px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
+          class="flex items-center text-sm font-light gap-2 px-3 md:px-4 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 transition-all duration-300 ease-out transform hover:scale-105 cursor-pointer"
         >
-          Add New
+          <span class="hidden sm:inline">Add New</span>
           <lucide-icon [img]="icons.Plus" [size]="16" strokeWidth="3" />
         </button>
       </div>
     </div>
-
-    <!-- Suppliers Table -->
-    <app-data-table
-      [columns]="tableColumns()"
-      [data]="getFormattedSuppliers()"
-      [getActionMenuItems]="getMenuItems"
-      [onRowClick]="onRowClick"
-    />
   </section>
+
+  <!-- Table Container - Full Available Width -->
+  <div class="overflow-x-auto table-container-full">
+    <div class="px-4 md:px-6">
+      <app-data-table
+        [columns]="tableColumns()"
+        [data]="getFormattedSuppliers()"
+        [getActionMenuItems]="getMenuItems"
+        [onRowClick]="onRowClick"
+      />
+    </div>
+  </div>
 
   <!-- Filter Modal -->
   <app-popup
