@@ -1,68 +1,106 @@
-<main class="p-6">
-  <section class="flex flex-col gap-6">
+<main class="p-4 md:p-6">
+  <section class="flex flex-col gap-4 md:gap-6">
     <div
-      class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200"
+      class="flex items-center justify-between mb-4 md:mb-6 pb-4 border-b border-gray-200"
     >
-      <div class="flex items-center gap-4">
-        <h2 class="text-2xl font-semibold text-gray-800">Dashboard</h2>
-        <div class="h-6 w-px bg-gray-300"></div>
-        <div class="flex items-center gap-3">
-          <app-datepicker
-            [(ngModel)]="selectedDate"
-            [rangeMode]="true"
-            (dateChange)="onDateChange($event)"
-          >
-          </app-datepicker>
-          @if (selectedDate && isDateRange(selectedDate)) {
-          <p class="font-light text-gray-700">
-            @if (selectedDate.start && selectedDate.end) { @if
-            (selectedDate.start.getTime() === selectedDate.end.getTime()) {
-            {{ selectedDate.start | date : "MMM dd, yyyy" }}
-            } @else {
-            {{ selectedDate.start | date : "MMM dd" }} -
-            {{ selectedDate.end | date : "MMM dd, yyyy" }}
-            } } @else if (selectedDate.start) {
-            {{ selectedDate.start | date : "MMM dd, yyyy" }}
-            }
-          </p>
-          }
-        </div>
-        <div class="h-6 w-px bg-gray-300"></div>
+      <p class="text-xl md:text-2xl font-semibold text-gray-800">Dashboard</p>
 
-        <form [formGroup]="branchSearchForm" class="flex items-center gap-3">
-          <app-select
-            [options]="branches"
-            [selectedValue]="selectedFilter"
-            width="w-40"
-            [icon]="icons.Store"
-            [iconOnly]="true"
-            [enableSearch]="true"
-            [searchControlName]="'branchSearch'"
-            (selectionChange)="onFilterChange($event)"
-          />
-          <p class="font-light">{{ branchName }}</p>
-          <div class="h-6 w-px bg-gray-300"></div>
-          <app-select
-            [options]="shifts"
-            [selectedValue]="selectedShift"
-            width="w-40"
-            [icon]="shiftIcons.Clock"
-            [iconOnly]="true"
-            (selectionChange)="onShiftChange($event)"
-          />
-        </form>
+      <div class="flex items-center gap-3">
+        @if (hasActiveFilters) {
+        <button
+          (click)="clearAllFilters()"
+          class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+        >
+          <span>Clear Filters</span>
+        </button>
+        }
 
-        <p class="font-light text-gray-700">
-          {{ shiftName }}
-        </p>
+        <button
+          (click)="openFilterModal()"
+          class="flex items-center gap-2 px-3 py-2 text-gray-700 border border-gray-300 rounded-xl hover:border-green-400 hover:bg-green-50 transition-all duration-200"
+        >
+          <lucide-icon [img]="icons.SlidersHorizontal" [size]="18" />
+          <span class="hidden sm:inline">Filter</span>
+        </button>
       </div>
     </div>
 
+    @if (hasActiveFilters) {
+    <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+      @if (selectedDate) {
+      <span class="px-3 py-1 bg-gray-100 rounded-full">
+        @if (isDateRange(selectedDate)) { @if (selectedDate.start &&
+        selectedDate.end) { @if (selectedDate.start.getTime() ===
+        selectedDate.end.getTime()) {
+        {{ selectedDate.start | date : "MMM dd, yyyy" }}
+        } @else {
+        {{ selectedDate.start | date : "MMM dd" }} -
+        {{ selectedDate.end | date : "MMM dd, yyyy" }}
+        } } @else if (selectedDate.start) {
+        {{ selectedDate.start | date : "MMM dd, yyyy" }}
+        } } @else {
+        {{ selectedDate | date : "MMM dd, yyyy" }}
+        }
+      </span>
+      } @if (selectedFilter && selectedFilter !== 'all') {
+      <span class="px-3 py-1 bg-gray-100 rounded-full">{{ branchName }}</span>
+      } @if (selectedShift && selectedShift !== 'all') {
+      <span class="px-3 py-1 bg-gray-100 rounded-full">{{ shiftName }}</span>
+      }
+    </div>
+    }
+
     <app-dashboard-cards />
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
       <app-top-products />
       <app-monthly-chart />
     </div>
   </section>
+
+  <!-- Filter Modal -->
+  <app-popup
+    [isOpen]="isFilterModalOpen()"
+    heading="Filters"
+    description="Select filters to apply to the dashboard"
+    variant="right"
+    [primaryAction]="filterModalPrimaryAction"
+    [secondaryAction]="filterModalSecondaryAction"
+    (close)="closeFilterModal()"
+  >
+    <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Date Range</label>
+        <app-datepicker
+          [(ngModel)]="tempSelectedDate"
+          [rangeMode]="true"
+          (dateChange)="onTempDateChange($event)"
+        >
+        </app-datepicker>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Branch</label>
+        <app-select
+          [options]="branches"
+          [selectedValue]="tempSelectedFilter"
+          width="w-full"
+          [icon]="icons.Store"
+          [enableSearch]="true"
+          (selectionChange)="onTempFilterChange($event)"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-700">Shift</label>
+        <app-select
+          [options]="shifts"
+          [selectedValue]="tempSelectedShift"
+          width="w-full"
+          [icon]="shiftIcons.Clock"
+          (selectionChange)="onTempShiftChange($event)"
+        />
+      </div>
+    </div>
+  </app-popup>
 </main>
